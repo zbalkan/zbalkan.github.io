@@ -1,1 +1,1 @@
-zbalkan.github.io
+https://www.zaferbalkan.com
