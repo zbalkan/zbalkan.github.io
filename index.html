@@ -8,35 +8,33 @@
 	<link rel="stylesheet" href="assets/css/main.css" />
 	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 </head>
-<body class="is-preload">
+<body class="is-preload" itemscope itemtype="http://schema.org/WebPage">
 	<!-- Wrapper -->
-	<div id="wrapper">
+	<div id="wrapper" class="site-header" role="main" itemscope itemtype="http://schema.org/WPHeader">
 		<!-- Main -->
 		<section id="main">
-			<header>
-				<span class="avatar"><img src="images/avatar.jpg" alt="avatar" height="140" width="140" /></span>
-				<h1>Zafer Balkan</h1>
-				<p>System Administrator in the day, Developer at night</p>
+			    <header>
+				<span class="avatar" itemscope itemtype="http://schema.org/ImageObject"><img src="images/avatar.jpg" alt="avatar" height="140" width="140" itemprop="contentUrl"/></span>
+				<h1 itemprop="author">Zafer Balkan</h1>
+				<p itemprop="description">System Administrator in the day, Developer at night</p>
 			</header>
 			<footer>
 				<ul class="icons">
-					<li><a href="https://www.linkedin.com/in/zbalkan" class="fa-linkedin">Linkedin</a></li>
-					<li><a href="https://github.com/zbalkan" class="fa-github">Github</a></li>
-					<li><a href="https://medium.com/@zaferbalkan" class="fa-medium">Medium</a></li>
-					<li><a href="/vcard.vcf" class="fa-address-card" download="Zafer Balkan">vCard</a></li>
+					<li><a href="https://www.linkedin.com/in/zbalkan" class="fa-linkedin" itemprop="url"><span itemprop="url">LinkedIn</span></a></li>
+					<li><a href="https://github.com/zbalkan" class="fa-github" itemprop="url"><span itemprop="url">Github</span></a></li>
+					<li><a href="https://medium.com/@zaferbalkan" class="fa-medium" itemprop="url"><span itemprop="url">Medium</span></a></li>
+					<li><a href="/vcard.vcf" class="fa-address-card" download="Zafer Balkan" itemprop="url"><span itemscope itemtype="https://schema.org/DataDownload"><span itemprop="name">vCard<meta itemprop="encodingFormat" content="text/vcard" />
+ <meta itemprop="contentUrl" content="vcard.vcf" /></span></span></a></li>
 				</ul>
 			</footer>
 		</section>
-
 		<!-- Footer -->
-		<footer id="footer">
+		<footer id="footer" role="contentinfo" itemscope itemtype="http://schema.org/WPFooter">
 			<ul class="copyright">
-				<li>&copy; Zafer Balkan</li><li>Template: <a href="http://html5up.net">HTML5 UP</a></li>
+				<li class="copyright">&copy; <span itemprop="copyrightYear">2019</span> <span itemprop="copyrightHolder" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Zafer Balkan</span></span></li><li>Template: <a href="http://html5up.net">HTML5 UP</a></li>
 			</ul>
 		</footer>
-
 	</div>
-
 	<!-- Scripts -->
 	<script>
 		if ('addEventListener' in window) {
@@ -61,7 +59,7 @@
 				"image": "images/avatar.jpg",
 				"jobTitle": "System Administrator",
 				"name": "Zafer Balkan",
-				"telephone": "+90 506 205 9068",
+				"telephone": "+90 (506) 205 9068",
 				"url": "https://www.zaferbalkan.com",
 				"sameAs" : [ "https://www.linkedin.com/in/zbalkan",
 					"https://github.com/zbalkan",
