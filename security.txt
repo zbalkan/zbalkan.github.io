@@ -1,0 +1,3 @@
+Contact: mailto:zafer@zaferbalkan.com
+Preferred-Languages: en
+Canonical: https://zaferbalkan.com/security.txt
