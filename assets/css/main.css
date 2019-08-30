@@ -155,6 +155,7 @@
 	body, input, select, textarea {
 		color: #414f57;
 		font-family: "Source Sans Pro", Helvetica, sans-serif;
+		font-display: auto;
 		font-size: 14pt;
 		font-weight: 300;
 		line-height: 2;
@@ -459,6 +460,7 @@
 				-moz-osx-font-smoothing: grayscale;
 				-webkit-font-smoothing: antialiased;
 				font-family: FontAwesome;
+				font-display: auto;
 				font-style: normal;
 				font-weight: normal;
 				text-transform: none !important;
@@ -530,6 +532,7 @@
 			-moz-osx-font-smoothing: grayscale;
 			-webkit-font-smoothing: antialiased;
 			font-family: FontAwesome;
+			font-display: auto;
 			font-style: normal;
 			font-weight: normal;
 			text-transform: none !important;
@@ -744,6 +747,7 @@
 					-moz-osx-font-smoothing: grayscale;
 					-webkit-font-smoothing: antialiased;
 					font-family: FontAwesome;
+					font-display: auto;
 					font-style: normal;
 					font-weight: normal;
 					text-transform: none !important;
