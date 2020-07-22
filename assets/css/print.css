@@ -51,7 +51,9 @@
    	text-decoration: none;
    	font-weight: 400
    }
-
+   a:link:before {
+      display:none;
+   }
    /* Don't show linked images  */
 
    /* Don't show links that are fragment identifiers, or use the `javascript:` pseudo protocol .. taken from html5boilerplate */
