@@ -6,29 +6,62 @@
    	font-family: Garamond,"Times New Roman", serif; 
    	color: #000; 
    	background: none; 
-   	font-size: 14pt; }
+   	font-size: 14pt; 
+   }
 
-   	/* Headings */
-   	h1 { page-break-after:avoid; }
-   	h1{font-size:19pt;}
+   /* Headings */
+   h1 {
+   	page-break-after:avoid;
+   	font-size:48pt;
+   }
 
+   p {
+   	orphans: 3;
+   	widows: 3;
+   }
 
-   	p { orphans: 3; widows: 3; }
+   /* Images */
+   img {
+   	float: left;
+   	padding: 40px 20px 20px 50px;
+   	margin: 1em 1.5em 1.5em 0;
+   	max-width: 100% !important;
+   }
 
-   	/* Images */
-   	img { float: left; padding: 40px 20px 20px 50px; margin: 1em 1.5em 1.5em 0; max-width: 100% !important; }
+   /* Lists */
+   ul, ol {
+   	list-style: square;
+   	margin-left: 2cm;
+   	margin-bottom: 3cm;    
+   }
 
-   	/* Links */
-   	a:link, a:visited { background: transparent; font-weight: 700; text-decoration: none;color:#333; }
-/**a:link[href^="http://"]:after, a[href^="http://"]:visited:after { content: " (" attr(href) ") "; font-size: 90%; }
-abbr[title]:after { content: " (" attr(title) ")"; }**/
-a:link:after, a:visited:after { content:" { " attr(href) " } "; text-decoration: none;font-weight: 400}
+   li {
+   	line-height: 2em;
+   } 
 
-/* Don't show linked images  */
+   /* Links */
+   a:link, a:visited {
+   	background: transparent;
+   	font-weight: 700;
+   	text-decoration: none;
+   	color:#333;
+   }
+   a:link:after, a:visited:after {
+   	content:" { " attr(href) " } ";
+   	text-decoration: none;
+   	font-weight: 400
+   }
 
-/* Don't show links that are fragment identifiers, or use the `javascript:` pseudo protocol .. taken from html5boilerplate */
+   /* Don't show linked images  */
 
-/* Table */
-img {page-break-inside: avoid;} 
+   /* Don't show links that are fragment identifiers, or use the `javascript:` pseudo protocol .. taken from html5boilerplate */
 
-#footer .copyright, .do-not-print {display:none;}
+   /* Images */
+   img {
+   	page-break-inside: avoid;
+   } 
+
+   /* Hide unnecessary parts*/
+   #footer .copyright, .do-not-print {
+   	display:none;
+   }
