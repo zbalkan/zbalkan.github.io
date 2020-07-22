@@ -20,6 +20,11 @@
    	widows: 3;
    }
 
+   .description {
+      font-size:32pt;
+      margin: 1em 1.5em 1.5em 1em;
+   }
+
    /* Images */
    img {
    	float: left;
