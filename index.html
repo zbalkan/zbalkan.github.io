@@ -4,11 +4,10 @@
 	<title>Zafer Balkan</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<meta name="description" content="Zafer Balkan's Personal Website. Includes links to Github, LinkedIn and Medium profiles and a link to download vCard.">
+	<meta name="description" content="Zafer Balkan's Personal Webpage">
 	<link rel="canonical" href="https://zaferbalkan.com"/>
 	<link rel="shortcut icon" type="image/png" href="images/favicon.png"/>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300&display=swap">
 	<link media="screen" rel="stylesheet" type="text/css" href="assets/css/main.min.css" />
 	<noscript><link media="screen" rel="stylesheet" type="text/css" href="assets/css/noscript.css" /></noscript>
 	<link media="print" rel="stylesheet" type="text/css" href="assets/css/print.css" />
@@ -18,11 +17,11 @@
 		{
 			"@context": "http://schema.org",
 			"@type": "WebPage",
-			"name": "Zafer Balkan's Personal Website",
-			"description": "System Administrator in the day, Developer at night",
+			"name": "Zafer Balkan",
+			"description": "IT Professional, Generalist",
 			"publisher": {
-				"@type": "Person",
-				"name": "Zafer Balkan"
+				"@type": "ProfilePage",
+				"name": "Zafer Balkan's Personal Website"
 			},
 			"editor": {
 				"@type": "Person",
@@ -36,13 +35,13 @@
 					"https://github.com/zbalkan",
 					"https://medium.com/@zaferbalkan"]
 			},
-			"specialty": "System Administration, IT Management",
+			"specialty": "System Administration, IT Management, IT Security, Cybersecurity",
 			"audience": {
 				"@type":"Audience",
 				"audienceType": "IT Recruiters",
 				"geographicArea":{
 					"@type": "AdministrativeArea",
-					"name" : "Europe, especially Estonia"
+					"name" : "Tallinn, Estonia"
 				}
 			}
 		}
@@ -50,22 +49,20 @@
 
 </head>
 <body class="is-preload" itemscope itemtype="http://schema.org/WebPage">
-	<a class="skip-main do-not-print" href="#main">Skip to main content</a>
 	<!-- Wrapper -->
 	<div id="wrapper" class="site-header" role="main" itemscope itemtype="http://schema.org/WPHeader">
 		<!-- Main -->
-		<section id="main" tabindex="-1">
+		<section id="main">
 			<header>
-				<span class="avatar" itemscope itemtype="http://schema.org/ImageObject"><img src="images/avatar-min.jpg" alt="A portrait photograph of Zafer Balkan" title="A photograph of Zafer Balkan" loading="lazy" height="140" width="140" aria-label="Photograph" aria-labelledby="avatar header" itemprop="contentUrl"/></span>
+				<span class="avatar" itemscope itemtype="http://schema.org/ImageObject"><img src="images/avatar.jpg" alt="avatar" height="140" width="140" itemprop="contentUrl" loading="lazy"/></span>
 				<h1 itemprop="author">Zafer Balkan</h1>
-				<p itemprop="description" class="description">System Administrator in the day, Developer at night</p>
+				<p itemprop="description">IT Professional, Generalist</p>
 			</header>
 			<footer>
 				<ul class="icons">
-					<li><a href="https://www.linkedin.com/in/zbalkan" class="fa-linkedin" itemprop="url" aria-label="link to LinkedIn Profile" aria-hidden="true">LinkedIn</a></li>
-					<li><a href="https://github.com/zbalkan" class="fa-github" itemprop="url" aria-label="link to Github Profile" aria-hidden="true">Github</a></li>
-					<li><a href="https://medium.com/@zaferbalkan" class="fa-medium" itemprop="url" aria-label="link to Medium Blog" aria-hidden="true">Medium</a></li>
-					<li><a href="https://stackoverflow.com/users/5910839/zafer-balkan" class="fa-stack-overflow" itemprop="url" aria-label="link to Stackoverflow profile" aria-hidden="true">Stackoverflow</a></li>
+					<li><a href="https://www.linkedin.com/in/zbalkan" class="fa-linkedin" itemprop="url" aria-label="link to LinkedIn Profile" aria-hidden="true"><span itemprop="url">LinkedIn</span></a></li>
+					<li><a href="https://github.com/zbalkan" class="fa-github" itemprop="url" aria-label="link to Github Profile" aria-hidden="true"><span itemprop="url">Github</span></a></li>
+					<li><a href="https://medium.com/@zaferbalkan" class="fa-medium" itemprop="url" aria-label="link to Medium Blog" aria-hidden="true"><span itemprop="url">Medium</span></a></li>
 					<li class="do-not-print"><a href="/vcard.vcf" class="fa-address-card" download="Zafer Balkan.vcf" itemprop="url" aria-label="download link for vCard" aria-hidden="true"><span itemscope itemtype="https://schema.org/DataDownload"><span itemprop="name">vCard<meta itemprop="encodingFormat" content="text/vcard" />
 						<meta itemprop="contentUrl" content="vcard.vcf" /></span></span></a></li>
 					</ul>
@@ -74,16 +71,17 @@
 			<!-- Footer -->
 			<footer id="footer" role="contentinfo" itemscope itemtype="http://schema.org/WPFooter">
 				<ul class="copyright">
-					<li class="copyright">&copy; <span itemprop="copyrightYear"><script type="text/javascript">  document.write(new Date().getFullYear());</script></span> <span itemprop="copyrightHolder" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Zafer Balkan</span></span></li>
+					<li class="copyright">&copy; <span itemprop="copyrightYear">2019</span> <span itemprop="copyrightHolder" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Zafer Balkan</span></span></li>
+					<!-- <li>Template: <a href="http://html5up.net">HTML5 UP</a></li> -->
 				</ul>
 			</footer>
 		</div>
 		<!-- Scripts -->
-		<script async>
+		<script>
 			if ('addEventListener' in window) {
 				window.addEventListener('load', function() { document.body.className = document.body.className.replace(/\bis-preload\b/, ''); });
 				document.body.className += (navigator.userAgent.match(/(MSIE|rv:11\.0)/) ? ' is-ie' : '');
 			}
 		</script>
 	</body>
-</html>
+	</html>
