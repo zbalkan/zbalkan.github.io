@@ -1,0 +1,58 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- seo -%}
+  <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+  {%- feed_meta -%}
+  {%- if jekyll.environment == 'production' and site.google_analytics -%}
+    {%- include google-analytics.html -%}
+  {%- endif -%}
+
+  <!-- highlight.js support -->
+  <link rel="stylesheet" href="/js/highlightjs/styles/github.css">
+  <link rel="stylesheet" href="/js/highlightjs/styles/ssms.css" />
+
+  <script type="text/javascript" src="/js/highlightjs/highlight.min.js"></script>
+
+  <script type="text/javascript" src="/js/highlightjs/languages/plaintext.min.js"></script>
+  <script type="text/javascript" src="/js/highlightjs/languages/powershell.min.js"></script>
+  <script type="text/javascript" src="/js/highlightjs/languages/tsql.min.js"></script>
+
+  <script type="text/javascript"> hljs.highlightAll(); </script>
+  <!-- end highlight.js support -->
+
+      <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "WebPage",
+        "name": "Zafer Balkan",
+        "description": "Security Manager",
+        "publisher": {
+          "@type": "ProfilePage",
+          "name": "Zafer Balkan's Personal Website"
+        },
+        "editor": {
+          "@type": "Person",
+          "email": "zafer@zaferbalkan.com",
+          "image": "images/avatar.jpg",
+          "jobTitle": "Security Manager",
+          "name": "Zafer Balkan",
+          "url": "https://www.zaferbalkan.com",
+          "sameAs": [
+            "https://www.linkedin.com/in/zbalkan",
+            "https://github.com/zbalkan"
+          ]
+        },
+        "specialty": "System Administration, IT Management, IT Security, Cybersecurity, GRC, Incident Response",
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "IT Recruiters",
+          "geographicArea": {
+            "@type": "AdministrativeArea",
+            "name": "Tallinn, Estonia"
+          }
+        }
+      }
+    </script>
+</head>
