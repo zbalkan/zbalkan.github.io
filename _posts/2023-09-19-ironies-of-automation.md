@@ -1,4 +1,4 @@
-## Back to basics 1: The Microsoft Leak and the Ironies of Automation
+## Back to Basics 1: The Microsoft Leak and the Ironies of Automation
 
 ### Table of Contents
   * [Introduction](#introduction)
@@ -21,11 +21,11 @@ The recent Microsoft data leak, involving [over 38TB of private data exposed due
 
 The leak occurred when Account SAS tokens were used as a sharing mechanism for an AI dataset. These tokens, which are notoriously hard to track and can be configured to last indefinitely, were committed to GitHub. The lack of monitoring and governance turned this simple act of sharing into a major security incident. Microsoft has since invalidated the token and completed an internal investigation, but the damage was done.
 
-Mentioned in the Wiz article as well, ["Creating a SAS token" is also a persistence method](https://www.microsoft.com/en-us/security/blog/2023/09/07/cloud-storage-security-whats-new-in-the-threat-matrix/#:~:text=Create%20SAS%20Token) according to the Microsoft Cloud Threat Matrix, in case attackers create a "high-privileged SAS token with long expiry to preserve valid credentials for a long period". That is a threat as SAS tokens are simple to create, relatively hard to monitor and manage. It is just another key management problem, but the practices and processes around it have not matured enough.
+As mentioned in the Wiz article as well, ["Creating a SAS token" is also a persistence method](https://www.microsoft.com/en-us/security/blog/2023/09/07/cloud-storage-security-whats-new-in-the-threat-matrix/#:~:text=Create%20SAS%20Token) according to the Microsoft Cloud Threat Matrix, in case attackers create a "high-privileged SAS token with long expiry to preserve valid credentials for a long period". That is a threat as SAS tokens are simple to create and relatively hard to monitor and manage. It is just another key management problem, but the practices and processes around it have not matured enough.
 
 ### Ironies of Automation: A Summary
 
-I would like to mention an article under "back to basics in IT" category in my library. Published in 1983, Lisanne Bainbridge's "Ironies of Automation" is a cornerstone in the field of human-computer interaction. It is one of the first studies which adresses on human aspect in IT. The article outlines several paradoxes that arise from automation:
+I would like to mention an article under the "Back to basics in IT" category in my library, which also motivated me to start a blog series. Published in 1983, Lisanne Bainbridge's "Ironies of Automation" is a cornerstone in the field of human-computer interaction. It is one of the first studies that addresses on human aspect of IT. The article outlines several paradoxes that arise from automation:
 
 * **Skill Degradation:** Automation can lead to operators losing proficiency in tasks they are most needed for, as they become disengaged.
 * **Complexity in Crisis:** Automated systems often handle routine tasks well but leave operators to deal with complex or unexpected situations, for which they may be unprepared.
@@ -46,7 +46,7 @@ In sum, the more automation the more human involvement, by means of quality and 
 
 ### Can you see the irony in the leak?
 
-Well, until this point the gist has been taken, I believe. But I want to state the obvious take: Cloud is yet another abstraction, which has been tremendously successful at adding layers of automation beneath the fancy cover. Just like Lisanne Bainbridge covered 30 years ago, the incident is just another call to human aspects of IT and cybersecurity, reminding us the spead of automation is too much for the "operators" to catch up.
+Well, until this point the gist has been taken, I believe. But I want to state the obvious take: Cloud is yet another abstraction, which has been tremendously successful at adding layers of automation beneath the fancy cover. Just like Lisanne Bainbridge covered 30 years ago, the incident is just another call to human aspects of IT and cybersecurity, reminding us the speed of automation is too much for the "operators" to catch up.
 
 I can see some parallels. I may be mistaken or missing important points, yet I would like to jot down my take.
 
@@ -64,11 +64,11 @@ The ease of use of cloud services can sometimes lead to complacency, resulting i
 
 #### Design Challenges
 
-One of the most significant hurdles in automation is designing systems that are both technically sound and user-friendly. The Microsoft leak serves as a case study in the pitfalls of design that doesn't adequately consider the end-user. Automated systems must be intuitive enough for operators to manage effectively, especially during crisis situations. This requires a deep understanding of both the technical aspects of the system and the human factors involved in its operation. Here, the AI researchers, do not have to deal with key management procedures yet they are in it. The design of this process looks broken comparing the highly complicated infrastructure behind. The system should not let a user to put the keys in an insecure lcoation at the first place. `Security-by-design` is a significant idea which we cannot see the implementations in the wild.
+One of the most significant hurdles in automation is designing systems that are both technically sound and user-friendly. The Microsoft leak serves as a case study of the pitfalls of design that don't adequately consider the end-user. Automated systems must be intuitive enough for operators to manage effectively, especially during crisis situations. This requires a deep understanding of both the technical aspects of the system and the human factors involved in its operation. Here, the AI researchers, do not have to deal with key management procedures yet they are in it. The design of this process looks broken compared to the highly complicated infrastructure behind it. The system should not let a user put the keys in an insecure location in the first place. `Security-by-design` is a significant idea that we cannot see the implementations in the wild.
 
 #### Training and Adaptation
 
-The Microsoft incident highlights the need for specialized training for operators who interact with automated systems. Such training should not only cover routine operations but also how to handle system failures and unexpected events. In the absence of such training, even seasoned operators can find themselves ill-equipped to manage crises, leading to incidents like the Microsoft leak. While I believe the goal is creating smooth user experiences in products which will not require user training, in complex environments like these, a proper training may be needed.
+The Microsoft incident highlights the need for specialized training for operators who interact with automated systems. Such training should not only cover routine operations but also how to handle system failures and unexpected events. In the absence of such training, even seasoned operators can find themselves ill-equipped to manage crises, leading to incidents like the Microsoft leak. While I believe the goal is creating smooth user experiences in products that will not require user training, in complex environments like these, proper training may be needed.
 
 ### What's your take?
 
