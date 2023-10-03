@@ -6,6 +6,7 @@ TL;DR: It may not be in your threat model, but browser extensions may present a 
 - [Historical Context of the Browser Ecosystem](#historical-context-of-the-browser-ecosystem)
 - [Security Implications of Browser Extensions](#security-implications-of-browser-extensions)
 - [What can we do](#what-can-we-do)
+  
 ***
 
 ## Historical Context of the Browser Ecosystem
