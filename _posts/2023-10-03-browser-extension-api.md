@@ -1,4 +1,4 @@
-# Browser Extensions: A Security Conundrum and the Imperative for Standardized Management APIs
+# Unlocking the Security Puzzle of Browser Extensions: Why We Need Standardized Management APIs
 
 TL;DR: It may not be in your threat model, but browser extensions may present a significant threat depending on the business. Currently, the security responsibilities and capabilities are mostly in the browser’s extension store. In order to be able to manage this risk, IT and security professionals have to use scanners with parsers for each browser extension model. However, A standard extension management API could improve the ecosystem.
 
