@@ -3,9 +3,11 @@
 TL;DR: It may not be in your threat model, but browser extensions may present a significant threat depending on the business. Currently, the security responsibilities and capabilities are mostly in the browser’s extension store. In order to be able to manage this risk, IT and security professionals have to use scanners with parsers for each browser extension model. However, A standard extension management API could improve the ecosystem.
 
 ***
+
 - [Historical Context of the Browser Ecosystem](#historical-context-of-the-browser-ecosystem)
 - [Security Implications of Browser Extensions](#security-implications-of-browser-extensions)
 - [What can we do](#what-can-we-do)
+  
 ***
 
 ## Historical Context of the Browser Ecosystem
