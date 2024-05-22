@@ -1,12 +1,13 @@
 # Responsibility v. Authority: the Good, the Bad and the Ugly
 
 - [The Good](#the-good)
-   * [GDPR Article 38(2): Start with what a DPO needs](#gdpr-article-382-start-with-what-a-dpo-needs)
-   * [The rulings of DPAs](#the-rulings-of-dpas)
-   * [*Sensum, non verba spectamus*](#sensum-non-verba-spectamus)
+  - [GDPR Article 38(2): Start with what a DPO needs](#gdpr-article-382-start-with-what-a-dpo-needs)
+  - [The rulings of DPAs](#the-rulings-of-dpas)
+  - [*Sensum, non verba spectamus*](#sensum-non-verba-spectamus)
 - [The Bad](#the-bad)
-   * [The guidance of the Council](#the-guidance-of-the-council)
-   * [What about the conflict of interest?](#what-about-the-conflict-of-interest)
+  - [The guidance of the Council](#the-guidance-of-the-council)
+  - [What about the conflict of interest?](#what-about-the-conflict-of-interest)
+
 - [The Ugly](#the-ugly)
 
 It is a well-known phenomenon that authority without responsibility -and vice versa- is a recipe for disaster. Yet, that is commonly seen in many organizations. These two words are used interchangeably and incorrectly on due diligence practices and business services. On one hand, it is easy to prove the responsibility: have a RACI chart on a policy, a well-written business contract, or a written executive order. On the other hand, how do you prove the authority? What might consist of evidence of authority of someone in an organization?
@@ -25,11 +26,12 @@ GDPR [Article 38(2)](https://gdprhub.eu/Article_38_GDPR) requires that all neces
 - The support provided to the DPO should encompass adequate financial, technical, and personnel resources.
 - It is ... essential to communicate the existence and contact details of the DPO to all staff members of the controller or processor to ensure accessibility.
 - DPO has to have the authority to access personal data and processing operations within the organization.
-  * *For example, the DPO must be allowed to enter all premises where personal data is or may be processed, including on the premises of data processors.*
+  - *For example, the DPO must be allowed to enter all premises where personal data is or may be processed, including on the premises of data processors.*
 - DPO must have continuous training opportunities to maintain expert knowledge.
-  * *The "expert knowledge" is also a requirement to assign in the first place*
+  - *The "expert knowledge" is also a requirement to assign in the first place*
 - "The DPO must be put in the condition to autonomously catch up with the relevant updates, being the workload no justification to postpone or ignore such an obligation".
-  * *A highly specific requirement, isn't it?*
+  - *A highly specific requirement, isn't it?*
+
 
 To quote the conclusion:
 > In general, the allocation of resources for the DPO should be directly proportional to the type, complexity, and risks associated with data processing activities.
@@ -75,6 +77,7 @@ The said requirement in PCI DSS 4.0 is the requirement 12.1.4:
 > Responsibility for information security is formally assigned to a Chief Information Security Officer or other information security knowledgeable member of executive management.
 
 Let's have a look at the letters, and then the meaning:
+
 - A CISO or equal executive manager must be formally assigned
 - This person must be knowledgeable in information security
 - This person is responsible for security
@@ -113,7 +116,7 @@ According to PCI DSS 4.0, Organizational Independence is required for vulnerabil
 
 Another term the PCI DSS requirements use is "segregation/separation of duties". This is also limited to access controls:
 > Requirement 6.4.5: Roles and functions are separated between production and pre-production environments to provide accountability such that only reviewed and approved changes are deployed.
-
+>
 > Requirement 7.2.1 An access control model is defined and includes granting access as follows:
 > • Appropriate access depending on the entity’s business and access needs.
 > • Access to system components and data resources that is based on users’ job classification and functions.
@@ -130,11 +133,18 @@ A1: *Luckily no. This is just an exaggeration. However, it is important to be ab
 
 ------
 
+Q2: *If the organization is part of a larger group, how can the organization fulfill requirement 12.1.4?*
+
+A2: *If there is a CISO (or an equivalent member of executive board) in the group level, and the responsibility of security in both group and local level, then it is possible to comply with the requirement. It means that the local security managers become a representative of CISO and does not carry the overall responsibility in their entity. As long as their authority and responsibility are limited by the tasks and projects assigned by group CISO, the requirement can be fulfilled. However, it is advised to consult the QSA first.*
+
+------
+
 ## The Ugly
 
 Even though I harshly criticize the decisions, I can understand the Council's rationale: the organizations differ by scale, location, legal boundaries, and financial capabilities. Therefore, enforcing stricter requirements may backfire on many occasions. However, in this case, there is too much room for improvement causing the related parties to question the reliability of the standard.
 
 Unlike the DPO which GDPR well-defined for many years, CISO or the equivalent of PCI DSS does not have to:
+
 - be independent (not possible in general)
 - expert knowledge ("information security knowledgeable" does not mean "expert knowledge")
 - financial resources (budget?)
@@ -144,17 +154,19 @@ Unlike the DPO which GDPR well-defined for many years, CISO or the equivalent of
 
 The ugly truth here is that PCI DSS defines a role with responsibility but leaves authority out of the equation. Isn't it [blurring the line between being held accountable and being a scapegoat?](https://www.linkedin.com/posts/rosshaleliuk_cisos-ciso-cybersecurity-activity-7120786753451397120-r3D0?utm_source=share&utm_medium=member_desktop)
 
----
+------
+
 **Trivia time:**
 
-Q2: *If a company assigns the CISO as a DPO by properly meeting the GDPR requirements, would the organization be able to comply with PCI DSS?*
+Q3: *If a company assigns the CISO as a DPO by properly meeting the GDPR requirements, would the organization be able to comply with PCI DSS?*
 
-A2: **No.** *Because a CISO assigned as a DPO based on the GDPR requirements has no authority, responsibility, and accountability. The CISO's role is advisory, and the security responsibility belongs to the company management. So this situation does not fulfill the requirements of PCI DSS.*
+A3: **No.** *Because a CISO assigned as a DPO based on the GDPR requirements has no authority, responsibility, and accountability. The CISO's role is advisory, and the security responsibility belongs to the company management. So this situation does not fulfill the requirements of PCI DSS.*
 
----
+------
 
-Q3: *If a company hires a consultant as vCISO and vDPO by properly meeting the GDPR requirements, then creates a security team under CTI/CIO/COO holding the associated C-level manager responsible for security, would the company be able to comply with PCI DSS?*
+Q4: *If a company hires a consultant as vCISO and vDPO by properly meeting the GDPR requirements, then creates a security team under CTI/CIO/COO holding the associated C-level manager responsible for security, would the company be able to comply with PCI DSS?*
 
-A3: **It depends.** *By appointing a vCISO and vDPO to an advisory role, the company solves the question of GDPR. On the other hand, the C-level executive who manages the security team holds the responsibility of security, therefore, the "formal assignment" and "responsibility" conditions are met as well. However, the "information security knowledge" condition needs to be proven. Also, the organization needs to be aware that the "conflict of interest" is obvious while it is not against PCI DSS requirements as is. This may or may not fulfill the requirements of PCI DSS. You need to discuss this with your QSA.*
+A4: **It depends.** *By appointing a vCISO and vDPO to an advisory role, the company solves the question of GDPR. On the other hand, the C-level executive who manages the security team holds the responsibility of security, therefore, the "formal assignment" and "responsibility" conditions are met as well. However, the "information security knowledge" condition needs to be proven. Also, the organization needs to be aware that the "conflict of interest" is obvious while it is not against PCI DSS requirements as is. This may or may not fulfill the requirements of PCI DSS. You need to discuss this with your QSA.*
 
----
+------
+
