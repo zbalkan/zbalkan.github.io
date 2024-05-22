@@ -7,6 +7,7 @@
 - [The Bad](#the-bad)
   - [The guidance of the Council](#the-guidance-of-the-council)
   - [What about the conflict of interest?](#what-about-the-conflict-of-interest)
+
 - [The Ugly](#the-ugly)
 
 It is a well-known phenomenon that authority without responsibility -and vice versa- is a recipe for disaster. Yet, that is commonly seen in many organizations. These two words are used interchangeably and incorrectly on due diligence practices and business services. On one hand, it is easy to prove the responsibility: have a RACI chart on a policy, a well-written business contract, or a written executive order. On the other hand, how do you prove the authority? What might consist of evidence of authority of someone in an organization?
