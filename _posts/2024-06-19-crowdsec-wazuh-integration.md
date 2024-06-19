@@ -118,9 +118,9 @@ log_level: info # Options include: trace, debug, info, warn, error, off
 
 # This template render all events as ndjson
 format: |
-  {{range . -}}
-   { "crowdsec": { "time": "{{.StopAt}}", "program": "crowdsec", "alert": {{. | toJson }} }}
-  {{ end -}}
+  \{\{range . -\}\}
+   { "crowdsec": { "time": "{{.StopAt}}", "program": "crowdsec", "alert": \{\{. | toJson \}\} }}
+  \{\{ end -\}\}
 
 # group_wait: # duration to wait collecting alerts before sending to this plugin, eg "30s"
 # group_threshold: # if alerts exceed this, then the plugin will be sent the message. eg "10"
@@ -134,6 +134,8 @@ rotate:
   max_age: 5
   compress: true
 ```
+
+**N.B:** Due to the markdown renderer, the fields in double brackets are not rendered. I had to use an escape character (`\`) for them. So, please remove the escape character (`\`) from `\{\{` and `\}\}` in the `format` field.
 
 - You noticed that there is a rotate section in the configuration. You don't need to use logrotate and disposal scripts with cron jobs. That looked convenient.
 - Then, you needed to configure CrowdSec to read Apache and ModSecurity logs. You start by installing the collections.
