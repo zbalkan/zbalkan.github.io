@@ -4,7 +4,7 @@
 - [What's the issue with PAN](#whats-the-issue-with-pan)
 - [Back to PSReadLine](#back-to-psreadline)
 - [Wait a minute](#wait-a-minute)
-- [Mothing new under the sun](#mothing-new-under-the-sun)
+- [Nothing new under the sun](#nothing-new-under-the-sun)
 
 ### Intro
 
@@ -163,7 +163,7 @@ Well, we know that [PowerShell Profile modification](https://attack.mitre.org/te
 2. **No external persistence mechanism:** We are back into `T1546.013`-only because PSReadLine is stateless, and the parameters must be provided within the `$PROFILE`. So it is less powerful than the combination of `T1546.013` and `T1546.003`.
 3. **Runs on every command:** Instead of running once when a new session starts, this handler runs on every time you hit enter and if the line was not empty. So, it is not good for one time tasks. But may be good for exfil. Who knows? I am just playing with it, and haven't thought about it that much.
 
-### Mothing new under the sun
+### Nothing new under the sun
 
 In sum, it is not a new trick. It is the same old `T1546.013` and even `PsReadLine` isn't new for [security ecosystem](https://github.com/search?q=repo%3ASigmaHQ%2Fsigma%20psreadline&type=code). There are some prerequisites for success as well. First, the attacker needs to update the `$PROFILE`, as expected. So you probably have detections for it. Right?
 
@@ -178,6 +178,4 @@ This is a very weak mechanism for persistence. The difference from other methods
 On the other hand, you can use this method for your daily use as well. You can improve your command line experience as it is designed for. Please see [the docs](https://learn.microsoft.com/en-us/powershell/module/psreadline/set-psreadlineoption?view=powershell-7.4) for better examples, better than mine.
 
 [^1]: The payment processor may be a bank, or a third party that banks outsource the payment processing job. That's why I did not say banks. Banks as both issuers and acquirers have their position but let's not get into this part.
-[^2]: While Github repositories do not reflect the dumpster of powershell script directories sysadmins piled up year by year, successor is getting closer for the open source/source available resources:
-<img src="/assets/getwmiobject.png" width="400" alt="Get-WmiObject search results in Github">
-<img src="/assets/getciministance.png" width="400" alt="Get-CimInstance search results in Github">
+[^2]: While Github repositories do not reflect the dumpster of powershell script directories sysadmins piled up year by year, successor is getting closer for the open source/source available resources. <img src="/assets/getwmiobject.png" width="400" alt="Get-WmiObject search results in Github"> <img src="/assets/getciministance.png" width="400" alt="Get-CimInstance search results in Github">
