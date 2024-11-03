@@ -18,11 +18,11 @@ This information is the means to the end: profit. For merchants, it is one way o
 
 <img src="/assets/smart.png" width="400" alt="Right?">
 
-But since this data must be kept somewhere for transactions, processed and transmitted, some people have to touch this risky data. It should be contained, isolated, and processed securely. A leak may be a huge issue. Not only conractual clauses, but also PCI DSS isues, GDPR fines, and much more. So PAN should be handled properly.
+But since this data must be kept somewhere for transactions, processed and transmitted, some people have to touch this risky data. It should be contained, isolated, and processed securely. A leak may be a huge issue. Not only the contactual clauses would hurt, but also PCI DSS issues, GDPR fines, and much more are expected. So PAN should be handled properly.
 
 <img src="/assets/simpsons.gif" width="400" alt="PAN is similar to Uranium pieces in Homer Simpson's hands">
 
-As a law-abiding citizen, I am also obeying the [Law of the instrument](https://en.wikipedia.org/wiki/Law_of_the_instrument), and I see PAN everywhere. It is possible to detect with DLP but DLP covers specific fields, not everywhere. I try to find scenarios where there is a likelihood of leaking the data acidentally. commandline history *may* be one of those. I hope not but this is life and weird thinds happen. The PAN can end up in history, event logs, in SIEM and log archive, while you are tring to secure the databases.
+As a law-abiding citizen, I am also obeying the [Law of the instrument](https://en.wikipedia.org/wiki/Law_of_the_instrument), and I see PAN everywhere. It is possible to detect with DLP but DLP covers specific fields, not everywhere. I try to find scenarios where there is a likelihood of leaking the data acidentally. command line history *may* be one of those. I hope not but this is life and weird thinds happen. The PAN can end up in history, event logs, in SIEM and log archive while you are trying to secure the databases.
 
 <img src="/assets/everywhere.jpg" width="400" alt="PANs everywhere">
 
