@@ -105,13 +105,13 @@ Set-PSReadLineOption -CommandValidationHandler {
 Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 ```
 
-As you guessed correctly, we check every single line, and if there is a PAN, we mask it when you hit Enter, so that it will not arrive to any logs, history and such. This is is one way you can use PsReadLine handlers. It is not very creative, but it is an example to show what you can do.
+As you guessed correctly, we check every single line, and if there is a PAN, we mask it when you hit Enter, so that it will not arrive to any logs, history and such. This is is one way you can use `PsReadLine` handlers. It is not very creative, but it is an example to show what you can do.
 
 <img src="/assets/Animation-masking.gif" width="800" alt="Masking works as expected">
 
 ### Wait a minute
 
-I did this for fun based on a compliance and security scenario but you can use it for any other purpose. If you are trying your offensive options?
+I did this for fun based on a compliance and security scenario but you can use it for any other purpose. Maybe you are trying to extend your offensive options?
 
 ```powershell
 # This should be at the beginning of your profile if you are going to access [CommanAst] type.
@@ -157,7 +157,7 @@ Set-PSReadLineOption -CommandValidationHandler {
 Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 ```
 
-Well, we know that [PowerShell Profile modification](https://attack.mitre.org/techniques/T1546/013/) is a good mechanism for persistence. This is just another way of using it. It is similar to creating subscriptions, but instead of [WMI Event Subscription](https://attack.mitre.org/techniques/T1546/003/) technique, you can utilize this simple, but shiny PowerShell module that comes by default in Windows 10 and PowerShell 6+. The important points to discuss are below:
+Well, we know that [PowerShell Profile modification](https://attack.mitre.org/techniques/T1546/013/) is yet another mechanism for persistence. It is easy to detect but when the session is run with higher privileges, then it would be very useful. This is just another way of using the same technique;  similar to creating subscriptions, but instead of [WMI Event Subscription](https://attack.mitre.org/techniques/T1546/003/) technique, you can utilize this simple, but shiny PowerShell module that comes by default in Windows 10 and PowerShell 6+. The important points to discuss are below:
 
 1. **Detection:** You can query WMI subscriptions for detection. To detect the `PsReadLine` changes, you need to compare the `Get-PSReadLineKeyHandler` results, which is possible not a feasible option. You can see that `AcceptLine` is replaced with `ValidateandAcceptLine`, that shows you have some things changed. In the end, this is only `T1546.013`, and you **must** monitor `$PROFILE` paths. <br><img src="/assets/Animation-persistence.gif" width="800" alt="No changes.">
 2. **No external persistence mechanism:** We are back into `T1546.013`-only because PSReadLine is stateless, and the parameters must be provided within the `$PROFILE`. So it is less powerful than the combination of `T1546.013` and `T1546.003`.
