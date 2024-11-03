@@ -114,17 +114,18 @@ As you guessed correctly, we check every single line, and if there is a PAN, we 
 I did this for fun based on a compliance and security scenario but you can use it for any other purpose. If you are trying your offensive options?
 
 ```powershell
-# This should be at the beginning of your profile
-# If you are not going to access [CommanAst] type, you don't need this line.
-using namespace System.Management.Automation.Language
+# This should be at the beginning of your profile if you are going to access [CommanAst] type.
+# Otherwise, you don't need this line.
+# using namespace System.Management.Automation.Language
 
 # Rest of your profile is here
 
 # Add this to wherever you want afterwards.
 
 # CommandValidationHandler as a persistence mechanism
+# Uncomment CommandAst related sections if you want to work with the content.
 Set-PSReadLineOption -CommandValidationHandler {
-    param([CommandAst]$CommandAst)
+    # param([CommandAst]$CommandAst)
 
     # Return if not admin
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -158,25 +159,25 @@ Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 
 Well, we know that [PowerShell Profile modification](https://attack.mitre.org/techniques/T1546/013/) is a good mechanism for persistence. This is just another way of using it. It is similar to creating subscriptions, but instead of [WMI Event Subscription](https://attack.mitre.org/techniques/T1546/003/) technique, you can utilize this simple, but shiny PowerShell module that comes by default in Windows 10 and PowerShell 6+. The important points to discuss are below:
 
-1. **Detection:** You can query WMI subscriptions for detection. To detect these, you need to compare the `Get-PSReadLineKeyHandler` results, which is possible not a feasible option. You can see that `AcceptLine` is replaced with `ValidateandAcceptLine`, that shows you have some things changed. In the end, you **must** monitor `$PROFILE` paths. <br><img src="/assets/Animation-persistence.gif" width="800" alt="No changes.">
+1. **Detection:** You can query WMI subscriptions for detection. To detect the `PsReadLine` changes, you need to compare the `Get-PSReadLineKeyHandler` results, which is possible not a feasible option. You can see that `AcceptLine` is replaced with `ValidateandAcceptLine`, that shows you have some things changed. In the end, this is only `T1546.013`, and you **must** monitor `$PROFILE` paths. <br><img src="/assets/Animation-persistence.gif" width="800" alt="No changes.">
 2. **No external persistence mechanism:** We are back into `T1546.013`-only because PSReadLine is stateless, and the parameters must be provided within the `$PROFILE`. So it is less powerful than the combination of `T1546.013` and `T1546.003`.
-3. **Runs on every command:** Instead of running once when a new session starts, this runs on every time you hit enter and the line was not empty. So, it is not good for one time tasks. But may be good for exfil. Who knows?
+3. **Runs on every command:** Instead of running once when a new session starts, this handler runs on every time you hit enter and if the line was not empty. So, it is not good for one time tasks. But may be good for exfil. Who knows? I am just playing with it, and haven't thought about it that much.
 
 ### Mothing new under the sun
 
-In sum, it is not a new trick. It is same old `T1546.013` and even `PsReadLine` isn't new for [security folk](https://github.com/search?q=repo%3ASigmaHQ%2Fsigma%20psreadline&type=code). There are some prerequisites as well. First, the attacker needs to update the `$PROFILE`. So you probably have detections for it. Right?
+In sum, it is not a new trick. It is the same old `T1546.013` and even `PsReadLine` isn't new for [security ecosystem](https://github.com/search?q=repo%3ASigmaHQ%2Fsigma%20psreadline&type=code). There are some prerequisites for success as well. First, the attacker needs to update the `$PROFILE`, as expected. So you probably have detections for it. Right?
 
 <img src="/assets/right.jpg" width="400" alt="Right?">
 
-Second, the user must be using PSReadLine. Luckily most sysadmins stick to PowerShell 5.x instead of 6+, due to internal changes of PowerShell cmdlets, such as `Get-WmiObject` vs `Get-CimInstance`[^2].
+Second, the user must be using PSReadLine. Luckily most sysadmins stick to PowerShell 5.x instead of 6+, due to internal changes of PowerShell cmdlets, such as `Get-WmiObject` vs `Get-CimInstance`[^2]. Therefore, the risk is even lower.
 
 <img src="/assets/doesnt work.png" width="600" alt="Sometimes it just does not work, I guess">
 
-Since this can escape any logging attempts, it is hard to detect if `$PROFILE` tampering detections are not in place. So, review to you FIM or Sysmon configuration to ensure you are getting alerted on `$PROFILE` modifications.
+This is a very weak mechanism for persistence. The difference from other methods is the triggering mechanism, so nothing to think too much about it. However, this can escape the logging mechanisms, it is hard to detect if `$PROFILE` tampering detections are not in place. So, review to you FIM and/or Sysmon configuration and SIEM rules/queries to ensure you are getting alerted on `$PROFILE` modifications.
 
-On the other hand, you can use this for your daily use as well. Please see [the docs](https://learn.microsoft.com/en-us/powershell/module/psreadline/set-psreadlineoption?view=powershell-7.4) for better examples, better than mine.
+On the other hand, you can use this method for your daily use as well. You can improve your command line experience as it is designed for. Please see [the docs](https://learn.microsoft.com/en-us/powershell/module/psreadline/set-psreadlineoption?view=powershell-7.4) for better examples, better than mine.
 
-[^1]: Payment processor may be a bank, or a third party that banks outsource the payment processing job. That's why I did not say banks. Banks as both issuers and acquirers have their position but let's not get into this part.
+[^1]: The payment processor may be a bank, or a third party that banks outsource the payment processing job. That's why I did not say banks. Banks as both issuers and acquirers have their position but let's not get into this part.
 [^2]: While Github repositories do not reflect the dumpster of powershell script directories sysadmins piled up year by year, successor is getting closer for the open source/source available resources:
 <img src="/assets/getwmiobject.png" width="400" alt="Get-WmiObject search results in Github">
 <img src="/assets/getciministance.png" width="400" alt="Get-CimInstance search results in Github">
