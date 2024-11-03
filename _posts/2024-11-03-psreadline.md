@@ -8,7 +8,7 @@
 
 ### Intro
 
-I have been using the Windows' Terminal since the first announcement. I was impressed with the abilities added via [PSReadLine](https://github.com/PowerShell/PSReadLine) module thanks to amazing [Scott Hanselman](https://www.hanselman.com/blog/you-should-be-customizing-your-powershell-prompt-with-psreadline). I was playing with it this weekend because I was bored.
+I have been using the Windows' Terminal since the first announcement. I was impressed with the abilities added via [PSReadLine](https://github.com/PowerShell/PSReadLine) module thanks to amazing [Scott Hanselman](https://www.hanselman.com/blog/you-should-be-customizing-your-powershell-prompt-with-psreadline). This weekend, I got bored and started to play with it. I read the docs and tried to find some use cases I can give it a try. Something with PAN was the first thing came to my mind.
 
 ### What's the issue with PAN
 
