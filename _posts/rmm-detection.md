@@ -2,9 +2,11 @@
 
 Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://github.com/sheimo/awesome-lolbins-and-beyond) appeared and personally I don't think some of them are actually *Living Off the Land* by definition. However, some are useful anyway. The [LOLRMM](https://lolrmm.io/) is one of them, which allows writing prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools became a persistence method by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/). These tools are necessary while they are used as backdoors by attackers frequently. Therefore, LOLRMM is a great resource for securuty teams.
 
+<a href="https://lolrmm.io/" target="_blank"><img src="/assets/lolrmm.png" width="200" alt="LOLRMM.io"></a>
+
 First of all, please use WDAC and/or Applocker first, then write your detections. That's easier. Second, having all of the alerts would cause nothing but too much false positives. So, have a look at them and and fine tune for your environment.
 
-<a href="https://lolrmm.io/" target="_blank"><img src="/assets/lolrmm.png" width="200" alt="LOLRMM.io"></a>
+<img src="/assets/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
 
 ### Understanding Sigma and Wazuh
 
@@ -16,17 +18,19 @@ The task of converting Sigma rules to Wazuh rules involves several key steps:
 
 1. **Parsing Sigma Rules:** The Python script to parse the YAML-based Sigma rules is not Sigma-specific. It just reads them as YALML files and we use it as a dictionary internally. This script extracts essential components such as detection patterns, log sources, and conditions.
 2. **Mapping to Wazuh Syntax:** Translate the parsed Sigma components into Wazuh's XML-based rule syntax. This does not require an 100% understanding of both Sigma's and Wazuh's rule structures, since we are using almost a uniform sigma ruleset. Still it needs some care. I used the Sigma docs to find the known sigma log sources for Windows to event log sources.
-3. **Handling Special Cases:** Identify rules that require special attention, such as those necessitating File Integrity Monitoring (FIM) alerts or those lacking static Indicators of Compromise (IOCs). For instance, rules labeled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you need it, you need to write your rules manually with the proper domain names. Also, Wazuh uses FIM for file create/update/delete operations instead of Sysmon Event ID 11. So, the rules must be created for FIM instead.
-4. **Generating Wazuh Rules:** For each successfully parsed and mapped Sigma rule, generate a corresponding Wazuh rule. Ensure that the generated rules are syntactically correct and semantically equivalent to their Sigma counterparts. For this you can see I created some mappings, many of them are unused but there just in case. Most of these require Sysmon as usual Windows Event Log channels cannot help you there.
-5. **Rule ID:** Rule ID is an [abstraction leak](https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/) for Wazuh. Rule IDs are not meaningful for the users. This should have been handled internally. However, until Wazuh 5.x, we must use the existing syntax. That is why I ave a variable there for the first ID of the rules. I prefer using prefixes to help me understand the rule ID and rule file name mapping. So if the custom rule file name is `5500-rmm_rules.xml`, I know that the rule IDs start from 550000. In the script if you write 100000, you wil will get `1000-rmm_rules.xml` as an output.
+3. **Sysmon vs. FIM:** While many rules can be solved by just relying on Sysmon, file events are handled by File Integrity Monitoring (FIM). Therefore, we have a check that separates the Sysmon rules from FIM rules.
+4. **Exceptional cases:** The exceptional cases left are those lacking static Indicators of Compromise (IOCs). The rules labeled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you need it, you need to write your rules manually with the proper domain names.
+5. **Rule ID:** Rule ID is an [abstraction leak](https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/) for Wazuh. Rule IDs are not meaningful for the users. This should have been handled internally. However, until Wazuh 5.x, we must use the existing syntax. That is why I ave a variable there for the first ID of the rules. I prefer using prefixes to help me understand the rule ID and rule file name mapping. So if the custom rule file name is `5500-rmm_rules.xml`, I know that the rule IDs start from 550000. In the script, the default value is 100000, you wil will get `1000-rmm_rules.xml` as an output.
 
-## Generating rules
+### Generating rules
 
 1. Clone LOLRMM repository.
 2. Put the script in a location of your preference.
 3. Initiate your preferred virtual environment.
 4. Run the script with the proper arguments.
-5. The rules are generated on the target directory. The ones I created can be found on [this gist](link).
+5. The rules are generated on the target directory.
+
+#### Script
 
 ```python
 #!/usr/bin/env python3
@@ -152,6 +156,8 @@ class Converter:
     def create_wazuh_rule(self, sigma_rule: dict[str, Any], rule_id: int, level: int) -> Optional[ET.Element]:
         rule = ET.Element('rule', id=str(rule_id), level=str(level))
 
+        is_fim_rule: bool = False
+
         # Extract logsource information
         logsource = sigma_rule.get('logsource', {})
         product = logsource.get('product', 'generic')
@@ -176,6 +182,11 @@ class Converter:
         if condition not in ('selection', 'any'):
             print(f"Warning: Rule '{tool_name}' uses an unsupported condition '{condition}'. Skipping.")
             return None  # Skip unsupported condition
+
+        # Ignore unsupported Sysmon events
+        if if_group.text in ['sysmon_event9', 'sysmon_event11', 'sysmon_event12', 'sysmon_event22', 'sysmon_event23', 'sysmon_event25', 'sysmon_event26', 'sysmon_event27']:
+            is_fim_rule = True
+            if_group.text = 'syscheck_file'
 
         # Concatenate multiple fields for OR condition
         for field, values in selection.items():
@@ -218,22 +229,20 @@ class Converter:
                     escaped = re.escape(values).replace('/', '\\/')
                     combined_pattern = f"{prefix}{escaped}$"
 
-            # Remove duplicate wildcards
-            # Case-insensitive regex
-            combined_pattern = '(?i)' + combined_pattern.replace(r'.*.*', r'.*')
+        # Remove duplicate wildcards
+        # Case-insensitive regex
+        combined_pattern = '(?i)' + combined_pattern.replace(r'.*.*', r'.*')
 
+        # Add the field to the rule
+        if is_fim_rule:
+            field_element = ET.SubElement(rule, 'field', name='name', type='pcre2')
+        else:
             field_element = ET.SubElement(rule, 'field', name=field_name, type='pcre2')
-            field_element.text = combined_pattern  # Single regex with OR condition
+        field_element.text = combined_pattern
 
         # Description and Info tags
         description = ET.SubElement(rule, 'description')
         description.text = sigma_rule.get('description', 'No description provided')
-
-        # Ignore unsupported Sysmon events
-        if if_group.text in [ 'sysmon_event9', 'sysmon_event11', 'sysmon_event12', 'sysmon_event22', 'sysmon_event23', 'sysmon_event25', 'sysmon_event26', 'sysmon_event27']:
-            print(f"Warning: Rule '{tool_name}' needs FIM rules. Skipping.")
-            return None  # Skip unsupported condition
-
 
         info = ET.SubElement(rule, 'info', type='link')
         info.text = 'https://lolrmm.io/'  # Adding source link
@@ -266,9 +275,13 @@ class Converter:
         root_element.append(ET.Comment(self.add_copyright()))
         rule_id = start_id
 
+        total_rules = 0
+        generated_rules= 0
+
         for root, _, files in os.walk(sigma_directory):
             for file in files:
                 if file.endswith(('.yml', '.yaml')):
+                    total_rules += 1
                     sigma_file_path = os.path.join(root, file)
                     sigma_rule = self.parse_sigma_rule(sigma_file_path)
                     wazuh_rule = self.create_wazuh_rule(
@@ -276,10 +289,13 @@ class Converter:
                     if wazuh_rule is not None:  # Only add if conversion was successful
                         root_element.append(wazuh_rule)
                         rule_id += 1
+                        generated_rules += 1
 
         tree = ET.ElementTree(root_element)
         ET.indent(tree, space="    ", level=0)
         tree.write(output_file, encoding='utf-8', xml_declaration=False)
+        print(f"Generated {generated_rules} Wazuh rules from {total_rules} Sigma rules.")
+        print(f"Check the warnings above for {total_rules - generated_rules} rules that were skipped.")
 
 if __name__ == "__main__":
 
@@ -323,8 +339,8 @@ To implement the converted rules in Wazuh:
 
 ### Conclusion
 
-Out of 457 Sigma rules analyzed, approximately N were successfully converted into Wazuh-compatible rules. While most uses Sysmon event logs, some rely on FIM capability. The remaining rules were either unsuitable for direct conversion so script gives you a warning and if you need, you can write your own detections using the generated rules as examples.
+Out of 457 Sigma rules analyzed, 418 new rules are successfully converted into Wazuh-compatible rules. The remaining rules were are not suitable for conversion so script gives you a warning. You can write your own detections using the generated rules as examples if you need.
 
-I tried to make use of a good project as a source. However, puting bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
+<img src="/assets/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
 
-<img src="/assets/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
+I tried to make use of a good project as a source. However, importing bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
