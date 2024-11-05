@@ -10,7 +10,7 @@ First of all, please use WDAC and/or Applocker first, then write your detections
 
 ### Understanding Sigma and Wazuh
 
-As a security professional, you most probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. Wazuh, on the other hand, does not have a Sigma reading capability or a well known translator. I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in the stack of incompleted repositories of mine. For the very specific purpose of converting the LOLRMM's pre-built sigma rules, I crafted my own script to solve this one issue. The script is on [Github](link). It solved the issue for me and probably for you. Before using the code, I want to mention the challenges in this process, and your part when using the script.
+As a security professional, you most probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. Wazuh, on the other hand, does not have a Sigma reading capability or a well known translator. I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in the stack of incompleted repositories of mine. For the very specific purpose of converting the LOLRMM's pre-built sigma rules, I crafted my own script to solve this one issue. It solved the issue for me and probably for you. Before using the code, I want to mention the challenges in this process, and your part when using the script.
 
 ### The Conversion Process
 
