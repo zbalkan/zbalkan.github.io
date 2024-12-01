@@ -1,16 +1,16 @@
 ## Detecting RMM use with Wazuh
 
-Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://github.com/sheimo/awesome-lolbins-and-beyond) appeared and personally I don't think some of them are actually *Living Off the Land* by definition. However, some are useful anyway. The [LOLRMM](https://lolrmm.io/) is one of them, which allows writing prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools became a persistence method by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/). These tools are necessary while they are used as backdoors by attackers frequently. Therefore, LOLRMM is a great resource for securuty teams.
+Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://lolol.farm/) have appeared -though I don't think some of them are *Living Off the Land* by definition. However, some are useful anyway. The [LOLRMM](https://lolrmm.io/) is one of the useful *LOL\** projects, and it allows writing of prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools have become a persistence method used by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/), if not earlier. These tools are necessary and legitimate tools, especially for MSPs, while they are frequently used as backdoors by attackers. This makes LOLRMM is a great resource for security teams; a handcrafted list of RMMs with their detection methods, so you don't have to.
 
 <a href="https://lolrmm.io/" target="_blank"><img src="/assets/lolrmm.png" width="200" alt="LOLRMM.io"></a>
 
-First of all, please use WDAC and/or Applocker first, then write your detections. That's easier. Second, having all of the alerts would cause nothing but too much false positives. So, have a look at them and and fine tune for your environment.
+First of all, please use WDAC and/or Applocker first, then write your detections. Second, having all of the alerts would cause nothing but a torrent of false positives. It means you need to fine-tune for your environment.
 
 <img src="/assets/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
 
 ### Understanding Sigma and Wazuh
 
-As a security professional, you most probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. Wazuh, on the other hand, does not have a Sigma reading capability or a well known translator. I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in the stack of incompleted repositories of mine. For the very specific purpose of converting the LOLRMM's pre-built sigma rules, I crafted my own script to solve this one issue. It solved the issue for me and probably for you. Before using the code, I want to mention the challenges in this process, and your part when using the script.
+If you are a security professional, you most probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. If not, I can briefly tell you that Sigma is a format for security related detections, and also the rules and tools ecosystem around it. Wazuh, the open source SIEM used by many, neither has a Sigma rule processing capability nor a well known [converter backend](https://sigmahq-pysigma.readthedocs.io/en/stable/Backends.html). I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in my stack of incompleted repositories. For the very specific purpose of converting the LOLRMM's pre-built Sigma rules, I crafted a script to solve this issue. It solved the issue for me and probably for you. Before using the code, I want to mention the challenges in this process, and your part when using the script.
 
 ### The Conversion Process
 
@@ -30,7 +30,7 @@ The task of converting Sigma rules to Wazuh rules involves several key steps:
 4. Run the script with the proper arguments.
 5. The rules are generated on the target directory.
 
-#### Script
+### Script
 
 ```python
 #!/usr/bin/env python3
@@ -339,8 +339,8 @@ To implement the converted rules in Wazuh:
 
 ### Conclusion
 
-Out of 457 Sigma rules analyzed, 418 new rules are successfully converted into Wazuh-compatible rules. The remaining rules were are not suitable for conversion so script gives you a warning. You can write your own detections using the generated rules as examples if you need.
+Out of 457 Sigma rules analyzed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. You can write your detections using the generated rules as examples if you need to.
 
 <img src="/assets/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
 
-I tried to make use of a good project as a source. However, importing bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
+LOLRMM is a great resource. However, importing bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
