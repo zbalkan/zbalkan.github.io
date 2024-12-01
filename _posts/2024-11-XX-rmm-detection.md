@@ -1,26 +1,26 @@
 ## Detecting RMM use with Wazuh
 
-Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://lolol.farm/) have appeared -though I don't think some of them are *Living Off the Land* by definition. However, some are useful anyway. The [LOLRMM](https://lolrmm.io/) is one of the useful *LOL\** projects, and it allows writing of prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools have become a persistence method used by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/), if not earlier. These tools are necessary and legitimate tools, especially for MSPs, while they are frequently used as backdoors by attackers. This makes LOLRMM is a great resource for security teams; a handcrafted list of RMMs with their detection methods, so you don't have to.
+Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://lolol.farm/) have appeared -though I don't think some of them are *Living Off the Land* by definition. However, there are useful ones. The [LOLRMM](https://lolrmm.io/) is one of the useful *LOL\** projects, and it allows defenders to write prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools have become a persistence method used by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/), if not earlier. These tools are necessary and legitimate, especially for MSPs, while they are frequently used as backdoors by attackers. This makes LOLRMM a great resource for security teams; a handcrafted list of RMMs with their detection methods, so you don't have to.
 
 <a href="https://lolrmm.io/" target="_blank"><img src="/assets/lolrmm.png" width="200" alt="LOLRMM.io"></a>
 
-First of all, please use WDAC and/or Applocker first, then write your detections. Second, having all of the alerts would cause nothing but a torrent of false positives. It means you need to fine-tune for your environment.
+I'd like to note that, please use WDAC and/or Applocker first, then write your detections. Second, having all of the alerts would cause nothing but a torrent of false positives. It means you need to fine-tune for your environment.
 
 <img src="/assets/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
 
 ### Understanding Sigma and Wazuh
 
-If you are a security professional, you most probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. If not, I can briefly tell you that Sigma is a format for security related detections, and also the rules and tools ecosystem around it. Wazuh, the open source SIEM used by many, neither has a Sigma rule processing capability nor a well known [converter backend](https://sigmahq-pysigma.readthedocs.io/en/stable/Backends.html). I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in my stack of incompleted repositories. For the very specific purpose of converting the LOLRMM's pre-built Sigma rules, I crafted a script to solve this issue. It solved the issue for me and probably for you. Before using the code, I want to mention the challenges in this process, and your part when using the script.
+If you are a security professional, you probably know [Sigma](https://github.com/SigmaHQ/sigma), the YAML-based detection format. If not, I can briefly tell you that Sigma is a format for security-related detections, and also the rules and tools ecosystem around it. Wazuh, the open source SIEM used by many, neither has a Sigma rule processing capability nor a well-known [converter backend](https://sigmahq-pysigma.readthedocs.io/en/stable/Backends.html). I once decided to write a Wazuh backend for [pySigma](https://github.com/SigmaHQ/pySigma), but it found its place in my stack of incompleted repositories. For the very specific purpose of converting the LOLRMM's pre-built Sigma rules, I crafted a script to solve this issue. It solved the issue for me and probably for you. Before discussing the code, I want to mention the challenges in this process, and your part when using the script.
 
 ### The Conversion Process
 
 The task of converting Sigma rules to Wazuh rules involves several key steps:
 
 1. **Parsing Sigma Rules:** The Python script to parse the YAML-based Sigma rules is not Sigma-specific. It just reads them as YALML files and we use it as a dictionary internally. This script extracts essential components such as detection patterns, log sources, and conditions.
-2. **Mapping to Wazuh Syntax:** Translate the parsed Sigma components into Wazuh's XML-based rule syntax. This does not require an 100% understanding of both Sigma's and Wazuh's rule structures, since we are using almost a uniform sigma ruleset. Still it needs some care. I used the Sigma docs to find the known sigma log sources for Windows to event log sources.
-3. **Sysmon vs. FIM:** While many rules can be solved by just relying on Sysmon, file events are handled by File Integrity Monitoring (FIM). Therefore, we have a check that separates the Sysmon rules from FIM rules.
-4. **Exceptional cases:** The exceptional cases left are those lacking static Indicators of Compromise (IOCs). The rules labeled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you need it, you need to write your rules manually with the proper domain names.
-5. **Rule ID:** Rule ID is an [abstraction leak](https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/) for Wazuh. Rule IDs are not meaningful for the users. This should have been handled internally. However, until Wazuh 5.x, we must use the existing syntax. That is why I ave a variable there for the first ID of the rules. I prefer using prefixes to help me understand the rule ID and rule file name mapping. So if the custom rule file name is `5500-rmm_rules.xml`, I know that the rule IDs start from 550000. In the script, the default value is 100000, you wil will get `1000-rmm_rules.xml` as an output.
+2. **Mapping to Wazuh Syntax:** Translate the parsed Sigma components into Wazuh's XML-based rule syntax. This does not require a 100% understanding of both Sigma's and Wazuh's rule structures, since we are using almost a uniform Sigma ruleset. Still, it needs some care. I used the Sigma docs to find the known Sigma log sources for Windows to event log sources.
+3. **Sysmon vs. FIM:** While many rules can be solved by just relying on Sysmon, file events are handled by File Integrity Monitoring (FIM). Therefore, we have a check that separates the Sysmon rules from the FIM rules.
+4. **Exceptional cases:** The exceptional cases left are those lacking static Indicators of Compromise (IOCs). The rules labeled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you would like to use those rules, you have to write your rules manually with the proper domain names.
+5. **Rule ID:** Rule ID is an [abstraction leak](https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/) for Wazuh. Rule IDs are not meaningful for the users. This should have been handled internally. However, until/unless the Wazuh team decides to remove this property in 5.x, we must use the existing syntax. That is why I have a variable there for the first ID of the rules. I prefer using prefixes to help me understand the rule ID and rule file name mapping. So if the custom rule file name is `5500-rmm_rules.xml`, I know that the rule IDs start from 550000. In the script, the default value is 100000, you will get `1000-rmm_rules.xml` as an output.
 
 ### Generating rules
 
@@ -331,15 +331,15 @@ if __name__ == "__main__":
 To implement the converted rules in Wazuh:
 
 1. Ensure you have Sysmon deployed on endpoints.
-2. Create an endpoint group for testing. Add these lines below into your group's centralized configuration.
+2. Create an endpoint group for testing. Add these lines below to your group's centralized configuration.
 3. Ensure Wazuh is able to collect Sysmon logs.
 4. Add your custom rule file.
-5. Test it on the test computers. You don't have to actually install an RMM. Just create a file in a correct location with correct name. Or use `Invoke-WebRequest "https://cloud.acronis.com" | Out-Null` command to test the Acronis RMM rule. We don't need to check if it succeeded. We only need an application to make the request.
+5. Test it on the test computers. You don't have to actually install an RMM. Just create a file in the correct location with the correct name. Or use `Invoke-WebRequest "https://cloud.acronis.com" | Out-Null` command to test the Acronis RMM rule. We don't need to check if it succeeded. We only need an application to make the request.
 6. Check if the rule is triggered as expected.
 
 ### Conclusion
 
-Out of 457 Sigma rules analyzed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. You can write your detections using the generated rules as examples if you need to.
+Out of 457 Sigma rules analyzed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. Therefore, you can write your detections based on the generated rules.
 
 <img src="/assets/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
 
