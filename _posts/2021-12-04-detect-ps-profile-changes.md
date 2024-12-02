@@ -1,5 +1,9 @@
 ## Detect PowerShell Profile modifications
 
+- [FIM Configuration](#fim-configuration)
+- [Rules for FIM](#rules-for-fim)
+- [What to expect](#what-to-expect)
+
 PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, giving them a steady foothold in the system. I have mentioned this in my [previous post](https://zaferbalkan.com/2024/11/03/psreadline.html) very briefly, and I wanted to give an example.
 
 This technique becomes especially risky when the compromised PowerShell session runs with administrator privileges, allowing attackers to execute commands with elevated rights across the system. Detecting these profile modifications is crucial for preventing privileged code execution that could escalate attacks or enable lateral movement.
@@ -128,7 +132,7 @@ You can see that I added a registry setting along with the parameters. That's to
 </group>
 ```
 
-# What to expect
+### What to expect
 
 After you run the rules, you can find that the profile detections are there. Now, it is up to you to build more relevant detections.
 
