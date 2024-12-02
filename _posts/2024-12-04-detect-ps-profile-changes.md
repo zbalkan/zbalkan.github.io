@@ -4,11 +4,11 @@
 - [Rules for FIM](#rules-for-fim)
 - [What to expect](#what-to-expect)
 
-This is another post targeting IT and cyber security professionals who have experience or plan to test Wazuh in a production environment. But I wanted to add explanations just in case. Otherwise, it would have been a shorter read.
+This is another post targeting IT and cyber security professionals who have experience or plan to test Wazuh in a production environment. I included explanations for clarity; otherwise, this would have been a shorter read.
 
-[PowerShell profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.4) are customizable script files that load automatically when a PowerShell session starts. They allow users or administrators to [configure their environment](https://www.sans.org/blog/month-of-powershell-power-profile/) by defining variables, aliases, functions, or importing modules. There are different types of profiles, including those scoped for all users, specific users, or individual hosts, with paths varying by PowerShell version and operating system. In your PowerShell console, try reading the `$PROFILE` variable for your current profile (Current User, Current Host), which shows the content of `$PROFILE.CurrentUserCurrentHost`. For the other scopes, you can try `$PROFILE.CurrentUserAllHosts`, `$PROFILE.AllUsersCurrentHost`, and `$PROFILE.AllUsersAllHosts`. While useful for personalization and automation, these profiles can be an easy target as well.
+[PowerShell profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.4) are customizable script files that load automatically when a PowerShell session starts. They allow users or administrators to [configure their environment](https://www.sans.org/blog/month-of-powershell-power-profile/) by defining variables, aliases, functions, or importing modules. There are different types of profiles, including those scoped for all users, specific users, or individual hosts, with paths varying by PowerShell version and operating system. In your PowerShell console, you can use the `$PROFILE` variable to view your current profile (Current User, Current Host), corresponding to `$PROFILE.CurrentUserCurrentHost`. To explore other scopes, use `$PROFILE.CurrentUserAllHosts`, `$PROFILE.AllUsersCurrentHost`, and `$PROFILE.AllUsersAllHosts`. While useful for personalization and automation, these profiles can also become easy targets.
 
-PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, giving them a steady foothold in the system. I have mentioned this in my [previous post](https://zaferbalkan.com/2024/11/03/psreadline.html) very briefly, and I wanted to give an example.
+PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, giving them a steady foothold in the system. I briefly mentioned this in my [previous post](https://zaferbalkan.com/2024/11/03/psreadline.html) very briefly, and here I provide a detailed example.
 
 This technique becomes especially risky when the compromised PowerShell session runs with administrator privileges, allowing attackers to execute commands with elevated rights across the system. Detecting these profile modifications is crucial for preventing privileged code execution that could escalate attacks or enable lateral movement.
 
@@ -18,11 +18,11 @@ In the next sections, we’ll look at two ways to detect these modifications in 
 
 File Integrity Monitoring (FIM) is a security technology that tracks changes to files, directories, and system configurations to detect unauthorized or suspicious modifications. By comparing the current state of files against a known baseline, FIM can identify changes that may indicate malicious activity, such as tampering with critical system files, application configurations, or logs. Often used in compliance frameworks like PCI DSS and HIPAA, FIM is a vital tool for maintaining the integrity of systems, identifying potential breaches, and supporting forensic investigations in the event of an incident.
 
-If you managed to make it to this  paragraph, you are possibly a user of Wazuh and know about the FIM capability. If it is new to you, please look at the [official documentation](https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html) for how it works, how to configure and more. I want to mention that while the name focuses on change management for files, it also monitors the Windows registry because it is the equivalent of the `/etc/` folder. Change is inevitable and we need to [enable change](https://www.axelos.com/resource-hub/blog/itil_4_practitioner_change_enablement). Monitoring it is the first step, so please give it a read if you have not done so.
+If you’ve made it this far, you are likely familiar with Wazuh and its FIM capabilities. If you’re new to this, refer to the [official documentation](https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html) for details on how it works, configuration steps, and additional resources. I want to mention that while the name focuses on change management for files, it also monitors the Windows registry because it is the equivalent of the `/etc/` folder. Change is inevitable, and monitoring it is the first step. Refer to [enable change](https://www.axelos.com/resource-hub/blog/itil_4_practitioner_change_enablement) if you haven’t given a thought on "change management vs. change enablement" debate.
 
-I suggest you use a centralized configuration for this setup. I prefer testing it with a custom endpoint group, and placing this inside the `syscheck` section. For the sake of brevity, I only added the XML tags regarding the paths. Then you can apply this to the test group and wait for `keepalive` to update the configuration but the new paths may not be checked before a full inventory scan. So, I suggest restarting the agents either locally or remotely by using DevTools and using `PUT /agents/group/<test group name>/restart`.
+I suggest you use a centralized configuration for this setup. I prefer testing it with a custom endpoint group, and placing this inside the `syscheck` section. For the sake of brevity, I only added the XML tags regarding the paths. Apply this configuration to the test group and wait for `keepalive` o update it. Note that new paths may not be checked until a full inventory scan is complete. I recommend restarting the agents either locally or remotely via DevTools using the `PUT /agents/group/<test group name>/restart` command.
 
-With the configuration below, you can enable real-time detection. I didn't use the `restrict` attribute since the detection only works with directories. Keep in mind that during scheduled FIM module scans, the real-time change detection is interrupted and then resumes as soon as the scans are finished. Therefore you need to wait for this rule to be triggered if the initial `syscheck` scan is still running.
+With the configuration below, you can enable real-time detection. I didn't use the `restrict` attribute since the detection only works with directories. Note that during scheduled FIM module scans, real-time change detection is temporarily interrupted and resumes once the scans are complete. Therefore you need to wait for this rule to be triggered if the initial `syscheck` scan is still running.
 
 ```xml
       <!-- PowerShell 7 -->
@@ -36,7 +36,7 @@ With the configuration below, you can enable real-time detection. I didn't use t
       <windows_registry arch="both">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SysmonDrv\Parameters\Rules</windows_registry>
 ```
 
-You can see that I added a registry setting along with the parameters. That's to allow Sysmon configuration changes to be monitored. While Sysmon has event logs to let us know about the changes, if an attacker needs to silence the Sysmon alerts, they can just modify this blob directly for stealth.
+You can see that I added a registry setting along with the parameters. This ensures that Sysmon configuration changes are monitored. While Sysmon has event logs to let us know about the changes, if an attacker needs to silence the Sysmon alerts, they can just modify this blob directly for stealth.
 
 ### Rules for FIM
 
@@ -134,7 +134,7 @@ You can see that I added a registry setting along with the parameters. That's to
     <rule id="750160" level="2" frequency="1" timeframe="10">
       <if_matched_sid>61644</if_matched_sid>
       <if_sid>750159</if_sid>
-      <description>Suppress legitimate changes if there is an event log created within last 10 seconds.</description>
+      <description>Suppress legitimate changes if an event log is created within the last 10 seconds.</description>
     </rule>
 
 </group>
@@ -142,11 +142,11 @@ You can see that I added a registry setting along with the parameters. That's to
 
 ### What to expect
 
-After configuring the rules and allowing the system to monitor changes, you should start receiving alerts in Wazuh when modifications are detected. For example:
+Once the rules are configured and the system is monitoring changes, Wazuh will begin generating alerts for detected modifications. For example:
 
-- An alert may indicate a modification to `$PROFILE` in the scopes you have defined.
-- Registry changes to Sysmon's configuration parameters will also be flagged, helping you detect potential tampering with logging mechanisms.
-
-Now, it is up to you to refine these rules further and build more relevant detections tailored to your environment. Ensure that detected changes are investigated promptly, and legitimate updates are documented to avoid false positives.
+- Alerts may indicate a modification to `$PROFILE` within the defined scopes.
+- Registry changes to Sysmon's configuration parameters will also trigger alerts, aiding in the detection of potential tampering with logging mechanisms.
 
 <img src="/assets/wazuh-fim-profile.png" width="600" alt="Voila!">
+
+Next, refine these rules and create more tailored detections specific to your environment. Investigate detected changes promptly and document legitimate updates to minimize false positives.
