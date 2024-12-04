@@ -1,4 +1,4 @@
-## Detect PowerShell Profile modifications
+## Detect PowerShell Profile modifications with Wazuh
 
 - [FIM Configuration](#fim-configuration)
 - [Rules for FIM](#rules-for-fim)
