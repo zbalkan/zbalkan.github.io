@@ -15,20 +15,22 @@ At the heart of compliance and cybersecurity is the principle of **risk manageme
 Compliance frameworks are designed to mitigate **systemic risks**—those that threaten the stability of entire systems, sectors, or regions[^1]. These risks are **owned by regulators**, who define objectives that serve the broader ecosystem.
 
 - **Example**: PCI DSS aims to ensure the stability of payment systems by enforcing a baseline of security controls across participating entities.
-- **Focus**: Regulators are concerned with preventing cascading failures, not individual company outcomes. For instance, EMV Co focuses on systemic payment system integrity, not whether a company survives a ransomware attack.[^2]
+- **Focus**: Regulators are concerned with preventing cascading failures, not individual company outcomes. For instance, EMV Co focuses on systemic payment system integrity, not whether a company survives a ransomware attack[^2].
 
 #### Cybersecurity: Managing Organizational Risks
 
-Cybersecurity, in contrast, focuses on **organizational risks**—unique threats to a company’s assets, operations, and reputation. These risks are **owned by the organization** and require tailored, dynamic responses. Continuing the theme of financial jargon, we can call the [idiosyncratic risks](https://corporatefinanceinstitute.com/resources/career-map/sell-side/risk-management/idiosyncratic-risk/) as well.[^3]
+Cybersecurity, in contrast, focuses on **organizational risks**—unique threats to a company’s assets, operations, and reputation. These risks are **owned by the organization** and require tailored, dynamic responses. Continuing the theme of financial jargon, we can call the [idiosyncratic risks](https://corporatefinanceinstitute.com/resources/career-map/sell-side/risk-management/idiosyncratic-risk/) as well[^3].
 
 - **Example**: A company may deploy advanced endpoint detection systems to prevent ransomware attacks, even if such measures are not required by compliance frameworks.
 - **Focus**: Security efforts prioritize the entity’s resilience and continuity, addressing risks that compliance does not cover.
 
 **The Divergence**: Regulators own systemic risks and set compliance objectives for collective stability, while organizations own cybersecurity risks and adapt to their unique, evolving threats. This fundamental separation creates limits to the convergence of compliance and cybersecurity.
 
+This proposition does not mean systemic risks are too broad to consider cyber risks. On the contrary, cyber risks ARE systemic risks[^4]. 
+
 ### The Ratio Legis of Compliance
 
-To understand the limits of harmonization, we must revisit the **ratio legis** —the reason behind the law— for compliance frameworks. Compliance exists to protect systemic stability, not individual entities. Its purpose is to create a baseline that ensures no single participant undermines the integrity of the entire system.
+To understand the limits of harmonization, we must revisit the **ratio legis** —the reason behind the law— for compliance frameworks. Compliance, with all regulatory and supervisory bodies, exists to protect stability of ecosystems, not individual entities. Its purpose is to create a baseline that ensures no single participant undermines the integrity of the entire system.
 
 This explains why compliance frameworks:
 
@@ -62,13 +64,13 @@ The alignment of compliance and cybersecurity has natural limits due to their di
 To complement Venables’ vision, here are practical ways to approach the alignment of compliance and cybersecurity while respecting their inherent differences:
 
 1. **Use Compliance as a Baseline**:
-   - Treat compliance frameworks as a starting point, not a ceiling. Extend beyond them with security measures tailored to the organization’s risks.
+   - Treat compliance frameworks as a starting point, not an end state. Compliance is one of the means to the end state of the ecosystem, not  of your organization. You can use compliance frameworks as baselines but you must extend beyond them with security measures tailored to the organization’s risks. 
 
 2. **Bridge Gaps Strategically**:
    - Harmonize reporting and certification processes where possible to reduce operational burdens without expecting complete convergence.
 
 3. **Educate Stakeholders**:
-   - Help regulators and businesses understand the structural limits of alignment, focusing efforts on areas of mutual benefit.
+   - Help regulators and businesses understand the structural limits of alignment, focusing efforts on areas of mutual benefit. [Expectation management](https://www.risk.inc/blog/mastering-expectation-management-tips-strategies) is the key in communication.
 
 4. **Focus on Shared Objectives**:
    - Identify areas where compliance and cybersecurity naturally overlap, such as incident response coordination, and prioritize harmonization there.
@@ -88,3 +90,5 @@ This criticism is provided in an effort to foster discussion. I hope my observat
 [^2]:  I would like to note that due to the interdependent nature of the real world, the network of entities has some nodes that are more significant than others in the scale of the cascading failure probability. Of course, the statement that "EMV Co focuses on systemic payment system integrity, not whether a company survives a ransomware attack" does not apply to those critical nodes of the interdependency network.
 
 [^3]: For a better understanding of systemic risk and idiosyncratic risks, I suggest [the short reading from Systemic Risk Centre](https://www.systemicrisk.ac.uk/systemic-risk).
+
+[^4]: A cyber incident on critical nodes can cascade aggregated failures and very well fits into the definition of systemix risk. According to a relatively [recent scenario](https://www.lloyds.com/about-lloyds/media-centre/press-releases/lloyds-systemic-risk-scenario-reveals-global-economy-exposed-to-3.5trn-from-major-cyber-attack), the stakes are high. Cyber risks are in the radar of the EU institutions. The European Systemic Risk Board regular meetings always has [an honorable mention](https://www.esrb.europa.eu/news/pr/date/2024/html/esrb.pr241205~6f54b13a54.en.html) for systemic cyber risks.
