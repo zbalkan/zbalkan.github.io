@@ -4,6 +4,8 @@ Phil Venables, recently shared [his perspective](https://www.philvenables.com/po
 
 My critique is not of Venables’ call to action —it is sound and necessary— but rather a complementary addition to the discussion. By recognizing the inherent restrictions to harmonization, in my perspective, we can set realistic expectations and actionable goals for achieving alignment where it truly matters.
 
+Before I begin, I would like to point out that I work in payments sector, therefore my approach to risk has flavors from both cyber risk and financial risk taxonomy.
+
 ### Different Risk Owners, Different Objectives
 
 At the heart of compliance and cybersecurity is the principle of **risk management**, but they approach it from different vantage points.
