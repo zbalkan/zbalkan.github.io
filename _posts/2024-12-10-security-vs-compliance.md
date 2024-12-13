@@ -1,8 +1,8 @@
 ## Security vs. Compliance: A Humble Critique of Phil Venables’ Vision for Harmonization
 
-Phil Venables, a respected leader in cybersecurity, recently shared his perspective on harmonizing compliance and cybersecurity frameworks. His article highlights inefficiencies in regulatory processes and argues for alignment to streamline operations and enhance risk management. While his vision is compelling and valuable, I believe it’s crucial to explore a limitation that stems from the very nature of compliance and cybersecurity: they address fundamentally different risks, owned by distinct entities with divergent objectives.
+Phil Venables, recently shared [his perspective](https://www.philvenables.com/post/regulatory-harmonization-let-s-get-real) on harmonizing compliance and cybersecurity frameworks. His article highlights inefficiencies in regulatory processes and argues for alignment to streamline operations and enhance risk management. While his vision is compelling and valuable, I believe it’s crucial to explore a limitation that stems from the very nature of compliance and cybersecurity: they address fundamentally different risks, owned by distinct entities with divergent objectives.
 
-My critique is not of Venables’ call to action—it is sound and necessary—but rather a complementary addition to the discussion. By recognizing the inherent restrictions to harmonization, we can set realistic expectations and actionable goals for achieving alignment where it truly matters.
+My critique is not of Venables’ call to action —it is sound and necessary— but rather a complementary addition to the discussion. By recognizing the inherent restrictions to harmonization, in my perspective, we can set realistic expectations and actionable goals for achieving alignment where it truly matters.
 
 ### Different Risk Owners, Different Objectives
 
@@ -17,7 +17,7 @@ Compliance frameworks are designed to mitigate **systemic risks**—those that t
 
 #### Cybersecurity: Managing Organizational Risks
 
-Cybersecurity, in contrast, focuses on **organizational risks**—unique threats to a company’s assets, operations, and reputation. These risks are **owned by the organization** and require tailored, dynamic responses.
+Cybersecurity, in contrast, focuses on **organizational risks**—unique threats to a company’s assets, operations, and reputation. These risks are **owned by the organization** and require tailored, dynamic responses. Continuing the theme of financial jargon, we can call the [idiosyncratic risks](https://corporatefinanceinstitute.com/resources/career-map/sell-side/risk-management/idiosyncratic-risk/) as well.[^3]
 
 - **Example**: A company may deploy advanced endpoint detection systems to prevent ransomware attacks, even if such measures are not required by compliance frameworks.
 - **Focus**: Security efforts prioritize the entity’s resilience and continuity, addressing risks that compliance does not cover.
@@ -26,7 +26,7 @@ Cybersecurity, in contrast, focuses on **organizational risks**—unique threats
 
 ### The Ratio Legis of Compliance
 
-To understand the limits of harmonization, we must revisit the **ratio legis**—the reason behind the law—for compliance frameworks. Compliance exists to protect systemic stability, not individual entities. Its purpose is to create a baseline that ensures no single participant undermines the integrity of the entire system.
+To understand the limits of harmonization, we must revisit the **ratio legis** —the reason behind the law— for compliance frameworks. Compliance exists to protect systemic stability, not individual entities. Its purpose is to create a baseline that ensures no single participant undermines the integrity of the entire system.
 
 This explains why compliance frameworks:
 
@@ -81,6 +81,8 @@ This criticism is provided in an effort to foster discussion. I hope my observat
 
 ---
 
-[^1]: In this article, I use the term **systemic risk** in a broader way than its primary meaning used in finance, which focuses on the collapse of financial systems or markets due to cascading failures. Here, **systemic risk** refers to threats to the stability of any large-scale, interconnected system, like payment networks, energy grids, or even global financial systems. This broader view highlights common traits of systemic risks: they’re interconnected, they can have far-reaching impacts, and managing them requires collaboration between regulators, supervisors, and organizations. By looking at systemic risk this way, we can better understand how compliance frameworks work to keep entire systems stable, whether we’re talking about critical infrastructure or global networks.
+[^1]: In this article, I use the term **systemic risk** in a broader way than its [primary meaning used in finance](https://en.m.wikipedia.org/wiki/Systemic_risk), which focuses on the collapse of financial systems or markets due to cascading failures. Here, **systemic risk** refers to threats to the stability of any large-scale, interconnected system, like payment networks, energy grids, or even global financial systems. This broader view highlights common traits of systemic risks: they’re interconnected, they can have far-reaching impacts, and managing them requires collaboration between regulators, supervisors, and organizations. By looking at systemic risk this way, we can better understand how compliance frameworks work to keep entire systems stable, whether we’re talking about critical infrastructure or global networks.
 
 [^2]:  I would like to note that due to the interdependent nature of the real world, the network of entities has some nodes that are more significant than others in the scale of the cascading failure probability. Of course, the statement that "EMV Co focuses on systemic payment system integrity, not whether a company survives a ransomware attack" does not apply to those critical nodes of the interdependency network.
+
+[^3]: For a better understanding of systemic risk and idiosyncratic risks, I suggest [the short reading from Systemic Risk Centre](https://www.systemicrisk.ac.uk/systemic-risk).
