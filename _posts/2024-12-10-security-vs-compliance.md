@@ -65,9 +65,13 @@ I'd like to point out where my opinions differ.
 
 While I agree with the statement "necessary but not sufficient", this perspective puts compliance efforts in a position to improve the organization's posture. Since the objectives are distinct, the risk mitigation controls are distinct as well. Especially, almost all compliance requirements have a scope. And that scope is generally just a subset of the organization's assets.
 
+<img src="/assets/objectives.png" width="600" alt="Objectives, Risks, Controls">
+
 > First, let’s define compliance as some scheme or rule set to assure a system of governance, risk mitigation and controls that you are operating in evidenced conformance to.
 
 In my opinion, compliance and risk reduction are not two partially overlapping topics. Compliance **is** a risk reduction measure.
+
+<img src="/assets/Perspective.png" width="600" alt="Perspectives">
 
 In sum, the alignment of compliance and cybersecurity has natural limits due to their differing objectives and ownership structures:
 
@@ -85,6 +89,10 @@ Phil Venables’ call for harmonization is an important and valuable contributio
 Acknowledging these structural constraints allows us to set realistic goals for harmonization. Instead of striving for perfect alignment, we should manage the interplay between compliance and security intelligently, leveraging their strengths to build resilient organizations and stable ecosystems. By doing so, we can contribute meaningfully to the shared goal of effective risk management.
 
 This criticism is provided in an effort to foster discussion. I hope my observations expand the debate and promote a fair harmonisation strategy.
+
+Now, have a look at the diagram below. Depending on the regulation your organization tries to comply with, which position do you believe is closer to your status?
+
+<img src="/assets/Overlap.png" width="600" alt="Overlapping objectives">
 
 ---
 
