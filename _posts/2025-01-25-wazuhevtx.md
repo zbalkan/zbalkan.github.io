@@ -1,16 +1,24 @@
-## Enhancing Wazuh Rule Testing with wazuhevtx: A Solution for Windows Event Logs
+## Enhancing Wazuh Rule Testing with `wazuhevtx`: A Solution for Windows Event Logs
 
-Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to a wide range of security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the wazuh-logtest tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
+Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to a wide range of security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
 
-However, when it comes to Windows event logs, wazuh-logtest presents a unique challenge. In this article, we’ll explore the problem and introduce wazuhevtx, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
+However, when it comes to Windows event logs, `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
-### Rule Testing with wazuh-logtest
+### Rule Testing with `wazuh-logtest`
 
-The wazuh-logtest tool is an interactive utility that enables users to test rules and decoders in isolation. It allows you to paste sample logs, view their processing lifecycle, and observe which rules match. This three-phase process—pre-decoding, decoding, and filtering—helps users debug decoders, refine rules, and validate expected behaviors.
+The `wazuh-logtest` tool is an interactive utility that enables users to test rules and decoders in isolation. It allows you to paste sample logs, view their processing lifecycle, and observe which rules match. This three-phase process—pre-decoding, decoding, and filtering—helps users debug decoders, refine rules, and validate expected behaviors. You can find the [official documentation of the tool](https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html) for parameters, [getting started guide](https://documentation.wazuh.com/current/user-manual/ruleset/testing.html), and [architecture](https://documentation.wazuh.com/current/development/wazuh-logtest.html) on Wazuh resources.
 
-#### How wazuh-logtest Works
+#### How `wazuh-logtest` Works
 
-1. **Launch the Tool:** Run wazuh-logtest interactively:
+First of all, you need to understand that it is not possible to run `wazuh-logtest` as an independent tool on your workstation. It is a component of Wazuh manager, namely part of `analysisd`. Therefore, the tool runs on the Wazuh manager nodes. It creates isolated sessions so that these are not mixed with actual logs forwarded to analysis.
+
+While it is tempting to modify it to work locally -or remotely, depending on where you look at it, the tool uses AF_UNIX sockets instead of [RESTful API](https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Logtest). If you want to work with it remotely, you may want to write a client and allow HTTPS traffic to your server [over TCP/55000](https://documentation.wazuh.com/current/getting-started/architecture.html). You can use curl, Postman or [Bruno](https://docs.usebruno.com/introduction/what-is-bruno) or any scripting language of your preference as well.
+
+I will focus on the CLI tool insted. Let's go step by step:
+
+1. **Launch the Tool:** Run `wazuh-logtest` interactively:
+
+On Wazuh manager node, run this command to start.
 
 ```bash
 /var/ossec/bin/wazuh-logtest
@@ -25,46 +33,49 @@ Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 po
 3. **Analyze the Output:** The tool processes the log in three phases
 
   Phase 1: Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp.
-  Phase 2: Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser).
-  Phase 3: Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.
+<img src="/assets/logtest-phase1.png" width="600" alt="Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp">
 
-This process makes wazuh-logtest invaluable for testing and debugging custom rules—except when dealing with Windows event logs.
+  Phase 2: Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser).
+<img src="/assets/logtest-phase2.png" width="600" alt="Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser)">
+
+  Phase 3: Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.
+<img src="/assets/logtest-phase3.png" width="600" alt="Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.">
+
+This process makes `wazuh-logtest` invaluable for testing and debugging custom rules—except when dealing with Windows event logs.
 
 #### The Problem with Windows Event Logs
 
-Unlike typical logs, Windows event logs are structured, binary files that bypass standard decoders. Instead, the Wazuh agent uses a specialized C library to process these logs locally before sending them to the manager[^1]. As a result:
+Unlike typical logs stored as plaintext, Windows event logs are structured binary files that are beyond Wazuh decoders. Instead, the Wazuh agent uses a Win32 API functions provided by [wevtapi.dll](https://windows10dll.nirsoft.net/wevtapi_dll.html) to process these logs locally before sending them to the manager[^1]. The logs are converted to JSON formatted logs with the metadata of `log_format` as `windows_eventchannel` so that they are not acidentally parsed as a JSON log.
 
-* Windows event logs cannot be tested directly in wazuh-logtest.
-* Users are unable to paste raw event data or verify rules against Windows logs in the same way they do with syslog or audit logs.
+This causes several issues. First, Windows event logs cannot be tested directly in `wazuh-logtest` because users are unable to paste raw event data (well, they need to extract text out of event logs first but even then it's not possible) or verify rules against Windows logs in the same way they do with syslog or audit logs.
 
-This limitation leaves a critical gap for Wazuh users who need to validate rules for Windows event channels like Sysmon or Security-Auditing.
+This limitation leaves a critical gap for Wazuh users who need to validate rules for Windows event channels like Sysmon or Security-Auditing. Especially if you want to test your ability if you can detect known attacks given that you have event logs extracted.
 
-### Introducing wazuhevtx
+### Introducing `wazuhevtx`
 
-To address this challenge, we developed wazuhevtx, a Python tool that converts Windows event logs (EVTX) into JSON formatted logs that mimic the output of the Wazuh agent. This allows users to test Windows event logs interactively with wazuh-logtest.
+To address this challenge, I developed `wazuhevtx`, a Python tool that converts Windows event logs (EVTX) into JSON formatted logs that mimic the output of the Wazuh agent. This allows users to test Windows event logs interactively with `wazuh-logtest`.
 
-#### What Does wazuhevtx Do?
+It is neither the first attempt not the only publicly available one. The most well-known attempt is a [PowerShell script](https://github.com/dariommr/scripts/blob/master/tools/windows-events/Event-Converter.ps1) written by [Darío Menten](https://github.com/dariommr). However, that's not perfect as it does not 100% produce the logs Wazuh agent does. Therefore, the results were not reliable.
 
-wazuhevtx:
+I wrote `wazuhevtx` in Python, because I wanted to have a toolkit that I can integrate with each other. However, I came to the conclusion that it is not viable to write a cross-platform script due to dependency against Windows APIs that generates the human readable Message field, which is not included in the logs but rendered based on the event log provider resources. It wouldn't be feasible to rewrite all Event Log providers just to make this tool work on Linux and Mac. But if I kenw I would toss against this wall, I'd just fork the script of Darío and improve it.
 
-* Reads binary EVTX files from Windows systems.
-* Converts events into structured JSON logs, formatted as the Wazuh agent would send them.
-* Supports standardized fields like win.system and win.eventdata, ensuring compatibility with Wazuh rules and decoders.
-* Enables seamless rule testing in wazuh-logtest.
+On the other hand, I made it to work as both a CLI tool and a library, so you can integrate it into your pipeline, if you will.
 
-By bridging the gap between EVTX logs and Wazuh's rule testing capabilities, wazuhevtx empowers users to validate and fine-tune rules for Windows event logs.
+#### What Does `wazuhevtx` Do?
 
-#### How to Use wazuhevtx
+`wazuhevtx` reads binary EVTX files from Windows systems, converts events into structured JSON logs, formatted as the Wazuh agent would send them in order to enable seamless rule testing in `wazuh-logtest`. It's like an emulator for Wazuh agent that works only for `evtx` files.
+
+#### How to Use `wazuhevtx`
 
 ##### Step 1: Install the Tool
 
-You can use `pip` or clone the repository. If you want to use it both as a library and a CLI tool, install the module using `pipx install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`, after you created a virtual environment of your preference.
+You can use `pip` or clone the repository if you want to use it both as a library and a CLI tool. Install the module using `pip install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`, after you created a virtual environment of your preference.
 
-If you plan to use it only as a CLI tool, I recommend using `pipx` instead.
+If you plan to use it only as a CLI tool, I recommend using `pipx` instead. The command is simple: `pipx install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`
 
 ##### Step 2: Prepare Wazuh server for testing
 
-In order to be able to test with `wazuh-logtest` utility, you need a workaround as we are sending JSON logs, not `event_channel` format.
+In order to be able to test with `wazuh-logtest` utility, you need a workaround as the tool generates JSON logs, not `windows_eventchannel` format[^2].
 
 * Navigate to `/var/ossec/ruleset/rules/0575-win-base_rules.xml` file.
 * Update the rule 60000 this way:
@@ -80,23 +91,27 @@ In order to be able to test with `wazuh-logtest` utility, you need a workaround 
 </rule>
 ```
 
+As I said, you would not want to do it in your production environment. Either pop up an [all-in-one (AIO) virtual machine using the OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) on your workstation, or have a dedicated test installation in your environment. There's an alternative way, but I'll come to that later.
+
+<img src="/assets/testenv.jpeg" width="600" alt="Test environment meme">
+
 ##### Step 3: Convert EVTX Logs to JSON
 
-Run the wazuhevtx tool with your EVTX file as input:
+Run the `wazuhevtx` tool with your EVTX file as input:
 
 ```bash
 python wazuhevtx.py sysmon-1.evtx -o sysmon1.json
 ```
 
-##### Step 4: Test Logs in wazuh-logtest
+##### Step 4: Test Logs in `wazuh-logtest`
 
-1. Launch wazuh-logtest:
+1. Launch `wazuh-logtest`:
 
 ```bash
 /var/ossec/bin/wazuh-logtest
 ```
 
-2. Copy a single JSON log from the output file (sample.json) and paste it into the wazuh-logtest terminal:
+2. Copy a single JSON log from the output file (sample.json) and paste it into the `wazuh-logtest` terminal:
 
 ```json
 {"win": {"system": {"providerName": "Microsoft-Windows-Sysmon", "providerGuid": "{5770385f-c22a-43e0-bf4c-06f5698ffbd9}", "eventID": "1", "version": "5", "level": "4", "task": "1", "opcode": "0", "keywords": "0x8000000000000000", "systemTime": "2025-01-20 19:17:01.622587", "eventRecordID": "8513729", "processID": "5984", "threadID": "5172", "channel": "Microsoft-Windows-Sysmon/Operational", "computer": "LABPC", "severityValue": "INFORMATION", "correlation": {"@ActivityID": "", "@RelatedActivityID": ""}, "message": "RuleName: technique_id=T1083,technique_name=File and Directory Discovery\r\nUtcTime: 2025-01-20 19:17:01.619\r\nProcessGuid: {480c9770-a12d-678e-2213-000000007002}\r\nProcessId: 16936\r\nImage: C:\\Program Files\\Mozilla Firefox\\firefox.exe\r\nFileVersion: 134.0.1\r\nDescription: Firefox\r\nProduct: Firefox\r\nCompany: Mozilla Corporation\r\nOriginalFileName: firefox.exe\r\nCommandLine: \"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20250113121357 -prefsHandle 1940 -prefsLen 24793 -prefMapHandle 1944 -prefMapSize 265795 -ipcHandle 2008 -initialChannelId {eee169d3-e43f-4043-b52d-1ecfbf1fbb4e} -parentPid 11208 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.11208\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 1 socket\r\nCurrentDirectory: C:\\ProgramData\\Mozilla-1de4eec8-1241-4177-a864-e594e8d1fb38\\updates\\308046B0AF4A39CB\\\r\nUser: LABPC\\Zafer\r\nLogonGuid: {480c9770-7822-678e-0982-040000000000}\r\nLogonId: 0x0000000000048209\r\nTerminalSessionId: 1\r\nIntegrityLevel: Low\r\nHashes: SHA1=75D45A363C5AFD2842054F1AC8C623F31F7B634D,MD5=7965045DCEFD7B6E7AC6E62819F0AA55,SHA256=D8F655E89B08AE12EDDEA0A9E43780BC21B8785BAA4F5A832BC2B53A8C634365,IMPHASH=BB4CE52E8306F88C0B1DA570553704E4\r\nParentProcessGuid: {480c9770-a12c-678e-1e13-000000007002}\r\nParentProcessId: 11208\r\nParentImage: C:\\Program Files\\Mozilla Firefox\\firefox.exe\r\nParentCommandLine: \"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" --MOZ_LOG sync,prependheader,timestamp,append,maxsize:1,Dump:5 --MOZ_LOG_FILE C:\\ProgramData\\Mozilla-1de4eec8-1241-4177-a864-e594e8d1fb38\\updates\\308046B0AF4A39CB\\backgroundupdate.moz_log --backgroundtask backgroundupdate\r\nParentUser: LABPC\\Zafer"}, "eventdata": {"ruleName": "technique_id=T1083,technique_name=File and Directory Discovery", "utcTime": "2025-01-20 19:17:01.619", "processGuid": "{480c9770-a12d-678e-2213-000000007002}", "processId": "16936", "image": "C:\\Program Files\\Mozilla Firefox\\firefox.exe", "fileVersion": "134.0.1", "description": "Firefox", "product": "Firefox", "company": "Mozilla Corporation", "originalFileName": "firefox.exe", "commandLine": "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" -contentproc -parentBuildID 20250113121357 -prefsHandle 1940 -prefsLen 24793 -prefMapHandle 1944 -prefMapSize 265795 -ipcHandle 2008 -initialChannelId {eee169d3-e43f-4043-b52d-1ecfbf1fbb4e} -parentPid 11208 -crashReporter \"\\\\.\\pipe\\gecko-crash-server-pipe.11208\" -win32kLockedDown -appDir \"C:\\Program Files\\Mozilla Firefox\\browser\" - 1 socket", "currentDirectory": "C:\\ProgramData\\Mozilla-1de4eec8-1241-4177-a864-e594e8d1fb38\\updates\\308046B0AF4A39CB\\", "user": "LABPC\\Zafer", "logonGuid": "{480c9770-7822-678e-0982-040000000000}", "logonId": "0x0000000000048209", "terminalSessionId": "1", "integrityLevel": "Low", "hashes": "SHA1=75D45A363C5AFD2842054F1AC8C623F31F7B634D,MD5=7965045DCEFD7B6E7AC6E62819F0AA55,SHA256=D8F655E89B08AE12EDDEA0A9E43780BC21B8785BAA4F5A832BC2B53A8C634365,IMPHASH=BB4CE52E8306F88C0B1DA570553704E4", "parentProcessGuid": "{480c9770-a12c-678e-1e13-000000007002}", "parentProcessId": "11208", "parentImage": "C:\\Program Files\\Mozilla Firefox\\firefox.exe", "parentCommandLine": "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" --MOZ_LOG sync,prependheader,timestamp,append,maxsize:1,Dump:5 --MOZ_LOG_FILE C:\\ProgramData\\Mozilla-1de4eec8-1241-4177-a864-e594e8d1fb38\\updates\\308046B0AF4A39CB\\backgroundupdate.moz_log --backgroundtask backgroundupdate", "parentUser": "LABPC\\Zafer"}}}
@@ -104,6 +119,8 @@ python wazuhevtx.py sysmon-1.evtx -o sysmon1.json
 ```
 
 3. Observe the output:
+
+Check matched rules, extracted fields, and compliance mappings: you can see, without needing a custom decoder, we extracted all JSON fields, then we managed to get the Sysmon event as a level-0 alert.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.
@@ -181,25 +198,23 @@ ParentUser: LABPC\Zafer'
         mail: 'False'
 ```
 
-Check matched rules, extracted fields, and compliance mappings: you can see, without needing a custom decoder, we extracted all JSON fields, then we managed to get the Sysmon event as a level-0 alert.
-
 ### Let's (re)play
 
-The reason is mentioned in the introduction. We are complementing the log testing capability of Wazuh, and Event Logs were an edge case. You can now replay known attacks, and see the detection capabilities of your ruleset.
+The reason I built this, as mentioned in the introduction, to complement the log testing capability of Wazuh, and Event Logs were an edge case. A very big one. You can now replay known attacks, and see the detection capabilities of your ruleset.
 
 Let's give it a shot with amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden).
 
 <img src="/assets/attack-samples.png" width="600" alt="Screenshot of the Github repository">
 
-In the same repo we download the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the Windows User Account Control (UAC) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
+In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the Windows User Account Control (UAC) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
 
 <img src="/assets/uacme.png" width="600" alt="Screenshot of the file from Github repository">
 
-My methodoogy includes comparison of the event log displayed on Event Viever against Wazuh logtest results. We are using the default ruleset, so that we can see what Wazuh base ruleset is capable of, and if we have opportunities to write custom detections.
+My methodoogy includes comparison of the event log displayed on Event Viever against Wazuh logtest results. I am using the default ruleset, so that it is possible to see what Wazuh base ruleset is capable of, and if there are any opportunities to write custom detections.
 
 <img src="/assets/uacme-sysmon.png" width="600" alt="Screenshot of the event logs">
 
-We see that there are 7 events in the sample# therefore i will include 7 subsections here.
+You can see that there are 7 events in the sample, therefore I will include 7 subsections here.
 
 #### Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)
 
@@ -257,3 +272,4 @@ This tool requires manual interaction with wazug-logtest tool as the tool reside
 ---
 
 [^1] As a side note, this is valid for 4.x versions and earlier. Upcoming version, Wazuh 5.0 may not need it.
+[^2] You can try to initiate wazuh-logtest like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
