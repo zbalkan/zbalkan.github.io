@@ -67,6 +67,8 @@ On the other hand, I made it to work as both a CLI tool and a library, so you ca
 
 #### How to Use `wazuhevtx`
 
+Here I will use `wazuh-logtest` the way I did above, with some extra steps.
+
 ##### Step 1: Install the Tool
 
 You can use `pip` or clone the repository if you want to use it both as a library and a CLI tool. Install the module using `pip install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`, after you created a virtual environment of your preference.
@@ -92,8 +94,6 @@ In order to be able to test with `wazuh-logtest` utility, you need a workaround 
 ```
 
 As I said, you would not want to do it in your production environment. Either pop up an [all-in-one (AIO) virtual machine using the OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) on your workstation, or have a dedicated test installation in your environment. There's an alternative way, but I'll come to that later.
-
-<img src="/assets/testenv.jpeg" width="600" alt="Test environment meme">
 
 ##### Step 3: Convert EVTX Logs to JSON
 
@@ -202,11 +202,11 @@ ParentUser: LABPC\Zafer'
 
 The reason I built this, as mentioned in the introduction, to complement the log testing capability of Wazuh, and Event Logs were an edge case. A very big one. You can now replay known attacks, and see the detection capabilities of your ruleset.
 
-Let's give it a shot with amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden).
+Let's give it a shot with amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden). I will use the same steps above, but with a better input.
 
 <img src="/assets/attack-samples.png" width="600" alt="Screenshot of the Github repository">
 
-In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the Windows User Account Control (UAC) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
+In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the [Windows User Account Control (UAC)](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
 
 <img src="/assets/uacme.png" width="600" alt="Screenshot of the file from Github repository">
 
@@ -267,9 +267,15 @@ Get the Tool: [wazuhevtx GitHub Repository](https://github.com/zbalkan/wazuhevtx
 
 ### Postscriptum
 
-This tool requires manual interaction with wazug-logtest tool as the tool resides on Wazuh manager nodes of your -hopefully- test environment. Also, you need a workaround mentioned in Step 2 above to test that you may not want in your production environment. You may need to automate this in the long run. I have another tool that I have been developing for that. It will be another article's topic.
+This tool requires manual interaction with `wazuh-logtest` tool as the tool resides on Wazuh manager nodes of your -hopefully- test environment. Also, you need a workaround mentioned in Step 2 above to test that you may not want in your production environment. You may need to automate this in the long run. I have another tool that I have been developing for creating a development environment on you workstation. It will be another article's topic.
+
+<img src="/assets/testenv.jpeg" width="600" alt="Test environment meme">
+
+### Postscriptum 2
+
+Thanks to [Birol Capa](https://github.com/birolcapa) for [his article](https://birolcapa.github.io/software/2021/09/24/how-to-read-evtx-file-using-python.html) pointing to the simplest way to parse EVTX files. Before that I tried many different solutions that were limited after some point.
 
 ---
 
-[^1] As a side note, this is valid for 4.x versions and earlier. Upcoming version, Wazuh 5.0 may not need it.
-[^2] You can try to initiate wazuh-logtest like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
+[^1] As a side note, this is valid for 4.x versions and earlier. Upcoming version, Wazuh 5.0 may or may not need it.
+[^2] You can try to initiate `wazuh-logtest` like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
