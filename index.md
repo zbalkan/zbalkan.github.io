@@ -1,1 +1,0 @@
-I blog about IT, security and compliance.
