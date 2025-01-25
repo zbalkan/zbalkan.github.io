@@ -1,12 +1,21 @@
-## Detect PowerShell Profile modifications with Wazuh
-
-- [FIM Configuration](#fim-configuration)
-- [Rules for FIM](#rules-for-fim)
-- [What is next?](#what-is-next)
+---
+title: "Detect PowerShell Profile modifications with Wazuh"
+tags:
+  - Wazuh
+  - Detection
+  - SIEM
+  - T1546.013
+  - PowerShell
+  - Persistence
+  - Privilege Escalation
+redirect_from: /2024/12/04/detect-ps-profile-changes.html
+---
 
 This is another post targeting IT and cyber security professionals who have experience or are planning to evaluate Wazuh in a production environment. I included explanations for clarity; otherwise, this would have been a shorter read.
 
 [PowerShell profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.4) are highly versatile, customizable script files that load automatically when a PowerShell session starts. They allow users or administrators to [configure their environment](https://www.sans.org/blog/month-of-powershell-power-profile/) by defining variables, aliases, functions, or importing modules. There are different types of profiles, including those scoped for all users, specific users, or individual hosts, with paths varying by PowerShell version and operating system.
+
+<!--more-->
 
 In your PowerShell console, you can use the `$PROFILE` variable to display your current profile, which is the same as `$PROFILE.CurrentUserCurrentHost`. This profile applies to the current user and the current host application. To explore profiles in other scopes, you can use `$PROFILE.CurrentUserAllHosts`, `$PROFILE.AllUsersCurrentHost`, and `$PROFILE.AllUsersAllHosts`.
 
@@ -17,7 +26,7 @@ Editing `$PROFILE.CurrentUserCurrentHost` and `$PROFILE.CurrentUserAllHosts` doe
 <img src="/assets/PS7_currentUser.PNG" width="600" alt="PowerShell 7 Current User, Current Host and All Hosts scopes">
 <img src="/assets/PS7_allUsers.PNG" width="600" alt="PowerShell 7 All Users, Current Host and All Hosts scopes">
 
-While invaluable for personalization and automation, these profiles are equally susceptible to exploitation. PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, establishing a persistent foothold in the system. I briefly mentioned this in my [previous post](https://zaferbalkan.com/2024/11/03/psreadline.html) very briefly, and here I provide a detailed example.
+While invaluable for personalization and automation, these profiles are equally susceptible to exploitation. PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, establishing a persistent foothold in the system. I briefly mentioned this in my [previous post](https://zaferbalkan.com/psreadline.html) very briefly, and here I provide a detailed example.
 
 This technique becomes especially risky when the compromised PowerShell session runs with administrator privileges, allowing attackers to execute commands with elevated rights across the system. Detecting these profile modifications is crucial for mitigating the risks of privileged code execution that could escalate attacks or enable lateral movement.
 

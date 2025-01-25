@@ -1,16 +1,17 @@
-# Responsibility v. Authority: the Good, the Bad and the Ugly
-
-- [The Good](#the-good)
-  - [GDPR Article 38(2): Start with what a DPO needs](#gdpr-article-382-start-with-what-a-dpo-needs)
-  - [The rulings of DPAs](#the-rulings-of-dpas)
-  - [*Sensum, non verba spectamus*](#sensum-non-verba-spectamus)
-- [The Bad](#the-bad)
-  - [The guidance of the Council](#the-guidance-of-the-council)
-  - [What about the conflict of interest?](#what-about-the-conflict-of-interest)
-
-- [The Ugly](#the-ugly)
+---
+title: "Responsibility v. Authority: the Good, the Bad and the Ugly"
+tags:
+  - Security
+  - Management
+  - Responsibility
+  - Compliance
+  - Regulations
+redirect_from: /2023/10/22/responsibility-v-authority.html
+---
 
 It is a well-known phenomenon that authority without responsibility -and vice versa- is a recipe for disaster. Yet, that is commonly seen in many organizations. These two words are used interchangeably and incorrectly on due diligence practices and business services. On one hand, it is easy to prove the responsibility: have a RACI chart on a policy, a well-written business contract, or a written executive order. On the other hand, how do you prove the authority? What might consist of evidence of authority of someone in an organization?
+
+<!--more-->
 
 I believe it is better to discuss examples of this problem for a better understanding. A good example is on the Data Protection Officer (henceforth DPO) role and the requirements defined by GDPR. The bad example chosen is The Payment Card Industry Data Security Standard (herein after PCI DSS) version 4.0 and the requirements of the information security manager. Both define the requirements of a role being held responsible for significant factors of a company, one focuses on privacy, and the other addresses security. In this article, I will be analyzing the requirements to appoint rather than the details of responsibility. So, the question is not "What does a `<role>` do?", but "Who can be appointed as `<role>` -according to `<regulation>`?".
 
@@ -31,7 +32,6 @@ GDPR [Article 38(2)](https://gdprhub.eu/Article_38_GDPR) requires that all neces
   - *The "expert knowledge" is also a requirement to assign in the first place*
 - "The DPO must be put in the condition to autonomously catch up with the relevant updates, being the workload no justification to postpone or ignore such an obligation".
   - *A highly specific requirement, isn't it?*
-
 
 To quote the conclusion:
 > In general, the allocation of resources for the DPO should be directly proportional to the type, complexity, and risks associated with data processing activities.
@@ -169,4 +169,3 @@ Q4: *If a company hires a consultant as vCISO and vDPO by properly meeting the G
 A4: **It depends.** *By appointing a vCISO and vDPO to an advisory role, the company solves the question of GDPR. On the other hand, the C-level executive who manages the security team holds the responsibility of security, therefore, the "formal assignment" and "responsibility" conditions are met as well. However, the "information security knowledge" condition needs to be proven. Also, the organization needs to be aware that the "conflict of interest" is obvious while it is not against PCI DSS requirements as is. This may or may not fulfill the requirements of PCI DSS. You need to discuss this with your QSA.*
 
 ------
-
