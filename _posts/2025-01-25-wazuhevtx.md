@@ -1,31 +1,19 @@
-## Enhancing Wazuh Rule Testing with `wazuhevtx`: A Solution for Windows Event Logs
+---
+title: "Enhancing Wazuh Rule Testing with `wazuhevtx`: A Solution for Windows Event Logs"
+tags:
+  - Wazuh
+  - SIEM
+  - Detection
+  - Windows Event Log
+  - Log test
+  - Attack simulation
+---
 
 Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to a wide range of security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
 
 However, when it comes to Windows event logs, `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
-- [Rule Testing with `wazuh-logtest`](#rule-testing-with-wazuh-logtest)
-  - [How `wazuh-logtest` Works](#how-wazuh-logtest-works)
-  - [The Problem with Windows Event Logs](#the-problem-with-windows-event-logs)
-- [Introducing `wazuhevtx`](#introducing-wazuhevtx)
-  - [What Does `wazuhevtx` Do?](#what-does-wazuhevtx-do)
-  - [How to Use `wazuhevtx`](#how-to-use-wazuhevtx)
-    - [Step 1: Install the Tool](#step-1-install-the-tool)
-    - [Step 2: Prepare Wazuh server for testing](#step-2-prepare-wazuh-server-for-testing)
-    - [Step 3: Convert EVTX Logs to JSON](#step-3-convert-evtx-logs-to-json)
-    - [Step 4: Test Logs in `wazuh-logtest`](#step-4-test-logs-in-wazuh-logtest)
-- [Let's (re)play](#lets-replay)
-  - [Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)](#log-1-204358350-utc-initial-execution-of-uacme-akagi_64exe)
-  - [Log 2 (20:43:58.389 UTC): svchost.exe Accesses explorer.exe](#log-2-204358389-utc-svchostexe-accesses-explorerexe)
-  - [Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe](#log-3-204358393-utc-repeated-access-of-explorerexe-by-svchostexe)
-  - [Log 4 (20:43:58.449 UTC): Execution of Windows Task Manager](#log-4-204358449-utc-execution-of-windows-task-manager)
-  - [Log 5 (20:43:58.449 UTC): svchost.exe Accesses Taskmgr.exe](#log-5-204358449-utc-svchostexe-accesses-taskmgrexe)
-  - [Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe](#log-6-204358450-utc-explorerexe-accesses-taskmgrexe)
-  - [Log 7 (20:43:58.450 UTC): Creation of Command Prompt (cmd.exe)](#log-7-204358450-utc-creation-of-command-prompt-cmdexe)
-  - [So what?](#so-what)
-- [Conclusion](#conclusion)
-- [Postscriptum](#postscriptum)
-- [Postscriptum 2](#postscriptum-2)
+<!--more-->
 
 ### Rule Testing with `wazuh-logtest`
 
