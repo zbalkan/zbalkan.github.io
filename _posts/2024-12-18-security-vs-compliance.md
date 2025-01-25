@@ -1,16 +1,28 @@
-## Security vs. Compliance: A Humble Critique of Phil Venables’ Vision for Harmonization
+---
+title: "Security vs. Compliance: A Humble Critique of Phil Venables’ Vision for Harmonization"
+tags:
+  - Security
+  - Management
+  - Responsibility
+  - Compliance
+  - Regulations
+  - Risk
+redirect_from: /2024/12/18/security-vs-compliance.html
+---
 
 Phil Venables recently shared [his perspective](https://www.philvenables.com/post/regulatory-harmonization-let-s-get-real) on harmonizing compliance and cybersecurity frameworks. His article highlights inefficiencies in regulatory processes and argues for alignment to streamline operations and enhance risk management. While his vision is compelling and valuable, I believe it is crucial to explore a limitation that stems from the very nature of compliance and cybersecurity: they address fundamentally different risks owned by distinct entities with divergent objectives.
 
 My critique is not of Venables’ call to action —it is sound and necessary— but rather a complementary addition to the discussion. By recognizing the inherent restrictions to harmonization, in my perspective, we can set realistic expectations and actionable goals for achieving alignment where it truly matters.
 
+<!--more-->
+
 Before I begin, I would like to point out that I work in the payments sector, therefore my approach and taxonomy of risk have flavours from both the cyber risk and financial risk corpus.
 
-### Different Risk Owners, Different Objectives
+## Different Risk Owners, Different Objectives
 
 At the heart of compliance and cybersecurity is the principle of **risk management**, but they approach it from disparate vantage points.
 
-#### Compliance: Managing Systemic Risks
+### Compliance: Managing Systemic Risks
 
 Compliance frameworks are (mostly[^2]) designed to mitigate **systemic risks**—those that threaten the stability of entire systems, sectors, or regions[^1]. These risks are **owned by regulators**, who define objectives that serve the broader ecosystem. Regulators can be political institutions like the EU or national governments, or sectorial institutions like the IMF, World Bank, SEC (U.S. Securities and Exchange Commission), EMV Co, etc. The objectives, in parallel, differ. They may be protecting the health information or privacy of citizens or ensuring financial stability.
 
@@ -20,7 +32,7 @@ In these kinds of environments, the organizations generally are interfacing with
 
 Once we understand the roles in the ecosystem, we can switch back to the risk debate: Regulators are concerned with preventing cascading failures, not individual company outcomes. For instance, EMV Co focuses on systemic payment ecosystem integrity, not on whether a company survives a ransomware attack[^3]. The role of PCI SSC, in this case, is to assess the organizations regularly and investigate after incidents.
 
-#### Cybersecurity: Managing Organizational Risks
+### Cybersecurity: Managing Organizational Risks
 
 Cybersecurity, in contrast, focuses on **organizational risks**—unique threats to a company’s assets, operations, and reputation. These risks are **owned by the organization** and require tailored, dynamic responses. Continuing the theme of financial jargon, we can call the [idiosyncratic risks](https://corporatefinanceinstitute.com/resources/career-map/sell-side/risk-management/idiosyncratic-risk/) as well[^4].
 
@@ -31,7 +43,7 @@ Cybersecurity, in contrast, focuses on **organizational risks**—unique threats
 
 This proposition does not mean systemic risks are too broad to consider cyber risks. On the contrary, cyber risks **are** considered systemic risks, depending on the entity in the ecosystem[^5].
 
-### The Ratio Legis of Compliance
+## The Ratio Legis of Compliance
 
 To understand the limits of harmonization, we must revisit the **ratio legis** —the reason behind the law— for compliance frameworks. Compliance, with all regulatory and supervisory bodies, exists to protect the stability of ecosystems, not individual entities. Its purpose is to create a baseline that ensures no single participant undermines the integrity of the entire system.
 
@@ -44,18 +56,19 @@ This explains why compliance frameworks:
 
 With these fundamental reasons established, let’s examine how these principles play out in real-world scenarios, such as the Equifax breach.
 
-### The effects of the divergence
+## The effects of the divergence
 
 Let's get the discussion to a real-world scenario. In 2017, one of the widely known breaches occurred: the Equifax breach. Equifax is an American company in the business of consumer credit reporting. Due to the nature of their job, they are not only under the regulation of national standards but also the sectorial ones like PCI DSS (Equifax had ISO/IEC 27001 certification before the breach, but for the sake of the argument, this is out of scope for now).  The breach occurred "in a database that had not been included in the scope of Equifax Inc.’s annual Payment Card Industry Data Security Standard (PCI DSS) certification" \[*sic*] [^6], according to [PIPEDA Findings](https://www.priv.gc.ca/en/opc-actions-and-decisions/investigations/investigations-into-businesses/2019/pipeda-2019-001/). As EMV CO cares about the payment networks, the scope of PCI DSS requirements is limited to:
-> * The cardholder data environment (CDE), which is comprised of:
->    - System components, people, and processes that store, process, or transmit cardholder data and/or sensitive authentication data, and,
->    - System components that may not store, process, or transmit CHD/SAD but have unrestricted connectivity to system components that store, process, or transmit CHD/SAD.
+
+> - The cardholder data environment (CDE), which is comprised of:
+>   - System components, people, and processes that store, process, or transmit cardholder data and/or sensitive authentication data, and,
+>   - System components that may not store, process, or transmit CHD/SAD but have unrestricted connectivity to system components that store, process, or transmit CHD/SAD.
 > AND
-> * System components, people, and processes that could impact the security of cardholder data and/or sensitive authentication data. [^7]
+> - System components, people, and processes that could impact the security of cardholder data and/or sensitive authentication data. [^7]
 
 It was the wrongdoing of Equifax to get breached. They had a vulnerability that was compromised. However, they also had deficiencies in their PCI DSS assessment. Because the Qualified Security Assessor ([QSA](https://www.pcisecuritystandards.org/glossary/#glossary-q)) assessed only in-scope assets, the rest were not reviewed, evaluated, or assessed. Yet, there was business-critical data there, which also consisted of account data. Whatever happened out of scope was still the responsibility of Equifax. Because a QSA would not assess, it should not mean it can be neglected. But it happened, and it cost them a lot.
 
-### Venables’ Vision: A Complementary Perspective
+## Venables’ Vision: A Complementary Perspective
 
 Venables’ article calls for harmonization to reduce inefficiencies in compliance, such as duplicative reporting and conflicting standards. I agree wholeheartedly with this goal. Streamlining compliance processes allows organizations to focus resources on meaningful security measures. Nevertheless, the article’s vision could benefit from acknowledging the structural constraints of harmonization.
 
@@ -80,7 +93,7 @@ In sum, the alignment of compliance and cybersecurity has natural limits due to 
 
 We can minimize the compliance efforts by harmonizing across standards, frameworks and regulations. However, harmonizing security and compliance has natural limits. Rather than seeking full alignment, we should aim for practical harmonization—simplifying processes, enhancing mutual understanding, and addressing overlapping areas.
 
-### Conclusion: Respecting the Limits of Alignment
+## Conclusion: Respecting the Limits of Alignment
 
 It is better to get back to the basics. Risk is defined as "the effect of uncertainty on objectives" in ISO 31000:2018 - Risk Management. Because we want to achieve our objectives, we want to manage risks and clarify the ambiguities. Still, organizations have different objectives and, therefore, different registers of risks. The earlier to accept this, the better.
 

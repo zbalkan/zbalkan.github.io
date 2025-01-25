@@ -1,17 +1,23 @@
-## Improve observability by integrating CrowdSec with Wazuh
+---
+title: "Improve observability by integrating CrowdSec with Wazuh"
+tags:
+  - Wazuh
+  - Crowdsec
+  - SIEM
+  - Detection
+  - IDS
+  - IPS
+  - Integration
+redirect_from: /2024/06/19/crowdsec-wazuh-integration.html
+---
 
-### Table of Contents
-
-- [What is CrowdSec?](#what-is-crowdsec)
-- [Comparing with Wazuh -or any other SIEM, HIDS, HIPS](#comparing-with-wazuh--or-any-other-siem-hids-hips)
-- [Scenario](#scenario)
-- [Discussion](#discussion)
-
-### What is CrowdSec?
+## What is CrowdSec?
 
 [CrowdSec](https://www.crowdsec.net), or the component I used the [CrowdSec Security Engine](https://www.crowdsec.net/security-engine), may be considered as an open-source IDS/IPS depending on your configuration. Though, that is my view of it. They do not define the product that way. Here's their description:
 
 > The CrowdSec Security Engine is an open-source, lightweight software that detects and blocks malicious actors from accessing your systems at various levels, using log analysis and threat patterns called scenarios.
+
+<!--more-->
 
 The CrowdSec  Security Engine (hereafter *agent*) reads logs (aka `data source`), parses them via `parsers`, and adds context via `enrichers`. Afterwards, if an event or a series of events are matched against `scenarios`. If there is a match, an `alert` is triggered. A nice addition to basic alerting is the `decisions` component. A decision, in CrowdSec terminology, is an abstraction for actions in case of a condition which has created the alert. Therefore, you define the consequence of the event. The alert may trigger a `notification`, and/or a `remediation`. A notification may be an email, an HTTP request, a Slack message, or just writing to a file. Notifications are great not only for notifying users but also integrating with other security tools.
 
@@ -21,7 +27,7 @@ One of the things I admire in CrowdSec is that it focuses on the use of CTI. It 
 
 Last but not least, I loved that CrowdSec had a marketplace from the start. It is called [CrowdSec Hub](https://hub.crowdsec.net/). There you can download collections (bundles of parsers and scenarios), configurations (single instances of parsers, scenarios, enrichers, etc.), remediation components like bouncers. At the time of writing, there are new categories added called `Appsec configurations` and `Appsec rules` in beta, but I am excluding them for the sake of brevity.
 
-### Comparing with Wazuh -or any other SIEM, HIDS, HIPS
+## Comparing with Wazuh -or any other SIEM, HIDS, HIPS
 
 When you read the CrowdSec introduction above, you may think it is not so different than any other  host-based intrusion detection system (HIDS) or prevention system (HIPS). That's the first thing that came to my mind as well. According to the [duck test](https://en.wikipedia.org/wiki/Duck_test), I believe it is yet another HIDS/HIPS.
 
@@ -29,7 +35,7 @@ Technically, whatever you can do with CrowdSec can be done with Wazuh as well. Y
 
 On the other hand, Wazuh has thousands of rules, yet adding new rules requires writing your own rules manually within the pseudo-XML rule syntax. It also applies to the decoders -the ones named as `parser` in CrowdSec terminology. It would be amazing if there was a marketplace for community where we could download Wazuh decoders, rules, active response scripts, etc. I have already mentioned this on an earlier [blog post on Wazuh](https://zaferbalkan.com/2023/08/08/wazuh-pain-points.html#no-community-repositoryhubstore-for-rules-and-decoders).
 
-### Scenario
+## Scenario
 
 Here, I created an integration scenario. Your organization is making use of Apache as load balancers and using ModSecurity as the WAF solution. Your organization likes open source stack and uses Wazuh as SIEM. Your team has already set up Wazuh agent on the servers, started to collect logs. In order for Wazuh to trigger rules, you need a level of verbosity. Since this is a load balancer cluster, both the Apache and ModSecurity logs are bombarded. Wazuh has a buffer to keep 1000 message by default. Your team then updates the buffer capacity to 10.000 but the buffer still gets flooded. The leaky bucket algorithm tries to save memory and protect your server's integrity. So, you are losing logs which may or may not be valuable. At the same time, Wazuh server is also bombarded by this noise wih the hope that the logs managed to arrive at the log collector would be the ones that matter. The SIEM is supposed to be your [common operational picture (COP)](https://en.wikipedia.org/wiki/Common_operational_picture), but your loss of valuable data in random noise, prevents you to evaluate the situation accurately.
 
@@ -172,7 +178,7 @@ curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring 
 echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
 apt-get update
 
-### Let's now install
+## Let's now install
 WAZUH_MANAGER="<Wazuh server IP>" apt-get install wazuh-agent
 systemctl daemon-reload
 systemctl enable wazuh-agent
@@ -302,7 +308,7 @@ CrowdSec alert: Ip <Kali IP> performed 'crowdsecurity/http-path-traversal-probin
 
 - Now that the integration is completed, it is possible to create custom dashboards dedicated to crowdsec alerts. But that is up to the imagination of the security team.
 
-### Discussion
+## Discussion
 
 The integration model discussion started over a year ago, when I was trying to design a fully open source WAF stack integrated into SIEM. The file plugin is relatively new while the idea was not. The first commit on the [file notification plugin](https://github.com/zbalkan/notification-file) shows November 1, 2022, when I asked the question and started to build something with the help of [Laurence Jones](https://github.com/LaurenceJJones) of CrowdSec. There were some issues, and it was my first project in Go language. The CrowdSec released the file plugin with version [1.6.2](https://github.com/crowdsecurity/crowdsec/releases/tag/v1.6.2), which finally obsoleted the stillborn plugin attempt of mine.
 
