@@ -64,7 +64,7 @@ plugins:
 author:
   name   : "Zafer Balkan"
   avatar : "/assets/avatar.jpg"
-  bio    : "I blog about IT and security. At least, I will try."
+  bio    : "I blog about IT, security and compliance."
   links:
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
