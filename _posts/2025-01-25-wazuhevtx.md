@@ -11,7 +11,7 @@ tags:
 
 Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to a wide range of security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
 
-However, when it comes to Windows event logs, `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
+However, when it comes to Windows event logs, the `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
 <!--more-->
 
@@ -21,15 +21,15 @@ The `wazuh-logtest` tool is an interactive utility that enables users to test ru
 
 #### How `wazuh-logtest` Works
 
-First of all, you need to understand that it is not possible to run `wazuh-logtest` as an independent tool on your workstation. It is a component of Wazuh manager, namely part of `analysisd`. Therefore, the tool runs on the Wazuh manager nodes. It creates isolated sessions so that these are not mixed with actual logs forwarded to analysis.
+First of all, you need to understand that it is not possible to run `wazuh-logtest` as an independent tool on your workstation. It is a component of the Wazuh manager, namely part of `analysisd`. Therefore, the tool runs on the Wazuh manager nodes. It creates isolated sessions so that these are not mixed with actual logs forwarded to analysis.
 
-While it is tempting to modify it to work locally -or remotely, depending on where you look at it, the tool uses AF_UNIX sockets instead of [RESTful API](https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Logtest). If you want to work with it remotely, you may want to write a client and allow HTTPS traffic to your server [over TCP/55000](https://documentation.wazuh.com/current/getting-started/architecture.html). You can use curl, Postman or [Bruno](https://docs.usebruno.com/introduction/what-is-bruno) or any scripting language of your preference as well.
+While it is tempting to modify it to work locally -or remotely, depending on where you look at it, the tool uses AF_UNIX sockets instead of [RESTful API](https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Logtest). If you want to work with it remotely, you may want to write a client and allow HTTPS traffic to your server [over TCP/55000](https://documentation.wazuh.com/current/getting-started/architecture.html). You can use curl, Postman, [Bruno](https://docs.usebruno.com/introduction/what-is-bruno) or any scripting language of your preference as well.
 
-I will focus on the CLI tool insted. Let's go step by step:
+I will focus on the CLI tool instead. Let's go step by step:
 
 1. **Launch the Tool:** Run `wazuh-logtest` interactively:
 
-On Wazuh manager node, run this command to start.
+On the Wazuh manager node, run this command to start.
 
 ```bash
 /var/ossec/bin/wazuh-logtest
@@ -56,25 +56,25 @@ This process makes `wazuh-logtest` invaluable for testing and debugging custom r
 
 #### The Problem with Windows Event Logs
 
-Unlike typical logs stored as plaintext, Windows event logs are structured binary files that are beyond Wazuh decoders. Instead, the Wazuh agent uses a Win32 API functions provided by [wevtapi.dll](https://windows10dll.nirsoft.net/wevtapi_dll.html) to process these logs locally before sending them to the manager[^1]. The logs are converted to JSON formatted logs with the metadata of `log_format` as `windows_eventchannel` so that they are not acidentally parsed as a JSON log.
+Unlike typical logs stored as plaintext, Windows event logs are structured binary files that are beyond Wazuh decoders. Instead, the Wazuh agent uses the functions provided by [wevtapi.dll](https://windows10dll.nirsoft.net/wevtapi_dll.html) to process these logs locally before sending them to the manager[^1]. The logs are converted to JSON formatted logs with the metadata of `log_format` as `windows_eventchannel` so that they are not accidentally parsed as a JSON log.
 
 This causes several issues. First, Windows event logs cannot be tested directly in `wazuh-logtest` because users are unable to paste raw event data (well, they need to extract text out of event logs first but even then it's not possible) or verify rules against Windows logs in the same way they do with syslog or audit logs.
 
-This limitation leaves a critical gap for Wazuh users who need to validate rules for Windows event channels like Sysmon or Security-Auditing. Especially if you want to test your ability if you can detect known attacks given that you have event logs extracted.
+This limitation leaves a critical gap for Wazuh users who need to validate rules for Windows event channels like Sysmon or Security-Auditing., especially if you want to test your ability to detect known attacks given that you have event logs extracted.
 
 ### Introducing `wazuhevtx`
 
 To address this challenge, I developed `wazuhevtx`, a Python tool that converts Windows event logs (EVTX) into JSON formatted logs that mimic the output of the Wazuh agent. This allows users to test Windows event logs interactively with `wazuh-logtest`.
 
-It is neither the first attempt not the only publicly available one. The most well-known attempt is a [PowerShell script](https://github.com/dariommr/scripts/blob/master/tools/windows-events/Event-Converter.ps1) written by [Darío Menten](https://github.com/dariommr). However, that's not perfect as it does not 100% produce the logs Wazuh agent does. Therefore, the results were not reliable.
+It is neither the first attempt nor the only publicly available one. The most well-known attempt is a [PowerShell script](https://github.com/dariommr/scripts/blob/master/tools/windows-events/Event-Converter.ps1) written by [Darío Menten](https://github.com/dariommr). However, that's not perfect as it does not 100% produce the logs the Wazuh agent would. Therefore, the results were not reliable for testing purposes.
 
-I wrote `wazuhevtx` in Python, because I wanted to have a toolkit that I can integrate with each other. However, I came to the conclusion that it is not viable to write a cross-platform script due to dependency against Windows APIs that generates the human readable Message field, which is not included in the logs but rendered based on the event log provider resources. It wouldn't be feasible to rewrite all Event Log providers just to make this tool work on Linux and Mac. But if I kenw I would toss against this wall, I'd just fork the script of Darío and improve it.
+I wrote `wazuhevtx` in Python because I wanted to have a toolkit that I could integrate within the components. However, I concluded that it is not viable to write a cross-platform script due to dependency on Windows APIs that generate the human-readable Message field, which is not included in the logs but rendered based on the event log provider resources. It wouldn't be feasible to rewrite all Event Log providers just to make this tool work on Linux and Mac. But if I had known that I would toss against this wall, I'd just fork the script of Darío and improve it.
 
-On the other hand, I made it to work as both a CLI tool and a library, so you can integrate it into your pipeline, if you will.
+On the other hand, I made `wazuhevtx` work as both a CLI tool and a library, so you can integrate it into your pipeline the way you prefer.
 
 #### What Does `wazuhevtx` Do?
 
-`wazuhevtx` reads binary EVTX files from Windows systems, converts events into structured JSON logs, formatted as the Wazuh agent would send them in order to enable seamless rule testing in `wazuh-logtest`. It's like an emulator for Wazuh agent that works only for `evtx` files.
+`wazuhevtx` reads binary EVTX files from Windows systems and converts events into structured JSON logs, formatted as the Wazuh agent would send them to enable seamless rule testing in `wazuh-logtest`. It's like an emulator for the Wazuh agent that works only for `evtx` files.
 
 #### How to Use `wazuhevtx`
 
@@ -82,13 +82,13 @@ Here I will use `wazuh-logtest` the way I did above, with some extra steps.
 
 ##### Step 1: Install the Tool
 
-You can use `pip` or clone the repository if you want to use it both as a library and a CLI tool. Install the module using `pip install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`, after you created a virtual environment of your preference.
+You can use `pip` or clone the repository if you want to use it both as a library and a CLI tool. Install the module using `pip install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`, after you create a virtual environment of your preference.
 
-If you plan to use it only as a CLI tool, I recommend using `pipx` instead. The command is simple: `pipx install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`
+To use it only as a CLI tool, I recommend using `pipx` instead. The command is simple: `pipx install https://github.com/zbalkan/wazuhevtx/archive/refs/heads/main.zip`
 
-##### Step 2: Prepare Wazuh server for testing
+##### Step 2: Prepare the Wazuh server for testing
 
-In order to be able to test with `wazuh-logtest` utility, you need a workaround as the tool generates JSON logs, not `windows_eventchannel` format[^2].
+In order to be able to test with the `wazuh-logtest` utility, you need a workaround as the tool generates JSON logs, not `windows_eventchannel` format[^2].
 
 * Navigate to `/var/ossec/ruleset/rules/0575-win-base_rules.xml` file.
 * Update the rule 60000 this way:
@@ -104,7 +104,7 @@ In order to be able to test with `wazuh-logtest` utility, you need a workaround 
 </rule>
 ```
 
-As I said, you would not want to do it in your production environment. Either pop up an [all-in-one (AIO) virtual machine using the OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) on your workstation, or have a dedicated test installation in your environment. There's an alternative way, but I'll come to that later.
+As I said, you would not want to do it in your production environment. Either pop up an [all-in-one (AIO) virtual machine using the OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) on your workstation or have a dedicated test installation in your environment. There's an alternative way, but I'll come to that later.
 
 ##### Step 3: Convert EVTX Logs to JSON
 
@@ -131,7 +131,7 @@ python wazuhevtx.py sysmon-1.evtx -o sysmon1.json
 
 3. Observe the output:
 
-Check matched rules, extracted fields, and compliance mappings: you can see, without needing a custom decoder, I extracted all JSON fields, then managed to get the Sysmon event as a level-0 alert.
+Check matched rules, extracted fields, and compliance mappings: you can see, without needing a custom decoder, that I extracted all JSON fields, and then managed to get the Sysmon event as a level-0 alert.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.
@@ -211,9 +211,9 @@ ParentUser: LABPC\Zafer'
 
 ### Let's (re)play
 
-The reason I built this, as mentioned in the introduction, to complement the log testing capability of Wazuh, and Event Logs were an edge case. A very big one. You can now replay known attacks, and see the detection capabilities of your ruleset.
+As mentioned in the introduction, I built this to complement the log testing capability of Wazuh, and Event Logs were an edge case—a very big one. You can now replay known attacks and see the detection capabilities of your ruleset.
 
-Let's give it a shot with amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden). I will use the same steps above, but with a better input.
+Let's give it a shot with the amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden). I will use the same steps above but with a more fitting input for the purpose.
 
 <img src="/assets/attack-samples.png" width="800" alt="Screenshot of the Github repository">
 
@@ -221,7 +221,7 @@ In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of eve
 
 <img src="/assets/uacme.png" width="800" alt="Screenshot of the file from Github repository">
 
-My methodoogy includes comparison of the event log displayed on Event Viever against Wazuh logtest results. I am using the default ruleset, so that it is possible to see what Wazuh base ruleset is capable of, and if there are any opportunities to write custom detections.
+The methodology I am going to use below includes a comparison of the event log displayed on Event Viewer against Wazuh logtest results. I am using the default ruleset so that it is possible to see what Wazuh base ruleset is capable of, and if there are any opportunities to write custom detections.
 
 <img src="/assets/uacme-sysmon.png" width="800" alt="Screenshot of the event logs">
 
@@ -232,8 +232,8 @@ You can see that there are 7 events in the sample, therefore I will include 7 su
 <img src="/assets/uacme-log1.PNG" width="800" alt="Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)">
 
 * The attacker executed Akagi_64.exe from the UACMe toolset, a known User Account Control (UAC) bypass utility. The process was located in the user's Downloads folder.
-* Akagi_64.exe accessed the cmd.exe process in C:\Windows\System32 with access rights ( ) that allowed process manipulation.
-* If you check [access rights related documentation](https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights?redirectedfrom=MSDN) from Microsoft, you will see that you need to do some simple calculation. The call is possibly something like:
+* Akagi_64.exe accessed the cmd.exe process in C:\Windows\System32 with access rights (0x1410) that allowed process manipulation.
+* If you check [the documentation on access rights](https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights?redirectedfrom=MSDN) from Microsoft, you will see that you need to do some simple calculations to understand the flags. The call is possibly something like:
 
 ```c
 HANDLE hProcess = OpenProcess(
@@ -372,7 +372,7 @@ This time, Wazuh triggers an alert that it can be a process injection. Level 12 
 
 * svchost.exe once again accessed explorer.exe, repeating the interaction from the previous event. This redundancy could indicate efforts to maintain control over the shell environment or validate escalated privileges.
 * The granted access rights were the same (0x1014C0), confirming an ongoing manipulation attempt.
-* Not sure why this event occurred twice, need to check the source code.
+* I am not sure why this event occurred twice, need to check the source code.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.
@@ -439,7 +439,7 @@ The same call, so a second alert will be triggered.
 <img src="/assets/uacme-log4.PNG" width="800" alt="Log 4 (20:43:58.449 UTC): Execution of Windows Task Managere">
 
 * The bypass tool Akagi_64.exe launched the Windows Task Manager (Taskmgr.exe) from C:\Windows\System32.
-* Task Manager was executed with high integrity level, signifying administrative privileges. This behavior is unusual for attackers as it can alert the user to unauthorized activities. It suggests the attacker may have intended to observe running processes or terminate security tools, along with initiating a child process with the high privileges.
+* Task Manager was executed with a "High" integrity level, signifying administrative privileges. This behavior is unusual for attackers as it can alert the user to unauthorized activities. It suggests the attacker may have intended to observe running processes or terminate security tools, along with initiating a child process with high privileges.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.
@@ -600,7 +600,7 @@ TargetUser: %13'
         mail: 'False'
 ```
 
-Oh no! This is not detected as well. We can use the same draft we created. But mind that while Sysmon Event ID 1 has `ParentImage` field, Event ID 10 has `SourceImage`. Therefore, we cannot just extend the previous rule, we need a new one.
+Oh no! This is not detected as well. We can use the same draft we created. But mind that Sysmon Event ID 1 has a `ParentImage` field, while Event ID 10 has `SourceImage`. Therefore, we cannot just extend the previous rule, we need a new one.
 
 ```xml
   <rule id="XXXXXX" level="12">
@@ -611,7 +611,7 @@ Oh no! This is not detected as well. We can use the same draft we created. But m
   </rule>
 ```
 
-But this is not enough. It is still nothing but noise. In order to make this alert an actionable insight, we need to add more details regarding `grantedAccess` field but I am leaving this to you.
+But this is not enough. It is still nothing but noise. In order to make this alert an actionable insight, we need to add more details regarding the `grantedAccess` field but I am leaving this to you.
 
 #### Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe
 
@@ -762,7 +762,7 @@ ParentUser: %23'
 **Alert to be generated.
 ```
 
-Well, this is weird. While the rule is correct that it is not a normal parent process. Let's check the rule first.
+Well, this is weird. While the rule is correct that it is not a usual parent process, the severity is lower than I expected. Let's check the rule first.
 
 ```xml
   <rule id="92052" level="4">
@@ -777,7 +777,7 @@ Well, this is weird. While the rule is correct that it is not a normal parent pr
   </rule>
 ```
 
-This rule is almost the same with the rule I have created above, but for `cmd.exe`. However, unlike mine, the level for this rule is set to 4. Looking at the Rule Classification it makes sense. Now, should I also fall back to level 4? It is up to the detection rule and how fine grained it is. For instance, we can write a child rule over this that checks the integrity levels. If you don't know whay we do this, I suggest having a look at [Better know a data source: Process integrity levels](https://redcanary.com/blog/threat-detection/better-know-a-data-source/process-integrity-levels/) by Red Canary.
+This rule is almost the same as the rule I have created above but for `cmd.exe`. However, unlike mine, the level for this rule is set to 4. Looking at the Rule Classification it makes sense. Now, should I also fall back to level 4? It is up to the detection rule and how fine-grained it is. For instance, we can write a child rule over this that checks the integrity levels. If you don't know why we do this, I suggest having a look at [Better know a data source: Process integrity levels](https://redcanary.com/blog/threat-detection/better-know-a-data-source/process-integrity-levels/) by Red Canary.
 
 ```xml
   <rule id="XXXXXX" level="12">
@@ -796,31 +796,31 @@ Out of 7 logs, here's the timeline of alerts:
 | 20:43:58.350 UTC | Initial Execution of UACMe (Akagi_64.exe) | 0 | No alerts |
 | 20:43:58.389 UTC | svchost.exe Accesses explorer.exe         | 12 | Process injection detected. Good job! |
 | 20:43:58.393 UTC | Repeated Access of explorer.exe by svchost.exe | 12 | Same, once again. Weird but it is detected. So, score for Wazuh. |
-| 20:43:58.449 UTC | Execution of Windows Task Manager | 0 | I created a separate rule for this, though level 12 might be an overkill as is. I cannot use integrity level check here as Task Manager always runs with `High` integrity level. |
+| 20:43:58.449 UTC | Execution of Windows Task Manager | 0 | I created a separate rule for this, though level 12 might be overkill as is. I cannot use an integrity level check here as the Task Manager always runs with a `High` integrity level. |
 | 20:43:58.449 UTC | svchost.exe Accesses Taskmgr.exe | 0 | Also no-alert. I have created another detection rule for this as well. |
 | 20:43:58.450 UTC | explorer.exe Accesses Taskmgr.exe | 0 | The generated alert level is 0, but it is expected. This is not a malicious act. |
-| 20:43:58.450 UTC | Creation of Command Prompt (cmd.exe) | 4 | This one catches the anomaly. However it is not helpin with alert level 4. It is hepful for threat hunting but not for detection. I decided to write a more specific rule that checks for privilege escalation. |
+| 20:43:58.450 UTC | Creation of Command Prompt (cmd.exe) | 4 | This one catches the anomaly. However, it is not helping with alert level 4. It is helpful for threat hunting but not for detection. I decided to write a more specific rule that checks for privilege escalation. |
 
-Now, you can try the same with many types of attacks to test your detection capabilities. It is seen that base ruleset is good but there's always room for improvement. I also excluded adding `groups` and `mitre` tags for the sake of brevity. That must be considered.
+Now, you can try the same with many types of attacks to test your detection capabilities. It is seen that the base ruleset is good but there's always room for improvement. I also excluded adding `groups` and `mitre` tags for the sake of brevity. That must be considered.
 
 ### Conclusion
 
-`wazuh-logtest` is a very minimal but usable tool for Wazuh users to test and refine custom rules, but its limitation with Windows event logs has long been a challenge. With `wazuhevtx`, you now have the ability to convert EVTX files into Wazuh-compatible JSON logs, enabling comprehensive rule testing for Windows event logs. You can replay known attack to assess your defenses.
+`wazuh-logtest` is a very minimal but usable tool for Wazuh users to test and refine custom rules, but its limitation with Windows event logs has long been a challenge. With `wazuhevtx`, you can now convert EVTX files into Wazuh-compatible JSON logs, enabling comprehensive rule testing for Windows event logs. You can replay known attacks to assess your defences.
 
 Get the Tool: [wazuhevtx GitHub Repository](https://github.com/zbalkan/wazuhevtx)
 
 ### Postscriptum
 
-This tool requires manual interaction with `wazuh-logtest` tool as the tool resides on Wazuh manager nodes of your -hopefully- test environment. Also, you need a workaround mentioned in Step 2 above to test that you may not want in your production environment. You may need to automate this in the long run. I have another tool that I have been developing for creating a development environment on you workstation. It will be another article's topic.
+This tool requires manual interaction with the `wazuh-logtest` tool as the tool resides on the Wazuh manager nodes of your -hopefully- test environment. Also, you need a workaround mentioned in Step 2 above to test that you may not want in your production environment. You may need to automate this in the long run. I have another tool that I have been developing for creating a development environment on your workstation. It will be another article's topic.
 
 <img src="/assets/testenv.jpeg" width="400" alt="Test environment meme">
 
 ### Postscriptum 2
 
-Thanks to [Birol Capa](https://github.com/birolcapa) for [his article](https://birolcapa.github.io/software/2021/09/24/how-to-read-evtx-file-using-python.html) pointing to the simplest way to parse EVTX files. Before that I tried many different solutions that were limited after some point.
+Thanks to [Birol Capa](https://github.com/birolcapa) for [his article](https://birolcapa.github.io/software/2021/09/24/how-to-read-evtx-file-using-python.html) pointing to the simplest way to parse EVTX files. Before that, I tried many different solutions that were limited by means of capabilities after some point.
 
 ---
 
-[^1] As a side note, this is valid for 4.x versions and earlier. Upcoming version, Wazuh 5.0 may or may not need it.
+[^1] As a side note, this is valid for 4.x versions and earlier. The upcoming version, Wazuh 5.0 may or may not need it.
 [^2] You can try to initiate `wazuh-logtest` like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
-[^3] Do not give arbitrary levels to you custom rules. Always check the Rules Classification document. If your alert does not fit any of them, you can pick a reasonable approximation of course. These are guidelines, not rules (no pun intended).
+[^3] Do not give arbitrary levels to your custom rules. Always check the Rules Classification document. If your alert does not fit any of them, you can pick a reasonable approximation of course. These are guidelines, not rules (no pun intended).
