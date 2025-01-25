@@ -1,16 +1,19 @@
-## Playing with PSReadLine: Masking data in realtime? What about persistence?
-
-- [Intro](#intro)
-- [What's the issue with PAN](#whats-the-issue-with-pan)
-- [Back to PSReadLine](#back-to-psreadline)
-- [Wait a minute](#wait-a-minute)
-- [Nothing new under the sun](#nothing-new-under-the-sun)
-
-### Intro
+---
+title: "Playing with PSReadLine: Masking data in realtime? What about persistence?"
+tags:
+  - PowerShell
+  - PSReadLine
+  - Data masking
+  - Persistence
+  - PAN
+redirect_from: /2024/11/03/psreadline.html
+---
 
 I have been using the Windows' Terminal since the first announcement. I was impressed with the abilities added via [PSReadLine](https://github.com/PowerShell/PSReadLine) module thanks to amazing [Scott Hanselman](https://www.hanselman.com/blog/you-should-be-customizing-your-powershell-prompt-with-psreadline). This weekend, I got bored and started to play with it. I read the docs and tried to find some use cases I can give it a try. Something with PAN was the first thing came to my mind.
 
-### What's the issue with PAN
+<!--more-->
+
+## What's the issue with PAN
 
 Since I work in payments sector, PAN is the most commonly used [TLA](https://en.wikipedia.org/wiki/Three-letter_acronym) daily. A [PAN](https://en.wikipedia.org/wiki/Payment_card_number) means primary account number, sometimes called payment card number. Here we are sticking to [PCI SSC glossary](https://www.pcisecuritystandards.org/glossary/#glossary-p) and use PAN to refer to *unique payment card number (credit, debit, or prepaid cards, etc.) that identifies the issuer and the cardholder account*. In CTI feeds, news, Twitter or Mastodon posts you hear that another "millions of credit card numbers are stolen and being sold on dark web". The credit card number mentioned there is the PAN we are talking about. So I believe we are on the same page now.
 
@@ -26,7 +29,7 @@ As a law-abiding citizen, I am also obeying the [Law of the instrument](https://
 
 <img src="/assets/everywhere.jpg" width="400" alt="PANs everywhere">
 
-### Back to PSReadLine
+## Back to PSReadLine
 
 So this weekend I spent an hour just for this simple idea, that is coverin a ver low likelihood scenario. Would it help me? Maybe. Was it fun? Kinda.
 
@@ -109,7 +112,7 @@ As you guessed correctly, we check every single line, and if there is a PAN, we 
 
 <img src="/assets/Animation-masking.gif" width="800" alt="Masking works as expected">
 
-### Wait a minute
+## Wait a minute
 
 I did this for fun based on a compliance and security scenario but you can use it for any other purpose. Maybe you are trying to extend your offensive options?
 
@@ -163,7 +166,7 @@ Well, we know that [PowerShell Profile modification](https://attack.mitre.org/te
 2. **No external persistence mechanism:** We are back into `T1546.013`-only because PSReadLine is stateless, and the parameters must be provided within the `$PROFILE`. So it is less powerful than the combination of `T1546.013` and `T1546.003`.
 3. **Runs on every command:** Instead of running once when a new session starts, this handler runs on every time you hit enter and if the line was not empty. So, it is not good for one time tasks. But may be good for exfil. Who knows? I am just playing with it, and haven't thought about it that much.
 
-### Nothing new under the sun
+## Nothing new under the sun
 
 In sum, it is not a new trick. It is the same old `T1546.013` and even `PsReadLine` isn't new for [security ecosystem](https://github.com/search?q=repo%3ASigmaHQ%2Fsigma%20psreadline&type=code). There are some prerequisites for success as well. First, the attacker needs to update the `$PROFILE`, as expected. So you probably have detections for it. Right?
 
