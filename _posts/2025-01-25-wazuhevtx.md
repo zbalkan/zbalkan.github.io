@@ -9,7 +9,7 @@ tags:
   - Attack simulation
 ---
 
-Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to various security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
+Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to various security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the Wazuh log testing capabilities shines—providing a sandboxed environment to validate and refine rules against sample logs. Log testing can happen via RESTful API, Dashboard or `wazuh-logtest` CLI tool. All the capabilities I am going to mention below apply to these three methods, even though I will name only `wazuh-logtest` from now on.
 
 However, regarding Windows event logs, the `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
