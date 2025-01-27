@@ -9,9 +9,9 @@ tags:
   - Attack simulation
 ---
 
-Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to a wide range of security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
+Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to various security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the `wazuh-logtest` tool shines—providing a sandboxed environment to validate and refine rules against sample logs.
 
-However, when it comes to Windows event logs, the `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
+However, regarding Windows event logs, the `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
 <!--more-->
 
@@ -88,7 +88,7 @@ To use it only as a CLI tool, I recommend using `pipx` instead. The command is s
 
 ##### Step 2: Prepare the Wazuh server for testing
 
-In order to be able to test with the `wazuh-logtest` utility, you need a workaround as the tool generates JSON logs, not `windows_eventchannel` format[^2].
+To be able to test with the `wazuh-logtest` utility, you need a workaround as the tool generates JSON logs, not `windows_eventchannel` format[^2].
 
 * Navigate to `/var/ossec/ruleset/rules/0575-win-base_rules.xml` file.
 * Update the rule 60000 this way:
@@ -217,7 +217,10 @@ Let's give it a shot with the amazing [EVTX-ATTACK-SAMPLES](https://github.com/s
 
 <img src="/assets/attack-samples.png" width="800" alt="Screenshot of the Github repository">
 
-In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the [Windows User Account Control (UAC)](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation. Check [MITRE resources](https://attack.mitre.org/software/S0116/) for more information about the tool.
+In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the [Windows User Account Control (UAC)](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
+
+Check [MITRE resources](https://attack.mitre.org/software/S0116/) for more information about the tool. The Elastic blog has a [great article](https://www.elastic.co/security-labs/exploring-windows-uac-bypasses-techniques-and-detection-strategies) on UAC bypass written by no one other than the repository owner [Samir Bousseaden](https://x.com/sbousseaden).
+{: .notice}
 
 <img src="/assets/uacme.png" width="800" alt="Screenshot of the file from Github repository">
 
@@ -232,7 +235,7 @@ You can see that there are 7 events in the sample, therefore I will include 7 su
 <img src="/assets/uacme-log1.PNG" width="800" alt="Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)">
 
 * The attacker executed Akagi_64.exe from the UACMe toolset, a known User Account Control (UAC) bypass utility. The process was located in the user's Downloads folder.
-* Akagi_64.exe accessed the cmd.exe process in C:\Windows\System32 with access rights (0x1410) that allowed process manipulation.
+* Akagi_64.exe accessed the cmd.exe process in C:\Windows\System32 with access rights (`0x1410`) that allowed process manipulation.
 * If you check [the documentation on access rights](https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights?redirectedfrom=MSDN) from Microsoft, you will see that you need to do some simple calculations to understand the flags. The call is possibly something like:
 
 ```c
@@ -241,6 +244,8 @@ HANDLE hProcess = OpenProcess(
     FALSE,
     processId);
 ```
+
+You can check the access rights using [this script](https://github.com/PSGumshoe/PSGumshoe/blob/sysmon_events/EventLog/Get-SysmonAccessMask.ps1) as well.
 
 * The call trace shows interactions with multiple system libraries (ntdll.dll, KERNELBASE.dll, OPENGL32.dll), indicating that the tool exploited standard Windows APIs to bypass UAC and elevate privileges.
 
@@ -303,7 +308,7 @@ Wazuh finds initiating `cmd.exe` not so interesting. You will not even see this 
 
 <img src="/assets/uacme-log3.PNG" width="800" alt="Log 2 (20:43:58.389 UTC): svchost.exe Accesses explorer.exe">
 
-* After launching the bypass tool, the system process svchost.exe accessed explorer.exe (Windows shell) with access rights (0x1014C0).
+* After launching the bypass tool, the system process svchost.exe accessed explorer.exe (Windows shell) with access rights (`0x1014C0`).
 * This interaction likely aimed to manipulate the user interface environment or elevate privileges further within the current session.
 
 ```plaintext
@@ -366,12 +371,24 @@ TargetUser: %13'
 
 This time, Wazuh triggers an alert that it can be a process injection. Level 12 means *High importance event*, which is defined as *"These include error or warning messages from the system, kernel, etc. These may indicate an attack against a specific application"*, according to the [Rule Classification](https://documentation.wazuh.com/current/user-manual/ruleset/rules/rules-classification.html) guide[^3].
 
+I need to point out one change for sharp eyes. We can see the process has more privileges already. Does that mean it can be an opportunity for detection? Let's check the access right `0x1014C0`:
+
+```C
+PROCESS_QUERY_LIMITED_INFORMATION
+PROCESS_DUP_HANDLE
+PROCESS_CREATE_PROCESS
+PROCESS_QUERY_INFORMATION
+SYNCHRONIZE
+```
+
+While this process has more privileges, we cannot rely solely on access rights as they do not provide enough context. So, we must focus on parent-child relationship here.
+
 #### Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe
 
 <img src="/assets/uacme-log3.PNG" width="800" alt="Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe">
 
 * svchost.exe once again accessed explorer.exe, repeating the interaction from the previous event. This redundancy could indicate efforts to maintain control over the shell environment or validate escalated privileges.
-* The granted access rights were the same (0x1014C0), confirming an ongoing manipulation attempt.
+* The granted access rights were the same (`0x1014C0`), confirming an ongoing manipulation attempt.
 * I am not sure why this event occurred twice, need to check the source code.
 
 ```plaintext
@@ -439,7 +456,10 @@ The same call, so a second alert will be triggered.
 <img src="/assets/uacme-log4.PNG" width="800" alt="Log 4 (20:43:58.449 UTC): Execution of Windows Task Managere">
 
 * The bypass tool Akagi_64.exe launched the Windows Task Manager (Taskmgr.exe) from C:\Windows\System32.
-* Task Manager was executed with a "High" integrity level, signifying administrative privileges. This behavior is unusual for attackers as it can alert the user to unauthorized activities. It suggests the attacker may have intended to observe running processes or terminate security tools, along with initiating a child process with high privileges.
+* If you check the command line, you can see the command `Akagi_64.exe  59 cmd.exe` and parameters.
+  * The `59` in the parameters is the method to bypass. You can find this method and others [on v3.2x README](https://github.com/hfiref0x/UACME/blob/v3.2.x/README.md). This is an old event log and uses an older version of UACME[^4].
+  * The second parameter is `cmd.exe`, which is the target application to start as elevated.
+* Task Manager was executed with a "High" integrity level, signifying administrative privileges.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.
@@ -528,7 +548,7 @@ Creating Task Manager does not look like a suspicious event for Wazuh. However, 
   </rule>
 ```
 
-However, there is no rule to detect Task Manager creation so, the rule chain ends here. This is an opportunity. But first, we need to check the logs for the legitimate parents. But it is safe to assume that the legitimate parents can be `explorer.exe`, `cmd.exe`, `powershell.exe` and maybe `pwsh.exe`. Let's create a custom rule that detects this to be able to help our investigation.
+However, there is no rule to detect Task Manager creation so, the rule chain ends here. This is an opportunity. But first, we need to check the logs for the legitimate parents. For now, it is safe to assume that the legitimate parents can be `explorer.exe`, `cmd.exe`, `powershell.exe` and maybe `pwsh.exe`. Let's create a custom rule that detects this to be able to help our investigation.
 
 ```xml
   <rule id="XXXXXX" level="12">
@@ -543,7 +563,7 @@ However, there is no rule to detect Task Manager creation so, the rule chain end
 
 <img src="/assets/uacme-log5.PNG" width="800" alt="Log 5 (20:43:58.449 UTC): svchost.exe Accesses Taskmgr.exe">
 
-* Immediately after Task Manager was created, svchost.exe accessed the new process (Taskmgr.exe) with maximum access rights (0x1FFFFF) aka `PROCESS_ALL_ACCESS`.
+* Immediately after Task Manager was created, svchost.exe accessed the new process (Taskmgr.exe) with maximum access rights (`0x1FFFFF`) aka `PROCESS_ALL_ACCESS`.
 * This suggests that svchost.exe was being manipulated as part of the attacker’s workflow, maintaining control over the newly spawned administrative process.
 
 ```plaintext
@@ -799,7 +819,7 @@ Out of 7 logs, here's the timeline of alerts:
 | 20:43:58.449 UTC | Execution of Windows Task Manager | 0 | I created a separate rule for this, though level 12 might be overkill as is. I cannot use an integrity level check here as the Task Manager always runs with a `High` integrity level. |
 | 20:43:58.449 UTC | svchost.exe Accesses Taskmgr.exe | 0 | Also no-alert. I have created another detection rule for this as well. |
 | 20:43:58.450 UTC | explorer.exe Accesses Taskmgr.exe | 0 | The generated alert level is 0, but it is expected. This is not a malicious act. |
-| 20:43:58.450 UTC | Creation of Command Prompt (cmd.exe) | 4 | This one catches the anomaly. However, it is not helping with alert level 4. It is helpful for threat hunting but not for detection. I decided to write a more specific rule that checks for privilege escalation. |
+| 20:43:58.450 UTC | Creation of Command Prompt (cmd.exe) | 4 | This one catches the anomaly. However, a level 4 alert is not good enough to pay attention. It is helpful for threat hunting but not for detection. I decided to write a more specific rule that checks for privilege escalation. |
 
 Now, you can try the same with many types of attacks to test your detection capabilities. It is seen that the base ruleset is good but there's always room for improvement. I also excluded adding `groups` and `mitre` tags for the sake of brevity. That must be considered.
 
@@ -824,3 +844,4 @@ Thanks to [Birol Capa](https://github.com/birolcapa) for [his article](https://b
 [^1] As a side note, this is valid for 4.x versions and earlier. The upcoming version, Wazuh 5.0 may or may not need it.
 [^2] You can try to initiate `wazuh-logtest` like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
 [^3] Do not give arbitrary levels to your custom rules. Always check the Rules Classification document. If your alert does not fit any of them, you can pick a reasonable approximation of course. These are guidelines, not rules (no pun intended).
+[^4] You can replicate this attack in your simulations as well. Atomic Red Team has [this specific attack](https://www.atomicredteam.io/atomic-red-team/atomics/T1548.002#atomic-test-16---uacme-bypass-method-59) part of their toolkit.
