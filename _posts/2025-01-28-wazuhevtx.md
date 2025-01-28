@@ -841,7 +841,7 @@ Thanks to [Birol Capa](https://github.com/birolcapa) for [his article](https://b
 
 ---
 
-[^1] As a side note, this is valid for 4.x versions and earlier. The upcoming version, Wazuh 5.0 may or may not need it.
-[^2] You can try to initiate `wazuh-logtest` like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
-[^3] Do not give arbitrary levels to your custom rules. Always check the Rules Classification document. If your alert does not fit any of them, you can pick a reasonable approximation of course. These are guidelines, not rules (no pun intended).
-[^4] You can replicate this attack in your simulations as well. Atomic Red Team has [this specific attack](https://www.atomicredteam.io/atomic-red-team/atomics/T1548.002#atomic-test-16---uacme-bypass-method-59) part of their toolkit.
+[^1]: As a side note, this is valid for 4.x versions and earlier. The upcoming version, Wazuh 5.0 may or may not need it.
+[^2]: You can try to initiate `wazuh-logtest` like this `/var/ossec/bin/wazuh-logtest -l EventChannel`, but you cannot fool analysisd. You still need the workaround.
+[^3]: Do not give arbitrary levels to your custom rules. Always check the Rules Classification document. If your alert does not fit any of them, you can pick a reasonable approximation of course. These are guidelines, not rules (no pun intended).
+[^4]: You can replicate this attack in your simulations as well. Atomic Red Team has [this specific attack](https://www.atomicredteam.io/atomic-red-team/atomics/T1548.002#atomic-test-16---uacme-bypass-method-59) part of their toolkit.
