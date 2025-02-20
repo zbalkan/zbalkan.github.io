@@ -7,11 +7,11 @@ tags:
   - Filesystem
 ---
 
-This time I am going to write about some odd behavior of Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
+This time I am going to write about some odd behavior by Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
 
 ## What do you see?
 
-You checked the Task Manager and saw these. Many executables are relatively small in size with a square in the name. What is your initial assumption?
+You checked the Task Manager and saw these. Many executables are relatively small, with a square in the name. What is your initial assumption?
 
 <img src="/assets/what.png" width="800" alt="square.exe">
 
@@ -19,19 +19,19 @@ You would assume that it is not directly malicious but still suspicious. You che
 
 <img src="/assets/what-event1.png" width="800" alt="Event 4688 General">
 
-Not so helpful. You see another substitute character. You assume it is a possible encoding issue. Could the executable name use a non-Latin alphabet? Probably. Let's check the Details tab.
+It's not very helpful. You see another substitute character. You assume it is a possible encoding issue. Could the executable name use a non-Latin alphabet? Probably. Let's check the Details tab.
 
 <img src="/assets/what-event2.png" width="800" alt="Event 4688 Details- Friendly">
 
 This executable name is so broken that it manages to break the Details view in both Friendly and XML views.
 
-## Encoding but what and how?
+## Encoding, but what and how?
 
 At least we know the location of the executable. We have a broken name and a substitute character. We know it is not a huge issue until now. We can find the path and see what is under that folder.
 
 <img src="/assets/what-folder.png" width="800" alt="Folder">
 
-It is weirder. It is not one but many executables. They look the same but no, they are not. NTFS cannot allow files with the same name in the same directory. So, all of these have different names, but they are substituted. Let's check how many files we have in this form.
+It is weirder. It is not one but many executables. They look the same, but no; they are definitely not. NTFS cannot allow files with the same name in the same directory. So, all of these have different names, but they are substituted. Let's check how many files we have in this form.
 
 <img src="/assets/what-folder-count.png" width="450" alt="Folder count: 2048 files">
 
@@ -39,7 +39,7 @@ There are many of them. Now we know that the processes we see may not be the sam
 
 ## What are these?
 
-These are not as mysterious as expected. These are just small `hello world` applications. Or rather, a modified version of [Davide Pisanò](https://github.com/davide99)'s **[the smallest Windows application](https://davidesnotes.com/articles/1/?page=5)**
+These are not as mysterious as expected. These are just small `hello world` applications. Or rather, a modified version of [Davide Pisanò](https://github.com/davide99)'s **[the smallest Windows application](https://davidesnotes.com/articles/1/?page=5)**.
 
 <img src="/assets/what-hello.png" width="400" alt="Folder">
 
@@ -47,7 +47,7 @@ There is nothing suspicious about the executable. It is just the weird decoding 
 
 ## It's complicated
 
-These files have names that include characters that cannot be rendered at all. They are out of UTF-8 coverage as well. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize anyway.
+These files have names that include characters that cannot be rendered at all. They are out of UTF-8 coverage as well. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, anyway.
 
 Windows was an early adopter of Unicode, and its file APIs use UTF‑16 internally. This means that filenames, text strings, and other data are stored as sequences of 16‑bit units. For Windows, a properly formed surrogate pair is perfectly acceptable. However, issues arise when string manipulation (often written under the old UCS‑2 assumptions) produces isolated or malformed surrogates. Such errors can lead to unreadable filenames and display glitches—even though the operating system itself can execute files correctly. Check out [this great article on the history of UCS-2](https://unascribed.com/b/2019-08-02-the-tragedy-of-ucs2.html). Also, on the disadvantages of being an early adopter, you may try [Raymond Chen's article](https://devblogs.microsoft.com/oldnewthing/20190830-00/?p=102823) on it as well.
 
@@ -109,4 +109,4 @@ print(f"\n\nFiles created in directory: {out_path}\n")
 print(f"{success_count} files created out of {total} total files")
 ```
 
-Test the code, and play with it. And if you find any use cases for these to be used for detection, bypass or any security-related effect, please let me know. You can contact me over email, Github or LinkedIn.
+Test the code, and play with it. I know that these would break some FIM solutions but that's where my research ends. And if you find any use cases for these to be used for detection, bypass or any security-related effect, please let me know. You can contact me over email, Github or LinkedIn.
