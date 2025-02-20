@@ -1,5 +1,5 @@
 ---
-title: "Can you detect what you cannot see?"
+title: "Understanding Surrogate Pairs: Why Some Windows Filenames Can’t Be Read"
 tags:
   - Windows
   - Encoding
