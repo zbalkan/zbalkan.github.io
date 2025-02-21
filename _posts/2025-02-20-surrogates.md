@@ -5,6 +5,7 @@ tags:
   - Encoding
   - Detection
   - Filesystem
+last_modified_at: 2025-02-21T23:15:00+02:00
 ---
 
 This time I am going to write about some odd behavior by Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
@@ -39,7 +40,7 @@ There are many of them. Now we know that the processes we see may not be the sam
 
 ## What are these?
 
-These are not as mysterious as expected. These are just small `hello world` applications. Or rather, a modified version of [Davide Pisanò](https://github.com/davide99)'s **[the smallest Windows application](https://davidesnotes.com/articles/1/?page=5)**.
+The executables are not as mysterious as expected. These are just small `hello world` applications. Or rather, a modified version of [Davide Pisanò](https://github.com/davide99)'s **[the smallest Windows application](https://davidesnotes.com/articles/1/?page=5)** that I used as an example.
 
 <img src="/assets/what-hello.png" width="400" alt="Folder">
 
@@ -47,9 +48,9 @@ There is nothing suspicious about the executable. It is just the weird decoding 
 
 ## It's complicated
 
-These files have names that include characters that cannot be rendered at all. They are out of UTF-8 coverage as well. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, anyway.
+These files have names that include non-renderable characters. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, still[^1].
 
-Windows was an early adopter of Unicode, and its file APIs use UTF‑16 internally. This means that filenames, text strings, and other data are stored as sequences of 16‑bit units. For Windows, a properly formed surrogate pair is perfectly acceptable. However, issues arise when string manipulation (often written under the old UCS‑2 assumptions) produces isolated or malformed surrogates. Such errors can lead to unreadable filenames and display glitches—even though the operating system itself can execute files correctly. Check out [this great article on the history of UCS-2](https://unascribed.com/b/2019-08-02-the-tragedy-of-ucs2.html). Also, on the disadvantages of being an early adopter, you may try [Raymond Chen's article](https://devblogs.microsoft.com/oldnewthing/20190830-00/?p=102823) on it as well.
+Windows was an early adopter of Unicode, and its file APIs use UTF‑16 internally since Windows 2000-used to be UCS-2 in Windows 95 era, when Unicode standard was only a draft on paper, but that's another topic. Using UTF-16 means that filenames, text strings, and other data are stored as sequences of 16‑bit units. For Windows, a properly formed surrogate pair is perfectly acceptable[^2]. However, issues arise when string manipulation produces isolated or malformed surrogates. Such errors can lead to unreadable filenames and display glitches—even though the operating system itself can execute files correctly. But we can create them deliberately as well, which we can see below.
 
 ## Understanding Surrogate Pairs
 
@@ -76,13 +77,21 @@ Thus, the surrogate pair `\ud83e\udd26` represents the emoji 🤦. Although thes
 
 ## Wanna try?
 
-You can try the Python code below to create a bunch of squares or rather files with invalid UTF-8 names that cannot be rendered in any localization setup. As you have read above, these are expected not to be rendered.
+You can try the Python code below to create a bunch of squares or rather files with invalid UTF-8 names that cannot be rendered in any localization setup. As you have read above, these are expected not to be rendered. To create unrenderable file names, we need the high and low surrogates. See the table for the range.
+
+| Surrogate Type | Unicode Range | Expected UTF-8 Encoding |
+|----------------|---------------|-------------------------|
+| High Surrogates | U+D800–U+DBFF | ED A0 80 to ED AF BF |
+| Low Surrogates | U+DC00–U+DFFF | ED B0 80 to ED BF BF |
+
+In the code below, we use the constant first byte, then enumerate second and third bytes in the range to build a valud UTF-16 filename, that is not renderable. See the `surrogatepass` parameter below, you probably never needed to use. You may need to have a look to understand the problem with paths and how Python handles them[^3]. I believe the code is clear and readable and no more explanation is needed.
 
 ```python
 import os
 
 out_path = "./win32/"
 out_path = os.path.abspath(out_path)
+os.makedirs(out_path, exist_ok=True)
 os.chdir(out_path)
 
 success_count = 0
@@ -97,7 +106,7 @@ for second_byte in range(0xA0, 0xC0):  # 0xA0 to 0xBF inclusive
         candidate = candidate_bytes.decode('utf-8', errors='surrogatepass')
         try:
             # Create a file with the candidate name and write a single character.
-            with open(candidate, "w", encoding='utf8', errors='surrogatepass') as f:
+            with open(candidate, "w", encoding='utf-8', errors='surrogatepass') as f:
                 f.write('')
             print(f"Created file {candidate_bytes}")  # type: ignore
             success_count += 1
@@ -110,3 +119,9 @@ print(f"{success_count} files created out of {total} total files")
 ```
 
 Test the code, and play with it. I know that these would break some FIM solutions but that's where my research ends. And if you find any use cases for these to be used for detection, bypass or any security-related effect, please let me know. You can contact me over email, Github or LinkedIn.
+
+---
+
+[^1]: Check out [this great article on the history of UCS-2](https://unascribed.com/b/2019-08-02-the-tragedy-of-ucs2.html). Also, on the disadvantages of being an early adopter, you may try [Raymond Chen's article](https://devblogs.microsoft.com/oldnewthing/20190830-00/?p=102823) on it as well.
+[^2]: In most Linux filesystems, these characters are acceptable as well. Do be more precise, Linux does not use any encoding as path, since the unit of paths are considered to be bytes, not a higher level abstraction. If you can represent something merely in a sequence of bytes, they are valid. There are two constraints though: `0x00` (null) and `0x2F` ("/"). You cannot use them within file or directory names. Assuming ASCII or UTF-8 is a relatively new habit. Some filesystems allow [UTF-8 enforcement on paths](https://rubenerd.com/forgetting-to-set-utf-normalisation-on-a-zfs-pool/) but that's not a common approach.
+[^3]: See these two amazing articles, [our solution for the hell that is filename encoding, such as it is](https://beets.io/blog/paths.html) and [Missing Pieces in Python 3 Unicode](https://thoughtstreams.io/ncoghlan_dev/missing-pieces-in-python-3-unicode/) for paths, surrogate pairs and Python way of handling them.
