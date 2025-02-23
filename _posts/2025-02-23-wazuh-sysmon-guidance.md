@@ -24,7 +24,7 @@ I want to mention some basics to ensure we are on the same page:
 
 ## Fine-tuning for Wazuh
 
-I'd like to note that if you are using Wazuh, you need some fine-tuning for your environment. Just like any SIEM, Wazuh needs tailoring to your environment. Then, you need a continuous fine-tuning process during the lifetime. But with Sysmon, we can have a sane baseline by just checking the capabilities and comparing them. That'd be a better baseline for everyone regardless of the work environment.
+I'd like to note that if you are using Wazuh, just like any SIEM, you need some fine-tuning and tailoring for your environment. Then, you need a continuous fine-tuning process during the lifetime. As a *filter-at-source* mechanism for your SIEM, Sysmon needs sane configurations as well. I have mentioned that the users generally stick to the well-known configurations. Before even adapting to your own environment, we can modify those configurations for Wazuh by comparing the File Integrity Monitoring (FIM) capabilities to Sysmon. This level of filtering helps you optimize the load. Analyze the table below for a comparison.
 
 | Event ID | Name | Covered by Wazuh FIM | Atomic Rule ID | Rule Group | Child rule files | Data Source [^1] |
 |---:|---|---|---:|---|---|---:|
@@ -59,9 +59,9 @@ I'd like to note that if you are using Wazuh, you need some fine-tuning for your
 | 29 | FileExecutableDetected ||||| [File](https://attack.mitre.org/datasources/DS0022/) |
 | 255 | Error || 61606 | sysmon_event_255 |||
 
-You can see that most of the Sysmon event IDs have a matching Wazuh rule ID that creates a group. These definitions can be found in the initial rule file on Sysmon, `0595-win-sysmon_rules.xml`. Some newer events are not covered, so you may need custom rules if you want to benefit from them. You can find that some rules have better coverage with specific child rule files, showing the significance of detection, developed by the Wazuh team.
+You can see that most of the Sysmon event IDs have a matching Wazuh rule ID that creates a group. These definitions can be found in the primary rule file on Sysmon, `0595-win-sysmon_rules.xml`. Some newer events are not covered, so you may need custom rules if you want to benefit from them. You can find that some rules have better coverage with specific child rule files, showing the significance of detections, developed by the Wazuh team.
 
-Under the circumstances, you need to follow these if you want to make the most of your setup:
+Under the circumstances, you need to follow these steps if you want to make the most of your setup:
 
 - Pick your baseline
 - Exclude events covered by FIM
@@ -86,5 +86,6 @@ Olaf Hartong's [sysmon-modular project](https://github.com/olafhartong/sysmon-mo
 <script src="https://gist.github.com/zbalkan/ab0d44fe58e8cf9132d21dabb724b489.js"></script>
 
 ---
+
 [^1]: Data sources in the context of MITRE ATT&CK.
 [^2]: If you do not have any decoders or rules for a log you are collecting, that is useless for detection. It is better to filter them out at the source so that they do not fill up Wazuh agent buffer, consume unnecessary bandwidth and load on Wazuh manager side. Collect these logs only if you absolutely have to, for compliance reasons or regulations.
