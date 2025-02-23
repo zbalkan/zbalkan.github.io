@@ -8,13 +8,23 @@ tags:
   - Sysmon
 ---
 
-Sysmon is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
+[Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon) is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
 
 Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog.
 
+I want to mention some basics to ensure we are on the same page:
+
+1. Sysmon is not a replacement for an SIEM or EDR.
+2. Sysmon is a service which provides non-default, rich log and telemetry capabilities for Windows endpoints.
+3. Sysmon [event IDs](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon#events) allow new data sources to become visible for defenders.
+4. **Rich** in the context data sources also means **noise**. Beware of lots and lots of logs.
+5. Collect what you need, nothing more, nothing less. I'd like to quote [Alex Teixeira](https://detect.fyi/sysmon-a-viable-alternative-to-edr-44d4fbe5735a):
+
+> Storing even the richest log data has little to no detection value until it is actively consumed (Detection).
+
 ## Fine-tuning for Wazuh
 
-I'd like to note that if you are using Wazuh, you need some fine- tuning for your environment. Just like any SIEM, Wazuh needs tailoring to your environment. Then, you need a continuous fine-tuning process during the lifetime. But with Sysmon, we can have a sane baseline by just checking the capabilities and comparing them. That'd be a better baseline for everyone regardless of the work environment.
+I'd like to note that if you are using Wazuh, you need some fine-tuning for your environment. Just like any SIEM, Wazuh needs tailoring to your environment. Then, you need a continuous fine-tuning process during the lifetime. But with Sysmon, we can have a sane baseline by just checking the capabilities and comparing them. That'd be a better baseline for everyone regardless of the work environment.
 
 | Event ID | Name | Covered by Wazuh | Atomic Rule ID | Rule Group | Child rule files |
 |---|---|---|---|---|---|
