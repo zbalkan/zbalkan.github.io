@@ -56,9 +56,25 @@ Under the circumstances, you need to follow these if you want to make the most o
 - Pick your baseline
 - Exclude events covered by FIM
 - Either
-  - Write custom rules for Sysmon events 26 and above, or
-  - Exclude them in your Sysmon configuration.
+  - Write custom rules for Sysmon events not covered by default ruleset, or
+  - Exclude those events in your Sysmon configuration to minimize the load[1^].
 
 This will give you the best of both worlds. In order to help the users, I provided modified versions of most popular sysmon configurations in gists.
 
 Enjoy!
+
+## Updated `sysmonconfig.xml` by SwiftOnSecurity
+
+The [original project](https://github.com/SwiftOnSecurity/sysmon-config) has not been updated for years though it is still being used actively.
+
+<script src="https://gist.github.com/zbalkan/8312a6d4e0a7610eccfd342e329cdaab.js"></script>
+
+## Updated `sysmonconfig.xml` by Olaf Hartong
+
+Olaf Hartong's [sysmon-modular project](https://github.com/olafhartong/sysmon-modular/) includes several versions depending on verbosity levels. I picked the `default` configuration as a good start.
+
+<script src="https://gist.github.com/zbalkan/8312a6d4e0a7610eccfd342e329cdaab.js"></script>
+
+---
+
+[1^]: If you do not have any decoders or rules for a log you are collecting, that is useless for detection. It is better to filter them out at the source so that they do not fill up Wazuh agent buffer, consume unnecessary bandwidth and load on Wazuh manager side. Collect these logs only if you absolutely have to, for compliance reasons or regulations.
