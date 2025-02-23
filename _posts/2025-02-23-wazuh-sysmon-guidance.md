@@ -16,7 +16,7 @@ I want to mention some basics to ensure we are on the same page:
 
 1. Sysmon is not a replacement for an SIEM or EDR.
 2. Sysmon is a service which provides non-default, rich log and telemetry capabilities for Windows endpoints.
-3. Sysmon [event IDs](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon#events) allow new data sources to become visible for defenders.
+3. Sysmon [event IDs](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon#events) allow new data sources to become visible to defenders.
 4. **Rich** in the context of [data sources](https://attack.mitre.org/datasources/) also means **noise**. Beware of lots and lots of logs.
 5. Collect what you need, nothing more, nothing less. I'd like to quote [Alex Teixeira](https://detect.fyi/sysmon-a-viable-alternative-to-edr-44d4fbe5735a):
 
@@ -69,13 +69,13 @@ Under the circumstances, you need to follow these if you want to make the most o
   - Write custom rules for Sysmon events not covered by the default ruleset, or
   - Exclude those events in your Sysmon configuration to minimize the load[^2].
 
-This will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to understand what has been suppressed.
+This approach will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to understand what has been suppressed.
 
 Enjoy!
 
 ## Updated `sysmonconfig.xml` by SwiftOnSecurity
 
-The [original project](https://github.com/SwiftOnSecurity/sysmon-config) has not been updated for years though it is still being used actively.
+The [original project](https://github.com/SwiftOnSecurity/sysmon-config) has not been updated for years, though it is still being used actively.
 
 <script src="https://gist.github.com/zbalkan/8312a6d4e0a7610eccfd342e329cdaab.js"></script>
 
