@@ -8,13 +8,13 @@ tags:
   - Sysmon
 ---
 
-When you want to get more visibility on wour Windows endpoints, Sysmon is the go-to utility for most. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
+Sysmon is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
 
-Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that make use of Sysmon with Wazuh on official blog.
+Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog.
 
-## Fine tuning or tailoring
+## Fine-tuning for Wazuh
 
-I'd like to note that if you are using Wazuh, you need some fine tuning for your environment. Justlike any SIEM, Wazuh needs tailoring to your environment. Then, you need a continuous fine tuning process duing the lifetime. But with Sysmon, we can have a sane baseline by just checking the capabilities and comparing them. That'd be a better baseline for everyone regardless of the work environment.
+I'd like to note that if you are using Wazuh, you need some fine- tuning for your environment. Just like any SIEM, Wazuh needs tailoring to your environment. Then, you need a continuous fine-tuning process during the lifetime. But with Sysmon, we can have a sane baseline by just checking the capabilities and comparing them. That'd be a better baseline for everyone regardless of the work environment.
 
 | Event ID | Name | Covered by Wazuh | Atomic Rule ID | Rule Group | Child rule files |
 |---|---|---|---|---|---|
@@ -49,17 +49,17 @@ I'd like to note that if you are using Wazuh, you need some fine tuning for your
 | 29 | FileExecutableDetected |||||
 | 255 | Error || 61606 | sysmon_event_255 ||
 
-You can see that most of the Sysmon event IDs have a matching Wazuh rule ID that creates a group. These definitions can be found in the initial rule file on Sysmon, `0595-win-sysmon_rules.xml`. Some newer events are not covered, so you may need custom rule if you want to benefit from them. You can find out that some rules have a better coverage with specific child rule fles, showing the significance in detection, developed by Wazuh team.
+You can see that most of the Sysmon event IDs have a matching Wazuh rule ID that creates a group. These definitions can be found in the initial rule file on Sysmon, `0595-win-sysmon_rules.xml`. Some newer events are not covered, so you may need custom rules if you want to benefit from them. You can find that some rules have better coverage with specific child rule files, showing the significance of detection, developed by the Wazuh team.
 
 Under the circumstances, you need to follow these if you want to make the most of your setup:
 
 - Pick your baseline
 - Exclude events covered by FIM
 - Either
-  - Write custom rules for Sysmon events not covered by default ruleset, or
+  - Write custom rules for Sysmon events not covered by the default ruleset, or
   - Exclude those events in your Sysmon configuration to minimize the load[^1].
 
-This will give you the best of both worlds. In order to help the users, I provided modified versions of most popular sysmon configurations in gists.
+This will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to understand what has been suppressed.
 
 Enjoy!
 
