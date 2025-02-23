@@ -83,7 +83,7 @@ The [original project](https://github.com/SwiftOnSecurity/sysmon-config) has not
 
 Olaf Hartong's [sysmon-modular project](https://github.com/olafhartong/sysmon-modular/) includes several versions depending on verbosity levels. I picked the `default` configuration as a good start.
 
-<script src="https://gist.github.com/zbalkan/8312a6d4e0a7610eccfd342e329cdaab.js"></script>
+<script src="https://gist.github.com/zbalkan/ab0d44fe58e8cf9132d21dabb724b489.js"></script>
 
 ---
 [^1]: Data sources in the context of MITRE ATT&CK.
