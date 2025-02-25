@@ -13,6 +13,8 @@ last_modified_at: 2025-02-25T11:45:00+02:00
 
 Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog.
 
+<img src="/assets/sysmon-logo.png" width="600" alt="Sysinternals Sysmon logo">
+
 I want to mention some basics to ensure we are on the same page:
 
 1. Sysmon is not a replacement for an SIEM or EDR.
