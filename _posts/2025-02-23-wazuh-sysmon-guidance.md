@@ -11,7 +11,7 @@ last_modified_at: 2025-02-25T11:45:00+02:00
 
 [Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon) is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
 
-Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog.
+Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog. There, you can find many advanced ways for optimizing Wazuh to detect very specific behaviors. I do not suggest mixing them up and having a too verbose configuration. It is the most accurate way of having an alert fatigue.
 
 <img src="/assets/sysmon-logo.png" width="600" alt="Sysinternals Sysmon logo">
 
