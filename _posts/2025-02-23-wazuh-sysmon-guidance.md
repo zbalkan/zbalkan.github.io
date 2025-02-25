@@ -6,6 +6,7 @@ tags:
   - Detection
   - Windows Event Log
   - Sysmon
+last_modified_at: 2025-02-25T11:45:00+02:00
 ---
 
 [Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon) is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
@@ -69,7 +70,7 @@ Under the circumstances, you need to follow these steps if you want to make the 
   - Write custom rules for Sysmon events not covered by the default ruleset, or
   - Exclude those events in your Sysmon configuration to minimize the load[^2].
 
-This approach will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to understand what has been suppressed.
+This approach will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to see the notes on further details and understand what has been suppressed.
 
 Enjoy!
 
@@ -84,6 +85,12 @@ The [original project](https://github.com/SwiftOnSecurity/sysmon-config) has not
 Olaf Hartong's [sysmon-modular project](https://github.com/olafhartong/sysmon-modular/) includes several versions depending on verbosity levels. I picked the `default` configuration as a good start.
 
 <script src="https://gist.github.com/zbalkan/ab0d44fe58e8cf9132d21dabb724b489.js"></script>
+
+## Updated `sysmonconfig.xml` by Neo23x0
+
+An [active fork]((https://github.com/Neo23x0/sysmon-config)) of SwiftOnSecurity's coniguration, by [Florian Roth](https://github.com/Neo23x0). It is actively maintained and the best addition is at the end about the [LOLDrivers](https://github.com/magicsword-io/LOLDrivers). Since it relies on Event Id 29, you need custom rules for detection.
+
+<script src="https://gist.github.com/zbalkan/37de6d3c925d826c6a1ef8d77e42eeac.js"></script>
 
 ---
 
