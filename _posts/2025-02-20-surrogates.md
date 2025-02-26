@@ -5,7 +5,7 @@ tags:
   - Encoding
   - Detection
   - Filesystem
-last_modified_at: 2025-02-26T10:55:00+02:00
+last_modified_at: 2025-02-26T12:32:00+02:00
 ---
 
 This time I am going to write about some odd behavior by Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
@@ -119,6 +119,72 @@ print(f"{success_count} files created out of {total} total files")
 ```
 
 Test the code, and play with it. I know that these would break some FIM solutions but that's where my research ends. And if you find any use cases for these to be used for detection, bypass or any security-related effect, please let me know. You can contact me over email, Github or LinkedIn.
+
+## Postscriptum
+
+I wanted to add another section about comparison with Linux. Even though I mentioned it in the footnotes, it is better to visualize.
+
+Let's check the existing file on WSL, to see how Ubuntu will render it. When we check the locale, we see that our WSL instance is set to use UTF-8:
+
+<img src="/assets/what-wsl-locale.png" width="600" alt="locale command result on WSL">
+
+And when we use `ll` command, we see that the shell does not play well with these characters.
+
+<img src="/assets/what-wsl-ll1.png" width="600" alt="ll command result on WSL:">
+<img src="/assets/what-wsl-ll2.png" width="600" alt="ll command result on WSL">
+<img src="/assets/what-wsl-ll3.png" width="600" alt="ll command result on WSL">
+
+WSL not only fails to render the files but also fails to query the file metadata. I assume it is because it tries to get them as UTF-8 text and queries with their version, causing Win32 API to return nothing because of invalid parameters. But at least the file count is correct.
+
+A fairer comparison would be using UTF-16 on Linux but unfortunately it is not possible. **You cannot set UTF-16 as locale on Linux**. But we can run our script on Linux-in my case within WSL- so we do not make use of NTFS.
+
+<img src="/assets/what-wsl-lin1.png" width="600" alt="run the script on WSL with UTF-8 locale">
+<img src="/assets/what-wsl-lin2.png" width="600" alt="run the script on WSL with UTF-8 locale">
+
+While the script result tells us that all the write operations succeeded, `ls` shows only 2 files! Since Linux here drops of the second part, it overrides the same file. This is not what I have expected. For a better understanding, I used `unset LANG` and `export LC_ALL=POSIX` to fall back to POSIX instead of UTF-8. I am not sure if it would make any difference, so this is me learning by trial and error.
+
+<img src="/assets/what-wsl-lin3.png" width="600" alt="Changed the locale to POSIX">
+<img src="/assets/what-wsl-lin4.png" width="600" alt="Changed the locale to POSIX">
+
+Script gets completed as expected. But this time there are only one file generated instead of 2! At this point I am not sure what has happened. I am assuming this is due to the fact that UTF-8 supports more characters so that it allowed one more valid file name than POSIX did. Let me know if you have more information on the behavioral difference here. You can find the code I used on Linux here. Beware that I do not use `surrogatepass` as we do not decode bytes to string in Linux. We can just use bytes as file names.
+
+```python
+import os
+
+in_path: str = r'./MinHW.exe'
+
+with open(in_path, 'rb') as f:
+    data: bytes = f.read()
+
+out_path = "./linux/"
+out_path = os.path.abspath(out_path)
+os.makedirs(out_path, exist_ok=True)
+os.chdir(out_path)
+
+success_count = 0
+total = 0
+
+# Iterate over the valid ranges for the second and third bytes.
+for second_byte in range(0xA0, 0xC0):  # 0xA0 to 0xBF inclusive
+    for third_byte in range(0x80, 0xC0):  # 0x80 to 0xBF inclusive
+        # Construct the valid 3-byte sequence: fixed first byte 0xED + second and third bytes.
+        candidate = bytes([0xED, second_byte, third_byte])
+        try:
+            # Create a file with the candidate name and write a single character.
+            name = candidate + b'.exe'
+            with open(name, "wb") as f:
+                f.write(data)
+            print(f"Created file {candidate}")  # type: ignore
+            success_count += 1
+        except Exception as e:
+            print(f"Failed to create file {candidate}: {e}")  # type: ignore
+        total += 1
+
+print(f"\n\nFiles created in directory: {out_path}\n")
+print(f"{success_count} files created out of {total} total files")
+```
+
+We can see that surrogate pairs, as UTF-16-specific features, causes different behavior on Windows and Linux side. Windows allowed these characters to be used while Linux dropped some bytes, *possibly* UTF-8 assumptions. I don't know enough about the internals here.
 
 ---
 
