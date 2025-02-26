@@ -48,7 +48,7 @@ There is nothing suspicious about the executable. It is just the weird decoding 
 
 ## It's complicated
 
-These files have names that include non-renderable characters. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, still[^1].
+These files have names that include unrenderable characters. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, still[^1].
 
 Windows was an early adopter of Unicode, and its file APIs use UTF‑16 internally since Windows 2000-used to be UCS-2 in Windows 95 era, when Unicode standard was only a draft on paper, but that's another topic. Using UTF-16 means that filenames, text strings, and other data are stored as sequences of 16‑bit units. For Windows, a properly formed surrogate pair is perfectly acceptable[^2]. However, issues arise when string manipulation produces isolated or malformed surrogates. Such errors can lead to unreadable filenames and display glitches—even though the operating system itself can execute files correctly. But we can create them deliberately as well, which we can see below.
 
@@ -84,7 +84,7 @@ You can try the Python code below to create a bunch of squares or rather files w
 | High Surrogates | U+D800–U+DBFF | ED A0 80 to ED AF BF |
 | Low Surrogates | U+DC00–U+DFFF | ED B0 80 to ED BF BF |
 
-In the code below, we use the constant first byte, then enumerate second and third bytes in the range to build a valud UTF-16 filename, that is not renderable. See the `surrogatepass` parameter below, you probably never needed to use. You may need to have a look to understand the problem with paths and how Python handles them[^3]. I believe the code is clear and readable and no more explanation is needed.
+In the code below, we use the constant first byte, then enumerate second and third bytes in the range to build a valid UTF-16 filename, that is not renderable. See the `surrogatepass` parameter below, you probably never needed to use. You may need to have a look to understand the problem with paths and how Python handles them[^3]. I believe the code is clear and readable and no more explanation is needed.
 
 ```python
 import os
