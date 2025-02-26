@@ -5,7 +5,7 @@ tags:
   - Encoding
   - Detection
   - Filesystem
-last_modified_at: 2025-02-21T23:15:00+02:00
+last_modified_at: 2025-02-26T10:55:00+02:00
 ---
 
 This time I am going to write about some odd behavior by Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
