@@ -15,19 +15,21 @@ tags:
 
 Early in my IT career, I worked as a sysadmin, later became an IT manager, and at one point, transitioned into cybersecurity. Across all these roles, one lesson stands out: **you can’t manage what you can’t measure**. If you don’t know which applications, patches, or configurations are on your Windows machines, you’re flying blind. That’s why I created [AppLister](https://github.com/zbalkan/AppLister), a lightweight Windows service that collects inventory data and publishes it via WMI. It’s designed to help you get a clear picture of what’s running on your systems—without having to wrestle with clunky, built-in methods like `Win32_Product`.
 
-### Why I Built It
+However, there was a problem with using `Win32_Product`. Actually, several of them: poor performance, unreliable results, unexpected side effects like triggering MSI installer repairs.
 
-- **Free & Accessible**: There are plenty of paid solutions, but I wanted something that anyone could deploy without burning a hole in their budget.
+> `Win32_product` class isn't query optimized. Queries such as `select * from Win32_Product where (name like 'Sniffer%')` require WMI to use the MSI provider to enumerate all of the installed products and then parse the full list sequentially to handle the where clause. This process also starts a consistency check of packages installed, verifying, and repairing the install. An account with only user privileges may cause delay in application launch and an event 11708 stating an installation failure, as the user account may not have access to quite a few locations.
+> MS Docs: [Event log message indicates that the Windows Installer reconfigured all installed applications](https://learn.microsoft.com/en-us/troubleshoot/windows-server/admin-development/windows-installer-reconfigured-all-applications)
 
-- **No More “Guesswork”**: Too many shops rely on sporadic, manual checks. AppLister automates discovery so you know for sure what’s installed.
+I suggest you to check great articles like *[Win32_Product Is Evil](https://gregramsey.net/2012/02/20/win32_product-is-evil/)* or *[Please Stop Using Win32_Product To Find Installed Software](https://xkln.net/blog/please-stop-using-win32product-to-find-installed-software-alternatives-inside/)*.
 
-- **Plug-and-Play with WMI**: Most enterprise and open-source tools already speak WMI. AppLister feeds them accurate, up-to-date data.
+So what is the alternative? If you are using Group Policy Preferences, Item Level Targeting is the recommended way. If you are using other solutions, you need yo use path control queries like `SELECT * FROM Win32_Directory WHERE Name LIKE 'C:\\Program Files\\Mozilla Firefox'`. I wanted to have a better option that does not require weird alternative paths that indicates an installation indirectly.
 
 ### What It Does
 
-- **App Discovery**: Built on top of [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller) for comprehensive scanning.
-- **Custom WMI Provider**: Exposes data through a custom WMI class (`ZB_App`), so you can query it using PowerShell or integrate it into WMI filters for Group Policy, SCCM, or other WMI-friendly platforms.
-- **Extensible Architecture**: Need more than just installed apps? You can tailor AppLister to collect Windows updates, registry data, or whatever else matters to your environment.
+- **Step 1: App Discovery**: Built on top of [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller) for comprehensive scanning.
+- **Step 2: Publish as WMI instances**: Exposes data through a custom WMI class (`ZB_App`), so you can query it using PowerShell or integrate it into WMI filters for Group Policy or other WMI-friendly platforms.
+
+The data does not persist in a database or on the file system. It is kept in memory while the service is running.
 
 ### Getting Started
 
@@ -38,21 +40,44 @@ Early in my IT career, I worked as a sysadmin, later became an IT manager, and a
   Get-CimInstance -ClassName "ZB_App"
   ```
 
-   This spits out everything the service finds, giving you immediate insights.
+   This spits out everything the service finds, giving you insights. Initial scan may take up to **30 seconds**. You can check Windows Event Logs: <img src="/assets/applister4.png" width="800" alt="Windows Event log">
+
 - **Integrate**: From there, tie it into any WMI-capable tool or script—quick GPO checks, automated patch management, you name it.
 
 You can query Windows updates.
 
-<img src="/assets/applister1.png" width="600" alt="Query Windows updates">
+<img src="/assets/applister1.png" width="800" alt="Query Windows updates">
 
 Or just a single app you want:
 
-<img src="/assets/applister2.png" width="600" alt="Query Mozilla Firefox">
+<img src="/assets/applister2.png" width="800" alt="Query Mozilla Firefox">
 
 Or just Windows Store apps:
 
-<img src="/assets/applister3.png" width="600" alt="Query Windows Store Apps">
+<img src="/assets/applister3.png" width="800" alt="Query Windows Store Apps">
+
 ---
+
+### Performance impact
+
+I used this test code below to query if Mozilla Firefox is installed:
+
+```powershell
+Write-Output "WMI Class`t`tTotal Milliseconds"
+Write-Output "Win32_Product`t`t`t$((Measure-Command { Get-CimInstance -Query "SELECT * FROM Win32_Product WHERE Name LIKE 'Mozilla Firefox'" }).TotalMilliseconds)"
+Write-Output "Win32_Directory`t`t$((Measure-Command { Get-CimInstance -Query "SELECT * FROM Win32_Directory WHERE Name LIKE 'C:\\Program Files\\Mozilla Firefox'" }).TotalMilliseconds)"
+Write-Output "ZB_App`t`t`t$((Measure-Command { Get-CimInstance -Query "SELECT * FROM ZB_App WHERE Name LIKE 'Mozilla Firefox'" }).TotalMilliseconds)"
+```
+
+And here's the result:
+
+| WMI Class | Total Milliseconds |
+|---|---:|
+| Win32_Product | 19984.9615 |
+| Win32_Directory | 26165.3221 |
+| ZB_App | 60.8885 |
+
+The *evil* solution returns a result in around 20 seconds. And the second alternative, the *lesser evil*, returned after 26 seconds. It will definitely slow down performance. And the last solution, returns in 60 milliseconds; over 300 times faster than `Win32_Product`, and around 430 times faster than `Win32_Directory` query. Of course, the difference stems from not initiating a scan on every query but by keeping an in-memory inventory all the time.
 
 ## Final Thoughts
 
