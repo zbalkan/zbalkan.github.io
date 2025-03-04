@@ -9,15 +9,11 @@ tags:
   - Sysadmin
 ---
 
-## BLUF (Bottom Line Up Front)
-
-Asset management is crucial for IT and cybersecurity—if you don’t know what you have, you can’t protect or manage it. The good news? You don’t need fancy, expensive solutions to get started. You can kick off your asset management journey using free tools. I built one myself—just for fun—and I’m happy to share it with anyone who wants to give it a spin.
-
----
+**BLUF (Bottom Line Up Front):** Asset management is crucial for IT and cybersecurity—if you don’t know what you have, you can’t protect or manage it. The good news? You don’t need fancy, expensive solutions to get started. You can kick off your asset management journey using free tools. I built one myself—just for fun—and I’m happy to share it with anyone who wants to give it a spin.{: .notice--info}
 
 ## Introduction
 
-Early in my IT career, I worked as a sysadmin, later became an IT manager, and at one point, transitioned into cybersecurity. Across all these roles, one lesson stands out: **you can’t manage what you can’t measure**. If you don’t know which applications, patches, or configurations are on your Windows machines, you’re flying blind. That’s why I created **AppLister**, a lightweight Windows service that collects inventory data and publishes it via WMI. It’s designed to help you get a clear picture of what’s running on your systems—without having to wrestle with clunky, built-in methods like `Win32_Product`.
+Early in my IT career, I worked as a sysadmin, later became an IT manager, and at one point, transitioned into cybersecurity. Across all these roles, one lesson stands out: **you can’t manage what you can’t measure**. If you don’t know which applications, patches, or configurations are on your Windows machines, you’re flying blind. That’s why I created [AppLister](https://github.com/zbalkan/AppLister), a lightweight Windows service that collects inventory data and publishes it via WMI. It’s designed to help you get a clear picture of what’s running on your systems—without having to wrestle with clunky, built-in methods like `Win32_Product`.
 
 ### Why I Built It
 
