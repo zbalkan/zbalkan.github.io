@@ -1,5 +1,5 @@
 ---
-title: "Fine tuning Sysmon configuration for Wazuh"
+title: "AppLister: A simple Windows service for installed applications"
 tags:
   - Asset management
   - Configuration management
@@ -9,7 +9,8 @@ tags:
   - Sysadmin
 ---
 
-**BLUF (Bottom Line Up Front)**
+## BLUF (Bottom Line Up Front)
+
 Asset management is crucial for both IT and cybersecurity—if you don’t know what you have, you can’t protect or manage it. The good news? You don’t need fancy, expensive solutions to get started. You can kick off your asset management journey using free tools. In fact, I built one myself—just for fun—and I’m happy to share it with anyone who wants to give it a spin.
 
 ---
@@ -34,16 +35,27 @@ Early in my IT career, I worked a sysadmin, later became IT manager, and at one 
 
 ### Getting Started
 
-1. **Install the Service**: I’ve packaged AppLister into an installer. Grab it, run it—done.
-2. **Query the Data**: Fire up PowerShell and try:
+- **Install the Service**: I’ve packaged AppLister into an installer. Grab it, run it—done.
+- **Query the Data**: Fire up PowerShell and try:
 
-```powershell
-Get-CimInstance -ClassName "ZB_App"
-```
+  ```powershell
+  Get-CimInstance -ClassName "ZB_App"
+  ```
 
    This spits out everything the service finds, giving you immediate insights.
-3. **Integrate**: From there, tie it into any WMI-capable tool or script—quick GPO checks, automated patch management, you name it.
+- **Integrate**: From there, tie it into any WMI-capable tool or script—quick GPO checks, automated patch management, you name it.
 
+You can query Windows updates.
+
+<img src="/assets/applister1.png" width="600" alt="Query Windows updates">
+
+Or just a single app you want:
+
+<img src="/assets/applister2.png" width="600" alt="Query Mozilla Firefox">
+
+Or just Windows Store apps:
+
+<img src="/assets/applister3.png" width="600" alt="Query Windows Store Apps">
 ---
 
 ## Final Thoughts
