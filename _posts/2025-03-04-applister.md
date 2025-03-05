@@ -9,7 +9,8 @@ tags:
   - Sysadmin
 ---
 
-**BLUF (Bottom Line Up Front):** Asset management is crucial for IT and cybersecurity—if you don’t know what you have, you can’t protect or manage it. The good news? You don’t need fancy, expensive solutions to get started. You can kick off your asset management journey using free tools. I built one myself—just for fun—and I’m happy to share it with anyone who wants to give it a spin.{: .notice--info}
+**BLUF (Bottom Line Up Front):** Asset management is crucial for IT and cybersecurity—if you don’t know what you have, you can’t protect or manage it. The good news? You don’t need fancy, expensive solutions to get started. You can kick off your asset management journey using free tools. I built one myself—just for fun—and I’m happy to share it with anyone who wants to give it a spin.
+{: .notice--info}
 
 ## Introduction
 
