@@ -1,5 +1,5 @@
 ---
-title: "Practical Threat Hunting on Compressed Wazuh Logs with DuckDB and Bash"
+title: "Practical Threat Hunting on Compressed Wazuh Logs with DuckDB"
 tags:
   - Wazuh
   - SIEM
@@ -17,7 +17,7 @@ Threat hunting and incident response require timely, flexible access to logs —
 
 ---
 
-<img src="/assets/duckdb-wazuh.png" width="800" alt="Screenshot of the duckdb UI">
+<img src="/assets/DuckDB-wazuh.png" width="800" alt="Screenshot of the DuckDB UI">
 
 ---
 
@@ -41,13 +41,13 @@ Instead, many organizations still operate under a traditional model:
 - Everything else is archived in compressed files for compliance
 - Removed after a retention period
 
-That’s where I'd like to provide an alternative — providing a structured, analyst-friendly method for searching those cold, compressed logs during investigations. It won’t replace aa data lake, but it dramatically improves what teams can do with the storage they already have.
+That’s where I'd like to provide an alternative — providing a structured, analyst-friendly method for searching those cold, compressed logs during investigations. It won’t replace a data lake, but it dramatically improves what teams can do with the storage they already have.
 
 ---
 
 ## Wazuh Context: Where Logs Come From
 
-I am mostly writing about Wazuh as it is the daily driver for our team. It is not surprise that my example is based on it.
+I am mostly writing about Wazuh as it is the daily driver for our team. It is not a surprise that my example is based on it.
 
 In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command — it splits output to multiple files:
 
@@ -99,9 +99,9 @@ On uncompressed data, DuckDB can fully parallelize queries, resulting in signifi
 
 ---
 
-## Our Approach: Case-Oriented Analysis with DuckDB and Bash
+## Our Approach: Case-Oriented Analysis with DuckDB
 
-We use a single local DuckDB database called `investigations.db`. Each investigation is represented as a SQL view, scoped by date and case name. Views are created and listed using lightweight Bash scripts:
+We use a single local DuckDB database called `investigations.db`. Each investigation is represented as an SQL view, scoped by date and case name. Views are created and listed using lightweight Bash scripts:
 
 ### `create_view.sh`
 
@@ -111,7 +111,7 @@ We use a single local DuckDB database called `investigations.db`. Each investiga
 ./create_view.sh "SI-801" "2025-04-0*"
 ```
 
-This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there us the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/NFS/2025-04-0*-siem*.log.gz`, where the view name is normalized ticket number and the file path pattern is hard coded.
+This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there is the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/NFS/2025-04-0*-siem*.log.gz`, where the view name is normalized ticket number and the file path pattern is hard coded.
 
 The view exposes:
 
@@ -193,7 +193,7 @@ COPY (
                       PER_THREAD_OUTPUT TRUE);
 ```
 
-These can be run in the DuckDB shell or using `duckdb -c` from the command line. Or you can just pipe to duckdb like:
+These can be run in the DuckDB shell or using `duckdb -c` from the command line. Or you can just pipe to DuckDB like:
 
 ```shell
 echo "SELECT *
@@ -202,7 +202,7 @@ echo "SELECT *
 
 You may prefer GUI over CLI. As of version 1.2.1, duckDB comes with a [simple UI](https://duckdb.org/2025/03/12/duckdb-ui.html). run `duckdb -ui` and provide the path to `investigations.db` file. In my lab, I created it under `/tmp`.
 
-<img src="/assets/duckdb-ui.png" width="800" alt="Screenshot of the duckdb UI">
+<img src="/assets/duckdb-ui.png" width="800" alt="Screenshot of the DuckDB UI">
 
 Now, you can run them on a web UI easily. You can also try other [IDEs supporting DuckDB](https://github.com/davidgasquez/awesome-duckdb?tab=readme-ov-file#sql-clients-and-ide-that-support-duckdb) for a smoother experience.
 
@@ -227,7 +227,7 @@ Only read access is supported for remote databases, but this allows for shared, 
 
 ## Conclusion
 
-If you do not have modern SOC with enough budget, most probably your environment lacks a full detection engineering pipeline with a structured data lake and scalable SIEM backend; this approach fills a critical operational gap.
+If you do not have a modern SOC with enough budget, most probably your environment lacks a full detection engineering pipeline with a structured data lake and scalable SIEM backend; this approach fills a critical operational gap.
 
 - It supports structured queries on `.json.gz` Wazuh archives
 - It offers a better investigation experience than `zgrep` or scripting
