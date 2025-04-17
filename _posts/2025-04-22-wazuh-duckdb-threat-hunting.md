@@ -17,7 +17,7 @@ Threat hunting and incident response require timely, flexible access to logs —
 
 ---
 
-<img src="/assets/DuckDB-wazuh.png" width="800" alt="Screenshot of the DuckDB UI">
+<img src="/assets/duckdb-wazuh.png" width="800" alt="Screenshot of the DuckDB UI">
 
 ---
 
@@ -51,24 +51,31 @@ I am mostly writing about Wazuh as it is the daily driver for our team. It is no
 
 In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command — it splits output to multiple files:
 
+In your `ossec.conf`, if you have `<logall>yes<\logall>`, it means you are getting logs as plain text.
+- `/var/ossec/logs/archives/archives.log`: All decoded events — whether they triggered a rule or not
+- `/var/ossec/logs/alerts/alerts.log`: Events that matched a rule above a configurable priority threshold
+
+In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you are getting logs in JSON lines format.
 - `/var/ossec/logs/archives/archives.json`: All decoded events — whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.json`: Events that matched a rule above a configurable priority threshold
 
-Organizations commonly rotate and compress these logs into `.json.gz` files for storage and retention. This creates two common approaches to historical access:
+> First of all, we have an assumption hat you use JSON logs for archive. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
+
+Organizations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access:
 
 ### Option 1: Push Archives to Wazuh Indexer (OpenSearch)
 
 - Supports fast indexed search, dashboards, and alerting
 - Integrates natively with the Wazuh dashboard
 
-**Tradeoff:** High storage cost — archived `.json.gz` files are often only ~14% the size of equivalent indexed data. At scale, this becomes a cost bottleneck.
+**Tradeoff:** High storage cost — compressed log files are often only ~14% the size of equivalent indexed data. At scale, this becomes a cost bottleneck.
 
 ### Option 2: Store Compressed Logs and Search as Needed
 
 - Storage efficient
 - Requires no ingestion infrastructure
 
-**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `jq`, or ad hoc scripting to find events.
+**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `zcat` + `grep`, `jq`, or ad hoc scripting to find events.
 
 ---
 
@@ -77,7 +84,7 @@ Organizations commonly rotate and compress these logs into `.json.gz` files for 
 To improve the investigation experience without the overhead of a data lake or OpenSearch, we use **DuckDB**, a lightweight analytical SQL engine that:
 
 - Runs in-process (no daemon or service)
-- Reads `.json.gz` and infers schema automatically
+- Reads JSON files -even if they are compressed- and infers schema automatically
 - Supports timestamp comparisons, regex, JSON parsing
 - Outperforms traditional tools for many query types
 
