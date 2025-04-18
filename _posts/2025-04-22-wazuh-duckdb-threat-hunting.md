@@ -52,10 +52,12 @@ I am mostly writing about Wazuh as it is the daily driver for our team. It is no
 In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command — it splits output to multiple files:
 
 In your `ossec.conf`, if you have `<logall>yes<\logall>`, it means you are getting logs as plain text.
+
 - `/var/ossec/logs/archives/archives.log`: All decoded events — whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.log`: Events that matched a rule above a configurable priority threshold
 
 In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you are getting logs in JSON lines format.
+
 - `/var/ossec/logs/archives/archives.json`: All decoded events — whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.json`: Events that matched a rule above a configurable priority threshold
 
@@ -94,13 +96,13 @@ DuckDB lets us treat compressed log archives like a database table — but witho
 
 ## Performance Compared to Unix Tools
 
-In benchmark tests, DuckDB consistently outperforms tools like `grep` or `awk` for filtering and aggregating structured data:
+In [benchmark tests](https://duckdb.org/2024/06/20/cli-data-processing-using-duckdb-as-a-unix-tool.html), DuckDB consistently outperforms tools like `grep` or `awk` for filtering and aggregating **structured** data -i.e. CSV, JSON:
 
-| Tool        | Runtime (Compressed) | Runtime (Uncompressed) |
-|-------------|----------------------|--------------------------|
-| grep        | 20.9s                | 20.5s                    |
-| pcregrep    | 3.1s                 | 2.9s                     |
-| DuckDB      | 4.2s                 | 1.2s                     |
+| Tool               | Runtime (Compressed) | Runtime (Uncompressed) |
+|--------------------|----------------------|------------------------|
+| grep 2.6.0-FreeBSD | 20.9s                | 20.5s                  |
+| pcregrep 8.45      | 3.1s                 | 2.9s                   |
+| DuckDB 1.0.0       | 4.2s                 | 1.2s                   |
 
 On uncompressed data, DuckDB can fully parallelize queries, resulting in significant speedups. As queries grow more complex — involving joins, filtering, regex, or date logic — DuckDB’s performance and maintainability become even more valuable.
 
