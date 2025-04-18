@@ -69,6 +69,7 @@ Organizations commonly rotate and compress these logs into `.log.gz` or `.json.g
 
 - Supports fast indexed search, dashboards, and alerting
 - Integrates natively with the Wazuh dashboard
+- The most user friendly and helpful method in the long run.
 
 **Tradeoff:** High storage cost — compressed log files are often only ~14% the size of equivalent indexed data. At scale, this becomes a cost bottleneck.
 
@@ -77,7 +78,7 @@ Organizations commonly rotate and compress these logs into `.log.gz` or `.json.g
 - Storage efficient
 - Requires no ingestion infrastructure
 
-**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `zcat` + `grep`, `jq`, or ad hoc scripting to find events.
+**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `zcat` + `grep`, `jq`, or ad hoc scripting to find events. But, it is possible to make it relatively a better experience. But is is still poorer than the Wazuh Indexer + Wazuh Dashboard combination.
 
 ---
 
@@ -217,7 +218,7 @@ Now, you can run them on a web UI easily. You can also try other [IDEs supportin
 
 If needed, teams can build lightweight wrappers to automate exports — though it’s not required.
 
-DuckDB supports querying data and database files directly from Amazon S3 and S3-compatible APIs such as MinIO or Wasabi.
+DuckDB supports querying data and database files directly from Amazon S3 and S3-compatible APIs such as [MinIO](https://min.io/) or [Wasabi](https://wasabi.com/downloads).
 
 ```sql
 INSTALL httpfs;
@@ -245,3 +246,5 @@ If you do not have a modern SOC with enough budget, most probably your environme
 - It’s portable, maintainable, and fast enough for real work
 
 This isn’t a replacement for a SIEM or a data lake — but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
+
+You can move one more step ahead, and convert the logs to [Parquet](https://duckdb.org/docs/stable/data/parquet/overview.html) format with DuckDB. Since Parquet files are compressed during conversion, you do not need a second step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions
