@@ -125,10 +125,14 @@ Sample log entry from `verify_all.jsonl`:
 To detect failures or tampering attempts within the timestamping pipeline itself, we configured Wazuh to ingest all timestamping logs:
 
 ```xml
-<localfile>
-  <log_format>json</log_format>
-  <location>/var/log/timestamping/*</location>
-</localfile>
+  <!--Logs for secure file timestamping using RFC 3161-compliant Timestamping Authorities (TSA)  -->
+  <localfile>
+    <log_format>json</log_format>
+    <only-future-events>no</only-future-events>
+    <location>/var/log/timestamp/*</location>
+    <out_format>{"timestamping": $(log) }</out_format>
+    <label key="type">timestamping</label>
+  </localfile>
 ```
 
 This feeds all JSONL logs — such as `sign_all.jsonl`, `verify_all.jsonl`, task summaries, and error reports — directly into the Wazuh event pipeline.
@@ -142,24 +146,85 @@ Wazuh rules inspect the `event` field in each log. For example, a `verify_failed
 Example rule definitions:
 
 ```xml
-<!-- Rule: Timestamp verification failed -->
-<rule id="100100" level="10">
-  <if_sid>5750</if_sid>
-  <field name="event">verify_failed</field>
-  <description>Timestamp verification failed for log file</description>
-</rule>
+<group name="custom,timestamping,">
+    <rule id="XXXX00" level="2">
+        <decoded_as>json</decoded_as>
+        <field name="timestamping.type">timestamping</field>
+        <description>Log timestamping event</description>
+    </rule>
 
-<!-- Rule: Missing TSR evidence file -->
-<rule id="100101" level="12">
-  <if_sid>5750</if_sid>
-  <field name="event">missing_tsr</field>
-  <description>Missing .tsr file — log integrity unverifiable</description>
-</rule>
+    <rule id="XXXX01" level="3">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">files_found</field>
+        <description>Log timestamping: Timestamp target scan completed, files found.</description>
+     </rule>
+
+    <rule id="XXXX02" level="3">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">task_start</field>
+        <description>Log timestamping: Timestamp task started.</description>
+     </rule>
+
+    <rule id="XXXX03" level="3">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">task_summary</field>
+        <description>Log timestamping: Timestamp task completed.</description>
+     </rule>
+
+    <rule id="XXXX04" level="2">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">already_signed</field>
+        <description>Log timestamping: Log file is already signed.</description>
+     </rule>
+
+    <rule id="XXXX05" level="3">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">signed</field>
+        <description>Log timestamping: Timestamping succeeded for file.</description>
+     </rule>
+
+    <rule id="XXXX06" level="10">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">sign_failed</field>
+        <description>Log timestamping: Timestamp operation failed.</description>
+     </rule>
+
+    <rule id="XXXX07" level="12" frequency="5" timeframe="60">
+        <if_matched_sid>XXXX01</if_matched_sid>
+        <description>Log timestamping: Timestamp operation failed for multiple times.</description>
+    </rule>
+
+    <rule id="XXXX08" level="3">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">verification_ok</field>
+        <description>Log timestamping: Timestamp verification succeeded.</description>
+     </rule>
+
+    <rule id="XXXX09" level="2">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">missing_evidence</field>
+        <description>Log timestamping: Timestamp request (TSR) does not exist for target file.</description>
+     </rule>
+
+    <rule id="XXXX10" level="12">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">verification_failed</field>
+        <description>Log timestamping: Timestamp verification failed. Check for log tampering.</description>
+     </rule>
+
+    <rule id="XXXX11" level="5">
+        <if_sid>XXXX00</if_sid>
+        <field name="timestamping.event">error</field>
+        <description>Log timestamping: Unknown error during timestamp verification.</description>
+     </rule>
+</group>
 ```
 
 These rules allow the SOC to receive alerts and respond to issues in the evidence lifecycle immediately.
 
-> TODO: Add screenshots from Wazuh Dashboard
+<img src="/assets/timestamping-dashboard.png" width="800" alt="Sample Wazuh dashboard">
+
+Above you can find a sample dashboard. Since it was tried in a lab environment where I tried signing and verifying multiple times, the numbers are a bit arbitrary. You can build better ones with your creativity.
 
 ---
 
