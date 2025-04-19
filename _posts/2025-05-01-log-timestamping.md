@@ -53,10 +53,12 @@ Each Wazuh node writes logs to:
 /var/ossec/logs/archives/archives.json
 ```
 
-These logs are compressed nightly. A Bash script then:
+These logs are compressed nightly. Here we start some assumptions to provide a background for log timestamping. You need a long term cheap storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make se of a NAS or a SAN storage that hat NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/NFS`- such a creative name!
 
-- Moves them to an NFS share for central retention.
-- Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-04-15-siem1.log.gz`)
+We need, then, a Bash script that:
+
+- Moves archive logs to the NFS share mount for central retention.
+- Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-04-15-siem1.log.gz`,`2025-04-15-siem1.json.gz`)
 
 This creates one new file per node per day, simplifying inventory and making it easy to track which node produced which file.
 
