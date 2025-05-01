@@ -8,7 +8,7 @@ tags:
   - Threat Hunting
 ---
 
-Threat hunting and incident response require timely, flexible access to logs — especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
+Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
 
 1. **Raw Logs to Cheap Storage**: Logs are written as-is to a low-cost location: NFS, SMB share, or object storage (e.g., S3). This supports long-term retention and full-fidelity replay.
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
@@ -23,16 +23,16 @@ Threat hunting and incident response require timely, flexible access to logs —
 
 ## The Reality: Compliance Archives Without Hunting Infrastructure
 
-In most organizations, log storage practices are driven more by **compliance requirements** than by security operations. Long-term archives are retained on NFS, SMB shares, or S3 for years — but they are rarely optimized for investigation, threat hunting, or enrichment. The storage is cold, compressed, and flat.
+In most organizations, log storage practices are driven more by **compliance requirements** than by security operations. Long-term archives are retained on NFS, SMB shares, or S3 for years - but they are rarely optimized for investigation, threat hunting, or enrichment. The storage is cold, compressed, and flat.
 
-Structured data lakes — where logs are parsed, normalized, and stored in analytics-friendly formats — are a **recent evolution** in detection engineering. They require:
+Structured data lakes - where logs are parsed, normalized, and stored in analytics-friendly formats - are a **recent evolution** in detection engineering. They require:
 
 - Parsing pipelines
 - Schema governance
 - Query layers
 - Budget
 
-As a result, **most teams don't have one**. This is not unusual — it reflects the current maturity curve of the industry.
+As a result, **most teams don't have one**. This is not unusual - it reflects the current maturity curve of the industry.
 
 Instead, many organizations still operate under a traditional model:
 
@@ -41,7 +41,7 @@ Instead, many organizations still operate under a traditional model:
 - Everything else is archived in compressed files for compliance
 - Removed after a retention period
 
-That’s where I'd like to provide an alternative — providing a structured, analyst-friendly method for searching those cold, compressed logs during investigations. It won’t replace a data lake, but it dramatically improves what teams can do with the storage they already have.
+That’s where I'd like to provide an alternative - providing a structured, analyst-friendly method for searching those cold, compressed logs during investigations. It won’t replace a data lake, but it dramatically improves what teams can do with the storage they already have.
 
 ---
 
@@ -49,36 +49,38 @@ That’s where I'd like to provide an alternative — providing a structured, an
 
 I am mostly writing about Wazuh as it is the daily driver for our team. It is not a surprise that my example is based on it.
 
-In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command — it splits output to multiple files:
+In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command - it splits output to multiple files:
 
 In your `ossec.conf`, if you have `<logall>yes<\logall>`, it means you are getting logs as plain text.
 
-- `/var/ossec/logs/archives/archives.log`: All decoded events — whether they triggered a rule or not
+- `/var/ossec/logs/archives/archives.log`: All decoded events - whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.log`: Events that matched a rule above a configurable priority threshold
 
-In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you are getting logs in JSON lines format.
+In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you are getting logs in [JSON lines](https://jsonlines.org/) format.
 
-- `/var/ossec/logs/archives/archives.json`: All decoded events — whether they triggered a rule or not
+- `/var/ossec/logs/archives/archives.json`: All decoded events - whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.json`: Events that matched a rule above a configurable priority threshold
 
-> First of all, we have an assumption hat you use JSON logs for archive. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
+> First of all, we have an assumption that you use JSON logs for the log archival process. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
 
-Organizations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access:
+Organizations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access that I will define below.
 
 ### Option 1: Push Archives to Wazuh Indexer (OpenSearch)
 
 - Supports fast indexed search, dashboards, and alerting
 - Integrates natively with the Wazuh dashboard
-- The most user friendly and helpful method in the long run.
+- The most user-friendly and helpful method in the long run.
 
-**Tradeoff:** High storage cost — compressed log files are often only ~14% the size of equivalent indexed data. At scale, this becomes a cost bottleneck.
+**Tradeoff:** High storage cost - compressed log files -aka `.log.gz` files- are often only ~14% the size of equivalent indexed data. At scale, this becomes a cost bottleneck.
 
 ### Option 2: Store Compressed Logs and Search as Needed
 
 - Storage efficient
 - Requires no ingestion infrastructure
 
-**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `zcat` + `grep`, `jq`, or ad hoc scripting to find events. But, it is possible to make it relatively a better experience. But is is still poorer than the Wazuh Indexer + Wazuh Dashboard combination.
+**Tradeoff:** Poor searchability. Teams are stuck using `zgrep`, `zcat` + `grep`, `jq`, or ad hoc scripting to find events. But, it is possible to make it relatively a better experience. But this is still a poorer experience than the Wazuh Indexer + Wazuh Dashboard combination.
+
+As a side note, JSON log files are more verbose. It is expected to require 60-80% more storage usage when compressed.
 
 ---
 
@@ -91,7 +93,7 @@ To improve the investigation experience without the overhead of a data lake or O
 - Supports timestamp comparisons, regex, JSON parsing
 - Outperforms traditional tools for many query types
 
-DuckDB lets us treat compressed log archives like a database table — but without ingesting, unpacking, or indexing them first.
+DuckDB lets us treat compressed log archives like a database table - but without ingesting, unpacking, or indexing them first.
 
 ---
 
@@ -105,7 +107,7 @@ In [benchmark tests](https://duckdb.org/2024/06/20/cli-data-processing-using-duc
 | pcregrep 8.45      | 3.1s                 | 2.9s                   |
 | DuckDB 1.0.0       | 4.2s                 | 1.2s                   |
 
-On uncompressed data, DuckDB can fully parallelize queries, resulting in significant speedups. As queries grow more complex — involving joins, filtering, regex, or date logic — DuckDB’s performance and maintainability become even more valuable.
+On uncompressed data, DuckDB can fully parallelize queries, resulting in significant speedups. As queries grow more complex - involving joins, filtering, regex, or date logic - DuckDB’s performance and maintainability become even more valuable.
 
 ---
 
@@ -121,7 +123,7 @@ We use a single local DuckDB database called `investigations.db`. Each investiga
 ./create_view.sh "SI-801" "2025-04-0*"
 ```
 
-This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there is the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/NFS/2025-04-0*-siem*.log.gz`, where the view name is normalized ticket number and the file path pattern is hard coded.
+This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there is the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/archives/2025-04-0*-siem*.log.gz`, where the view name is normalized ticket number and the file path pattern is hard coded.
 
 The view exposes:
 
@@ -216,7 +218,7 @@ You may prefer GUI over CLI. As of version 1.2.1, duckDB comes with a [simple UI
 
 Now, you can run them on a web UI easily. You can also try other [IDEs supporting DuckDB](https://github.com/davidgasquez/awesome-duckdb?tab=readme-ov-file#sql-clients-and-ide-that-support-duckdb) for a smoother experience.
 
-If needed, teams can build lightweight wrappers to automate exports — though it’s not required.
+If needed, teams can build lightweight wrappers to automate exports - though it’s not required.
 
 DuckDB supports querying data and database files directly from Amazon S3 and S3-compatible APIs such as [MinIO](https://min.io/) or [Wasabi](https://wasabi.com/downloads).
 
@@ -245,8 +247,8 @@ If you do not have a modern SOC with enough budget, most probably your environme
 - It integrates with remote storage like S3 if needed
 - It’s portable, maintainable, and fast enough for real work
 
-This isn’t a replacement for a SIEM or a data lake — but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
+This isn’t a replacement for a SIEM or a data lake - but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
 
 <img src="/assets/duckdb-parquet.png" width="800" alt="Logo of Apache Parquet file format">
 
-You can move one more step ahead, and convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions
+You can move one more step ahead, and convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
