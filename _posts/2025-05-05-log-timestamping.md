@@ -6,6 +6,10 @@ tags:
   - SIEM
   - Logging
   - RFC 3161
+gallery:
+  - url: assets/timestamping-dashboard.png
+    image_path: /assets/timestamping-dashboard.png
+    alt: "Sample Dashboard"
 ---
 
 In security monitoring environments, log files are not just activity records; they are often the primary evidence in incident response, threat investigations, and compliance audits. However, without cryptographic protections, logs can be altered, backdated, or tampered with. This may undermine the integrity of your detection pipeline and may compromise forensic investigations or regulatory compliance.
@@ -288,7 +292,7 @@ You can utilize these rules, just remember to update the rule IDs and groups to 
 
 These rules allow the SOC to receive alerts and respond to issues in the evidence lifecycle immediately.
 
-<img src="/assets/timestamping-dashboard.png" width="800" alt="Sample Wazuh dashboard">
+{% raw %}{% include gallery id="gallery" caption="Sample Wazuh dashboard" %}{% endraw %}
 
 Above you can find a sample dashboard. Since it was tried in a lab environment where I tried signing and verifying multiple times, the numbers are a bit arbitrary. You can build better ones with your creativity.
 
