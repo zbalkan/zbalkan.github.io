@@ -23,7 +23,7 @@ Standard log rotation and backup practices don’t provide cryptographic proof t
 
 Timestamps from filesystems (`mtime`, `ctime`) are easy to spoof. Even centralized log management cannot prevent insider or post-compromise manipulation without some cryptographic anchor.
 
-This may not be a requirement for security but compliance, in some cases. For instance, [PCI DSS](https://www.pcisecuritystandards.org/standards/pci-dss/) 4.0.1 Req. 10.3.2 says *"Audit log files are protected to prevent modifications by individuals"*. While this generally means creating controls to provide a sufficient level of security for logs at rest, there is still room for improvement.
+While this may not be a security requirement, it could be necessary for compliance in some cases. For instance, [PCI DSS](https://www.pcisecuritystandards.org/standards/pci-dss/) 4.0.1 Req. 10.3.2 says *"Audit log files are protected to prevent modifications by individuals"*. While this generally means creating controls to provide a sufficient level of security for logs at rest, there is still room for improvement.
 
 The Wazuh log archive process contains [a simple checksum operation](https://documentation.wazuh.com/current/getting-started/architecture.html#archival-data-storage). This operation generates a `.sum` file that contains a log file's checksum value generated with multiple algorithms along with the previous file's checksum values under the `Chained checksum:` section.
 
@@ -63,26 +63,37 @@ This method:
 
 - Never transmits the log file itself - only its hash.
 - Produces portable `.tsr` files that can be verified independently.
-- Works with any TSA that supports RFC 3161 (we use [FreeTSA](https://freetsa.org/)).
+- Works with any TSA that supports RFC 3161 (in this article, we use [FreeTSA](https://freetsa.org/)).
 
 ---
 
-## Architecture: How We Protect Wazuh Logs
+## Architecture: How We Protect Wazuh Archive Logs
 
-Each Wazuh node writes logs to:
+Wazuh has two formats for archive logging: plain text and JSON. Depending on your configuration, each Wazuh node writes logs to:
 
 ```shell
-/var/ossec/logs/archives/archives.json
+/var/ossec/logs/archives/archives.log      # if you have <logall>yes<\logall> in ossec.conf
+/var/ossec/logs/archives/archives.json     # if you have <logall_json>yes<\logall_json> in ossec.conf
 ```
 
-These logs are compressed nightly. Here we start some assumptions to provide a background for log timestamping. You need a cheap long-term storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make use of a NAS or SAN storage that has NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/archive`- such a creative name!
+See [Wazuh documentation](https://documentation.wazuh.com/current/user-manual/manager/event-logging.html#archiving-event-logs) for internals and configuration.
+{: .notice--info}
 
-We need, then, a Bash script that:
+These logs are compressed nightly. Here we begin with a few assumptions to provide a background for log timestamping. You need a cheap long-term storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make use of a NAS or SAN storage that has NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/archive`- such a creative name!
+
+We need a Bash script that:
 
 - Moves archive logs to the NFS share mount for central retention.
-- Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-04-15-siem1.log.gz`,`2025-04-15-siem1.json.gz`)
+- Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-05-01-node1.log.gz`,`2025-05-01-node1.json.gz`)
 
-This creates one new file per node per day, simplifying inventory and making it easy to track which node produced which file.
+This creates one new file per node per day, simplifying inventory and making it easy to track which node produced which file. This script should run on EVERY node. You can use a cron job to run your script daily. Select a suitable time after the logs are compressed by Wazuh.
+
+```cron
+0 5 * * * /opt/retention/wazuh-archive.sh
+```
+
+You can find this script and the rest in the [accompanying Github repository](https://github.com/zbalkan/wazuh-log-timestamping).
+{: .notice--info}
 
 ---
 
@@ -93,28 +104,67 @@ This creates one new file per node per day, simplifying inventory and making it 
 A cron job runs `sign_all.sh` every night after archive logs are compressed and moved to file share:
 
 ```cron
-0 2 * * * /opt/timestamping/sign_all.sh
+0 7 * * * /opt/timestamping/sign_all.sh
 ```
 
 - Signs all `.log.gz` files that don't have an associated `.tsr`.
 - Stores `.tsr` files in a specified output directory.
 - Logs each action in `/var/log/timestamping/sign_all.jsonl`.[^3]
 
-On day one, it signs all historical files. After that, it signs only new files.
+On day one, it signs all historical files. After that, it signs only new files. You can see the action in the logs:
+
+```json
+{"timestamp": "2025-05-02T03:00:02Z", "event": "already_signed", "file": "/archives/2025-04-30-node2.json.gz"}
+{"timestamp": "2025-05-02T03:00:09Z", "event": "signed", "file": "/archives/2025-05-01-node1.json.gz"}
+{"timestamp": "2025-05-02T03:00:18Z", "event": "signed", "file": "/archives/2025-05-01-node2.json.gz"}
+{"timestamp": "2025-05-02T03:00:18Z", "event": "task_summary", "details": {"signing": {"total": 717, "signed": 2, "already_signed": 715, "sign_failed": 0}}}
+```
+
+I'd like to mention the TSR files briefly. They are DER encoded files. So you cannoyt jsut use `cat` to see the content. You can make use of `openssl` as this is what the bash scripts essentially use.
+
+```shell
+openssl ts -reply -in  2025-05-01-node2.json.gz.tsr -text
+
+Using configuration from /etc/pki/tls/openssl.cnf
+Status info:
+Status: Granted.
+Status description: unspecified
+Failure info: unspecified
+
+TST info:
+Version: 1
+Policy OID: tsa_policy1
+Hash Algorithm: sha512
+Message data:
+    0000 - df 1b c4 e9 22 58 45 fb-28 cb d5 bc 7e ad 97 fb   ...."XE.(...~...
+    0010 - c5 e2 35 b9 30 51 de 5a-75 a0 1c a8 82 36 0c eb   ..5.0Q.Zu....6..
+    0020 - 9d 28 f4 ae 63 15 55 fe-f0 d2 20 e8 08 44 67 ee   .(..c.U... ..Dg.
+    0030 - 42 fe 4e 85 09 c2 45 b4-f1 4c 5c 00 3a f8 1d 92   B.N...E..L\.:...
+Serial number: 0x0678466E
+Time stamp: May  2 03:00:18 2025 GMT
+Accuracy: unspecified
+Ordering: yes
+Nonce: 0x2B53CFE3CFD58CB0
+TSA: DirName:/O=Free TSA/OU=TSA/description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services/CN=www.freetsa.org/emailAddress=busilezas@gmail.com/L=Wuerzburg/C=DE/ST=Bayern
+Extensions:
+```
 
 ### Step 2: Verify Logs
 
 Later each day, a second cron job verifies the `.tsr` signatures:
 
 ```bash
-0 5 * * * /opt/timestamping/verify_all.sh
+0 9 * * * /opt/timestamping/verify_all.sh
 ```
 
 - Verifies integrity of each file using its `.tsr`.
 - Logs output to `/var/log/timestamping/verify_all.jsonl`.
 - Exits with error codes for missing or failed evidence.
 
-You can also verify more than once a day but if you are using a free service like FreeTSA, try not to DoS the system.
+You can also verify more frequently but if you are using a free service like FreeTSA, try not to execute a Denial-of-Service (DoS) against their systems.
+
+These two scripts, `sign_all.sh` and `verify_all.sh` should run on ONLY ONE node of your cluster.
+{: .notice--info}
 
 ---
 
@@ -122,8 +172,8 @@ You can also verify more than once a day but if you are using a free service lik
 
 Each `.tsr` file is specific to one `.log.gz` file. These files must be retained together:
 
-- Original log: `2025-04-15-siem1.log.gz`
-- Timestamp response: `2025-04-15-siem1.log.gz.tsr`
+- Original log: `2025-05-01-node1.log.gz`
+- Timestamp response: `2025-05-1015-node1.log.gz.tsr`
 - TSA certificates: `tsa.crt` and `cacert.pem`
 
 **Without these**, future verification is not possible.
@@ -131,15 +181,7 @@ Each `.tsr` file is specific to one `.log.gz` file. These files must be retained
 Sample log entry from `verify_all.jsonl`:
 
 ```json
-{
-  "timestamp": "2025-04-15T05:04:33Z",
-  "event": "verified",
-  "file": "/archive/2025-04-15-siem1.log.gz",
-  "details": {
-    "timestamp": "Apr 15 02:01:29 2025 GMT",
-    "serial": "0x0647C009"
-  }
-}
+{"timestamp": "2025-05-01T05:04:33Z", "event": "verified", "file": "/archives/2025-05-01-node1.log.gz", "details": { "timestamp": "May 01 02:01:29 2025 GMT", "serial": "0x0647C009"}}
 ```
 
 ---
@@ -167,77 +209,77 @@ This feeds all JSONL logs - such as `sign_all.jsonl`, `verify_all.jsonl`, task s
 
 Wazuh rules inspect the `event` field in each log. For example, a `verify_failed` or `missing_tsr` event may indicate tampering or broken evidence chains.
 
-Example rule definitions:
+You can utilize these rules, just remember to update the rule IDs and groups to align your environment:
 
 ```xml
 <group name="custom,timestamping,">
-    <rule id="XXXX00" level="2">
+    <rule id="100000" level="2">
         <decoded_as>json</decoded_as>
         <field name="timestamping.type">timestamping</field>
         <description>Log timestamping event</description>
     </rule>
 
-    <rule id="XXXX01" level="3">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100001" level="3">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">files_found</field>
         <description>Log timestamping: Timestamp target scan completed, files found.</description>
      </rule>
 
-    <rule id="XXXX02" level="3">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100002" level="3">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">task_start</field>
         <description>Log timestamping: Timestamp task started.</description>
      </rule>
 
-    <rule id="XXXX03" level="3">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100003" level="3">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">task_summary</field>
         <description>Log timestamping: Timestamp task completed.</description>
      </rule>
 
-    <rule id="XXXX04" level="2">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100004" level="2">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">already_signed</field>
         <description>Log timestamping: Log file is already signed.</description>
      </rule>
 
-    <rule id="XXXX05" level="3">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100005" level="3">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">signed</field>
         <description>Log timestamping: Timestamping succeeded for file.</description>
      </rule>
 
-    <rule id="XXXX06" level="10">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100006" level="10">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">sign_failed</field>
         <description>Log timestamping: Timestamp operation failed.</description>
      </rule>
 
-    <rule id="XXXX07" level="12" frequency="5" timeframe="60">
-        <if_matched_sid>XXXX01</if_matched_sid>
+    <rule id="100007" level="12" frequency="5" timeframe="60">
+        <if_matched_sid>100001</if_matched_sid>
         <description>Log timestamping: Timestamp operation failed multiple times.</description>
     </rule>
 
-    <rule id="XXXX08" level="3">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100008" level="3">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">verification_ok</field>
         <description>Log timestamping: Timestamp verification succeeded.</description>
      </rule>
 
-    <rule id="XXXX09" level="2">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100009" level="2">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">missing_evidence</field>
         <description>Log timestamping: Timestamp request (TSR) does not exist for target file.</description>
      </rule>
 
-    <rule id="XXXX10" level="12">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100010" level="12">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">verification_failed</field>
         <description>Log timestamping: Timestamp verification failed. Check for log tampering.</description>
      </rule>
 
-    <rule id="XXXX11" level="5">
-        <if_sid>XXXX00</if_sid>
+    <rule id="100011" level="5">
+        <if_sid>100000</if_sid>
         <field name="timestamping.event">error</field>
         <description>Log timestamping: Unknown error during timestamp verification.</description>
      </rule>
