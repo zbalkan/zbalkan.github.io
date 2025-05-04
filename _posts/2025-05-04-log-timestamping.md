@@ -16,8 +16,6 @@ In security monitoring environments, log files are not just activity records; th
 
 This guide documents a practical, standards-based approach to ensuring **log integrity and proof of existence** using **RFC 3161 cryptographic timestamps**. It applies specifically to **Wazuh server logs**, but the pattern is adaptable to other platforms.
 
----
-
 ## Problem: Can You Prove Your Logs Are Untampered?
 
 Standard log rotation and backup practices don’t provide cryptographic proof that a log file:
@@ -46,8 +44,6 @@ SHA256 (logs/archives/2025/May/ossec-archive-01.log.sum) = d7b3157b8729915865fa6
 
 Do you see the issue there? When a user or an attacker tamper with a log file, they can also tamper with the previous checksum file. It is helpful for simple checks but insufficient for complex scenarios by and of itself[^1].
 
----
-
 ## Solution: RFC 3161 Timestamping with OpenSSL
 
 [Trusted timestamping](https://en.wikipedia.org/wiki/Trusted_timestamping) refers to the secure method of recording the creation and modification times of a document. Security in this context implies that no individual, including the document's owner, can alter it once it has been documented, assuming the integrity of the timestamp provider remains intact.
@@ -68,8 +64,6 @@ This method:
 - Never transmits the log file itself - only its hash.
 - Produces portable `.tsr` files that can be verified independently.
 - Works with any TSA that supports RFC 3161 (in this article, we use [FreeTSA](https://freetsa.org/)).
-
----
 
 ## Architecture: How We Protect Wazuh Archive Logs
 
@@ -98,8 +92,6 @@ This creates one new file per node per day, simplifying inventory and making it 
 
 You can find this script and the rest in the [accompanying Github repository](https://github.com/zbalkan/wazuh-log-timestamping).
 {: .notice--info}
-
----
 
 ## Daily Integrity Workflow
 
@@ -170,8 +162,6 @@ You can also verify more frequently but if you are using a free service like Fre
 These two scripts, `sign_all.sh` and `verify_all.sh` should run on ONLY ONE node of your cluster.
 {: .notice--info}
 
----
-
 ## Log Format and Evidence Retention
 
 Each `.tsr` file is specific to one `.log.gz` file. These files must be retained together:
@@ -187,8 +177,6 @@ Sample log entry from `verify_all.jsonl`:
 ```json
 {"timestamp": "2025-05-01T05:04:33Z", "event": "verified", "file": "/archives/2025-05-01-node1.log.gz", "details": { "timestamp": "May 01 02:01:29 2025 GMT", "serial": "0x0647C009"}}
 ```
-
----
 
 ## Monitoring Timestamping Logs with Wazuh
 
@@ -206,8 +194,6 @@ To detect failures or tampering attempts within the timestamping pipeline itself
 ```
 
 This feeds all JSONL logs - such as `sign_all.jsonl`, `verify_all.jsonl`, task summaries, and error reports - directly into the Wazuh event pipeline.
-
----
 
 ## Wazuh Rule Integration
 
@@ -295,8 +281,6 @@ These rules allow the SOC to receive alerts and respond to issues in the evidenc
 {% raw %}{% include gallery id="gallery" caption="Sample Wazuh dashboard" %}{% endraw %}
 
 Above you can find a sample dashboard. Since it was tried in a lab environment where I tried signing and verifying multiple times, the numbers are a bit arbitrary. You can build better ones with your creativity.
-
----
 
 ## Summary
 
