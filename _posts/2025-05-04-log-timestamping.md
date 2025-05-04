@@ -278,7 +278,7 @@ You can utilize these rules, just remember to update the rule IDs and groups to 
 
 These rules allow the SOC to receive alerts and respond to issues in the evidence lifecycle immediately.
 
-{% raw %}{% include gallery id="gallery" caption="Sample Wazuh dashboard" %}{% endraw %}
+{% include gallery id="gallery" caption="Sample Wazuh dashboard" %}
 
 Above you can find a sample dashboard. Since it was tried in a lab environment where I tried signing and verifying multiple times, the numbers are a bit arbitrary. You can build better ones with your creativity.
 
