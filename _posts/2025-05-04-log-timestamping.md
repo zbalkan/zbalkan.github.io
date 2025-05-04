@@ -93,6 +93,9 @@ This creates one new file per node per day, simplifying inventory and making it 
 0 5 * * * /opt/retention/wazuh-archive.sh
 ```
 
+All examples assume server clock is UTC.
+{: .notice--info}
+
 You can find this script and the rest in the [accompanying Github repository](https://github.com/zbalkan/wazuh-log-timestamping).
 {: .notice--info}
 
