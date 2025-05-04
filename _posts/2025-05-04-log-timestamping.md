@@ -116,7 +116,7 @@ On day one, it signs all historical files. After that, it signs only new files. 
 {"timestamp": "2025-05-02T03:00:18Z", "event": "task_summary", "details": {"signing": {"total": 717, "signed": 2, "already_signed": 715, "sign_failed": 0}}}
 ```
 
-I'd like to mention the TSR files briefly. They are DER encoded files. So you cannoyt jsut use `cat` to see the content. You can make use of `openssl` as this is what the bash scripts essentially use.
+I'd like to mention the TSR files briefly. They are DER encoded files. So you cannot just use `cat` to see the content. You can make use of `openssl` as this is what the bash scripts essentially use.
 
 ```shell
 openssl ts -reply -in  2025-05-01-node2.json.gz.tsr -text
