@@ -44,7 +44,7 @@ SHA256 (logs/archives/2025/May/ossec-archive-01.log.sum) = d7b3157b8729915865fa6
 
 Do you see the issue there? When a user or an attacker tamper with a log file, they can also tamper with the previous checksum file. It is helpful for simple checks but insufficient for complex scenarios by and of itself[^1].
 
-Well, you can see tat it is possible to use a Merkle tree out of the chained checksum, but it is something you need to build. You can put it to an esternal server, ot even a Github repository, as long as it is kept external and you have ways to validate. Here' we will use a simpler approach.
+Well, you can see that it is possible to use a Merkle tree out of the chained checksum, but it is something you need to build. You can put it to an external server, or even a Github repository, as long as it is kept external and you have ways to validate.
 {: .notice--info}
 
 ## Solution: RFC 3161 timestamping
