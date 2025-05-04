@@ -77,7 +77,7 @@ Wazuh has two formats for archive logging: plain text and JSON. Depending on you
 See [Wazuh documentation](https://documentation.wazuh.com/current/user-manual/manager/event-logging.html#archiving-event-logs) for internals and configuration.
 {: .notice--info}
 
-These logs are compressed nightly. Here we begin with a few assumptions to provide a background for log timestamping. You need a cheap long-term storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make use of a NAS or SAN storage that has NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/archive`- such a creative name!
+These logs are compressed nightly. Here we begin with a few assumptions to provide a background for log timestamping. You need cheap long-term storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make use of a NAS or SAN storage that has NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/archive`- such a creative name!
 
 We need a Bash script that:
 
