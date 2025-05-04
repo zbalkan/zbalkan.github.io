@@ -1,5 +1,6 @@
 ---
 title: "Cryptographic Timestamping for Wazuh Logs Using RFC 3161 and OpenSSL"
+classes: wide
 tags:
   - Wazuh
   - Detection
