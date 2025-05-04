@@ -7,7 +7,7 @@ tags:
   - Logging
   - RFC 3161
 gallery:
-  - url: assets/timestamping-dashboard.png
+  - url: /assets/timestamping-dashboard.png
     image_path: /assets/timestamping-dashboard.png
     alt: "Sample Dashboard"
 ---
