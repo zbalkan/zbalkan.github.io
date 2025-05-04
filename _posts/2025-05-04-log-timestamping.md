@@ -82,6 +82,9 @@ See [Wazuh documentation](https://documentation.wazuh.com/current/user-manual/ma
 
 These logs are compressed nightly. Here we begin with a few assumptions to provide a background for log timestamping. You need cheap long-term storage to store logs for archive purposes, and that is not *on* your Wazuh nodes. You can use a dedicated server for this and use SMB or NFS file share. You can make use of a NAS or SAN storage that has NFS file server capabilities. You can push the logs to S3 buckets or S3-compatible solutions. Here, we are assuming a file share mounted on `/archive`- such a creative name!
 
+You need more visibility than daily checks. Add `/archive` path to FIM configuration and write some custom rules. But this is out of scope of this article.
+{: .notice--info}
+
 We need a Bash script that:
 
 - Moves archive logs to the NFS share mount for central retention.
