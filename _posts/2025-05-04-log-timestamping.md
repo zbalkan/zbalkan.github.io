@@ -295,6 +295,8 @@ This RFC 3161-based process provides:
 
 The solution is standards-based, non-intrusive, and requires only minimal infrastructure. It can be extended to other log types, rotated data, or audit artefacts with no change to the core logic.
 
+While we used Wazuh-specific examples, the same process can be used for other tools as well.
+
 ---
 [^1]: There is an open issue for [an integrated trusted timestamping feature](https://github.com/wazuh/wazuh/issues/17290).
 [^2]: By Original by Bart Van den Bosch, vector by <a href="https://commons.wikimedia.org/wiki/User:Tsuruya" title="User:Tsuruya">Tsuruya</a> - vectored version of <a href="https://commons.wikimedia.org/w/index.php?title=File:Trusted_timestamping.gif&amp;action=edit&amp;redlink=1" class="new" title="File:Trusted timestamping.gif (page does not exist)">File:Trusted timestamping.gif</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/be/deed.en" title="Creative Commons Attribution-Share Alike 2.0 be">CC BY-SA 2.0 be</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=21482712">Link</a>
