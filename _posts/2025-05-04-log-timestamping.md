@@ -14,7 +14,7 @@ gallery:
 
 In security monitoring environments, log files are not just activity records; they are often the primary evidence in incident response, threat investigations, and compliance audits. However, without cryptographic protections, logs can be altered, backdated, or tampered with. This may undermine the integrity of your detection pipeline and may compromise forensic investigations or regulatory compliance.
 
-This guide documents a practical, standards-based approach to ensuring **log integrity and proof of existence** using **RFC 3161 cryptographic timestamps**. It applies specifically to **Wazuh archive logs**, but the pattern is adaptable to other platforms. You can make use of it for any centrall logging or SIEM platform oy your choice.
+This guide documents a practical, standards-based approach to ensuring **log integrity and proof of existence** using **RFC 3161 cryptographic timestamps**. It applies specifically to **Wazuh archive logs**, but the pattern is adaptable to other platforms. You can make use of it for any central logging solution or SIEM platform of your choice.
 
 ## Problem: Can you prove your logs are untampered?
 
