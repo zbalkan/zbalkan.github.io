@@ -27,7 +27,7 @@ Timestamps from filesystems (`mtime`, `ctime`) are easy to spoof. Even centraliz
 
 While this may not be a security requirement, it could be necessary for compliance in some cases. For instance, [PCI DSS](https://www.pcisecuritystandards.org/standards/pci-dss/) 4.0.1 Req. 10.3.2 says *"Audit log files are protected to prevent modifications by individuals"*. While this generally means creating controls to provide a sufficient level of security for logs at rest, there is still room for improvement.
 
-The Wazuh log archive process contains [a simple checksum operation](https://documentation.wazuh.com/current/getting-started/architecture.html#archival-data-storage). This operation generates a `.sum` file that contains a log file's checksum value generated with multiple algorithms along with the previous file's checksum values under the `Chained checksum:` section.
+To provide integrity controls for your archive logs, for instance, Wazuh log archive process contains [a simple checksum operation](https://documentation.wazuh.com/current/getting-started/architecture.html#archival-data-storage). This operation generates a `.sum` file that contains a log file's checksum value generated with multiple algorithms along with the previous file's checksum values under the `Chained checksum:` section.
 
 ```shell
 cat ossec-archive-02.log.sum
@@ -44,7 +44,10 @@ SHA256 (logs/archives/2025/May/ossec-archive-01.log.sum) = d7b3157b8729915865fa6
 
 Do you see the issue there? When a user or an attacker tamper with a log file, they can also tamper with the previous checksum file. It is helpful for simple checks but insufficient for complex scenarios by and of itself[^1].
 
-## Solution: RFC 3161 timestamping with OpenSSL
+Well, you can see tat it is possible to use a Merkle tree out of the chained checksum, but it is something you need to build. You can put it to an esternal server, ot even a Github repository, as long as it is kept external and you have ways to validate. Here' we will use a simpler approach.
+{: .notice--info}
+
+## Solution: RFC 3161 timestamping
 
 [Trusted timestamping](https://en.wikipedia.org/wiki/Trusted_timestamping) refers to the secure method of recording the creation and modification times of a document. Security in this context implies that no individual, including the document's owner, can alter it once it has been documented, assuming the integrity of the timestamp provider remains intact.
 
@@ -55,13 +58,13 @@ If you are a visual thinker, this graph may help you better than any description
 
 We use the Time-Stamp Protocol (TSP) defined in [RFC 3161](https://www.ietf.org/rfc/rfc3161.txt), which allows a client to:
 
-1. Hash a file using SHA-512.
+1. Cryptographically hash a file
 2. Submit the hash to a trusted **Timestamping Authority (TSA)**.
 3. Receive a cryptographically signed **Timestamp Response (TSR)** proving that the file existed in that form at that time.
 
 This method:
 
-- Never transmits the log file itself - only its hash.
+- Never transmits the log file itself - only its hash (in this article and scripts, we use SHA-512).
 - Produces portable `.tsr` files that can be verified independently.
 - Works with any TSA that supports RFC 3161 (in this article, we use [FreeTSA](https://freetsa.org/)).
 
@@ -84,7 +87,7 @@ We need a Bash script that:
 - Moves archive logs to the NFS share mount for central retention.
 - Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-05-01-node1.log.gz`,`2025-05-01-node1.json.gz`)
 
-This creates one new file per node per day, simplifying inventory and making it easy to track which node produced which file. This script should run on EVERY node. You can use a cron job to run your script daily. Select a suitable time after the logs are compressed by Wazuh.
+This creates one new file per node per day, simplifying inventory and making it easy to track which node produced which file. This script should run on **every** node. You can use a cron job to run your script daily. Select a suitable time after the logs are compressed by Wazuh.
 
 ```cron
 0 5 * * * /opt/retention/wazuh-archive.sh
@@ -159,7 +162,7 @@ Later each day, a second cron job verifies the `.tsr` signatures:
 
 You can also verify more frequently but if you are using a free service like FreeTSA, try not to execute a Denial-of-Service (DoS) against their systems.
 
-These two scripts, `sign_all.sh` and `verify_all.sh` should run on ONLY ONE node of your cluster.
+These two scripts, `sign_all.sh` and `verify_all.sh` should run on **only one** node of your cluster.
 {: .notice--info}
 
 ### Step 3: Validate Log Format and Evidence Retention
@@ -180,7 +183,7 @@ Sample log entry from `verify_all.jsonl`:
 
 ### Step 4: Configure Wazuh for log collection
 
-To detect failures or tampering attempts within the timestamping pipeline itself, we configured Wazuh to ingest all timestamping logs:
+To detect failures or tampering attempts within the timestamping pipeline itself, we configured Wazuh manager nodes to ingest all timestamping logs. Add this block to the `ossec.conf` file of all your Wazuh nodes:
 
 ```xml
   <!--Logs for secure file timestamping using RFC 3161-compliant Timestamping Authorities (TSA)  -->
