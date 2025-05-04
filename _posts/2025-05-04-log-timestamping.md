@@ -173,7 +173,7 @@ These two scripts, `sign_all.sh` and `verify_all.sh` should run on **only one** 
 Each `.tsr` file is specific to one `.log.gz` file. These files must be retained together:
 
 - Original log: `2025-05-01-node1.log.gz`
-- Timestamp response: `2025-05-1015-node1.log.gz.tsr`
+- Timestamp response: `2025-05-01-node1.log.gz.tsr`
 - TSA certificates: `tsa.crt` and `cacert.pem`
 
 **Without these**, future verification is not possible.
