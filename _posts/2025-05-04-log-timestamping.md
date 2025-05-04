@@ -174,7 +174,7 @@ Each `.tsr` file is specific to one `.log.gz` file. These files must be retained
 
 - Original log: `2025-05-01-node1.log.gz`
 - Timestamp response: `2025-05-01-node1.log.gz.tsr`
-- TSA certificates: `tsa.crt` and `cacert.pem`
+- TSA certificates: `tsa.crt` and `cacert.pem` (Provided by your TSA)
 
 **Without these**, future verification is not possible.
 
