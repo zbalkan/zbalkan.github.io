@@ -85,7 +85,7 @@ These logs are compressed nightly. Here we begin with a few assumptions to provi
 You need more visibility than daily checks. Add `/archive` path to FIM configuration and write some custom rules. But this is out of scope of this article.
 {: .notice--info}
 
-We need a Bash script that:
+We need a bash script that:
 
 - Moves archive logs to the NFS share mount for central retention.
 - Renames them as: `YYYY-MM-DD-hostname.log.gz` (e.g., `2025-05-01-node1.log.gz`,`2025-05-01-node1.json.gz`)
@@ -158,7 +158,7 @@ Extensions:
 
 Later each day, a second cron job verifies the `.tsr` signatures:
 
-```bash
+```cron
 0 9 * * * /opt/timestamping/verify_all.sh
 ```
 
