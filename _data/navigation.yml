@@ -1,6 +1,7 @@
 main:
   - title: "Posts"
     url: /posts/
+    redirect_from: /archive.html
   - title: "Tags"
     url: /tags/
   - title: "About"
