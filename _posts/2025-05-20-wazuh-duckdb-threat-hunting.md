@@ -18,11 +18,7 @@ Threat hunting and incident response require timely, flexible access to logs - e
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
 3. **SIEM Pipeline**: High-value events are filtered, aggregated, and pushed to a SIEM. This supports real-time detection, alerting, and correlation.
 
----
-
 <img src="/assets/duckdb-wazuh.png" width="400" alt="Screenshot of the DuckDB UI">
-
----
 
 ## The Reality: Compliance Archives Without Hunting Infrastructure
 
@@ -45,8 +41,6 @@ Instead, many organizations still operate under a traditional model:
 - Removed after a retention period
 
 That’s where I'd like to provide an alternative - providing a structured, analyst-friendly method for searching those cold, compressed logs during investigations. It won’t replace a data lake, but it dramatically improves what teams can do with the storage they already have.
-
----
 
 ## Wazuh Context: Where Logs Come From
 
@@ -85,8 +79,6 @@ Organizations commonly rotate and compress these logs into `.log.gz` or `.json.g
 
 As a side note, JSON log files are more verbose. It is expected to require 60-80% more storage usage when compressed.
 
----
-
 ## A Middle Ground: DuckDB as a Structured Search Layer
 
 To improve the investigation experience without the overhead of a data lake or OpenSearch, we use **DuckDB**, a lightweight analytical SQL engine that:
@@ -97,8 +89,6 @@ To improve the investigation experience without the overhead of a data lake or O
 - Outperforms traditional tools for many query types
 
 DuckDB lets us treat compressed log archives like a database table - but without ingesting, unpacking, or indexing them first.
-
----
 
 ## Performance Compared to Unix Tools
 
@@ -111,8 +101,6 @@ In [benchmark tests](https://duckdb.org/2024/06/20/cli-data-processing-using-duc
 | DuckDB 1.0.0       | 4.2s                 | 1.2s                   |
 
 On uncompressed data, DuckDB can fully parallelize queries, resulting in significant speedups. As queries grow more complex - involving joins, filtering, regex, or date logic - DuckDB’s performance and maintainability become even more valuable.
-
----
 
 ## Our Approach: Case-Oriented Analysis with DuckDB
 
@@ -145,8 +133,6 @@ The view exposes:
 ```
 
 Lists all defined views and their SQL definitions for traceability. This helps after the team builds several cases.
-
----
 
 ## Example: Investigate Sysmon Activity on a Host
 
@@ -238,8 +224,6 @@ Only read access is supported for remote databases, but this allows for shared, 
 
 To use this fully, you’ll need to slightly modify your view-generation or run queries directly in cloud environments.
 {: .notice--info}
-
----
 
 ## Conclusion
 
