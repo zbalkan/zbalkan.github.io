@@ -236,7 +236,8 @@ SELECT * FROM remote.si_801 WHERE ...;
 
 Only read access is supported for remote databases, but this allows for shared, cloud-based investigations or accessing long-term forensic archives without downloading files locally.
 
-> To use this fully, you’ll need to slightly modify your view-generation or run queries directly in cloud environments.
+To use this fully, you’ll need to slightly modify your view-generation or run queries directly in cloud environments.
+{: .notice--info}
 
 ---
 
@@ -245,7 +246,7 @@ Only read access is supported for remote databases, but this allows for shared, 
 If you do not have a modern SOC with enough budget, most probably your environment lacks a full detection engineering pipeline with a structured data lake and scalable SIEM backend; this approach fills a critical operational gap.
 
 - It supports structured queries on `.json.gz` Wazuh archives
-- It offers a better investigation experience than `zgrep` or scripting
+- It offers a better investigation experience than `zgrep` or complex scripting
 - It runs locally with no infrastructure and scales with investigator needs
 - It integrates with remote storage like S3 if needed
 - It’s portable, maintainable, and fast enough for real work
@@ -255,3 +256,10 @@ This isn’t a replacement for a SIEM or a data lake - but for many teams, it’
 <img src="/assets/duckdb-parquet.png" width="400" alt="Logo of Apache Parquet file format">
 
 You can move one more step ahead, and convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
+
+I plan to write about using Parquet in an automated way that provides a similar experience. It may take some months.
+{: .notice--info}
+
+## Postscriptum
+
+Some time ago, I wrote about integrity control for archive logs using [RFC 3161 cryptographic timestamping](https://zaferbalkan.com/log-timestamping/). I'd like to let you know that by using parquet, you can still make use of it.
