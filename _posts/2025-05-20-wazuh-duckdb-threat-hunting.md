@@ -1,23 +1,26 @@
 ---
-title: "Practical Threat Hunting on Compressed Wazuh Logs with DuckDB"
+title: "Practical Threat Hunting on Compressed Logs with DuckDB"
 tags:
   - Wazuh
   - SIEM
   - Detection
   - Duckdb
   - Threat Hunting
+gallery:
+  - url: /assets/duckdb-ui.png
+    image_path: /assets/duckdb-ui.png
+    alt: "Screenshot of the DuckDB UI"
 ---
 
 Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
 
 1. **Raw Logs to Cheap Storage**: Logs are written as-is to a low-cost location: NFS, SMB share, or object storage (e.g., S3). This supports long-term retention and full-fidelity replay.
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
-
 3. **SIEM Pipeline**: High-value events are filtered, aggregated, and pushed to a SIEM. This supports real-time detection, alerting, and correlation.
 
 ---
 
-<img src="/assets/duckdb-wazuh.png" width="800" alt="Screenshot of the DuckDB UI">
+<img src="/assets/duckdb-wazuh.png" width="400" alt="Screenshot of the DuckDB UI">
 
 ---
 
@@ -214,7 +217,7 @@ echo "SELECT *
 
 You may prefer GUI over CLI. As of version 1.2.1, duckDB comes with a [simple UI](https://duckdb.org/2025/03/12/duckdb-ui.html). run `duckdb -ui` and provide the path to `investigations.db` file. In my lab, I created it under `/tmp`.
 
-<img src="/assets/duckdb-ui.png" width="800" alt="Screenshot of the DuckDB UI">
+{% include gallery id="gallery" caption="Screenshot of the DuckDB UI" %}
 
 Now, you can run them on a web UI easily. You can also try other [IDEs supporting DuckDB](https://github.com/davidgasquez/awesome-duckdb?tab=readme-ov-file#sql-clients-and-ide-that-support-duckdb) for a smoother experience.
 
@@ -249,6 +252,6 @@ If you do not have a modern SOC with enough budget, most probably your environme
 
 This isn’t a replacement for a SIEM or a data lake - but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
 
-<img src="/assets/duckdb-parquet.png" width="800" alt="Logo of Apache Parquet file format">
+<img src="/assets/duckdb-parquet.png" width="400" alt="Logo of Apache Parquet file format">
 
 You can move one more step ahead, and convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
