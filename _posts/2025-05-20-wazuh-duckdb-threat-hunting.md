@@ -194,14 +194,21 @@ COPY (
                       PER_THREAD_OUTPUT TRUE);
 ```
 
-These can be run in the DuckDB shell or using `duckdb -c` from the command line. Or you can just pipe to DuckDB like:
+<img src="/assets/duckdb-parquet.png" width="400" alt="Logo of Apache Parquet file format">
+
+You can see that you don't need anything other than DuckDB to convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step for it. Using Parquet instead of raw JSON would allow indexing, so you can get faster `SELECT` queries. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
+
+I plan to write about using Parquet in an automated way that provides a similar experience. It may take some months.
+{: .notice--info}
+
+All these commands above can be run in the DuckDB shell or using `duckdb -c` from the command line. The third way is that you can just pipe to DuckDB such as:
 
 ```shell
 echo "SELECT *
     FROM si_801" | duckdb
 ```
 
-You may prefer GUI over CLI. As of version 1.2.1, duckDB comes with a [simple UI](https://duckdb.org/2025/03/12/duckdb-ui.html). run `duckdb -ui` and provide the path to `investigations.db` file. In my lab, I created it under `/tmp`.
+You may prefer GUI over CLI. As of version 1.2.1, DuckDB comes with a [simple UI](https://duckdb.org/2025/03/12/duckdb-ui.html). Run `duckdb -ui` and provide the path to `investigations.db` file. In my lab, I created it under `/tmp`. See the sample UI here:
 
 {% include gallery id="gallery" caption="Screenshot of the DuckDB UI" %}
 
@@ -235,14 +242,9 @@ If you do not have a modern SOC with enough budget, most probably your environme
 - It integrates with remote storage like S3 if needed
 - It’s portable, maintainable, and fast enough for real work
 
+I need to remind you that DuckDB is not a search engine. Lucene searc hengine of ElasticSearch and OpenSearch -including Wazuh Indexer- provide a better experience in searching. Therefore, using SQL annd regex for log search may not be the best experience. But it is a balanced approach depending on your environment. It is up to you to choose it or not.
+
 This isn’t a replacement for a SIEM or a data lake - but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
-
-<img src="/assets/duckdb-parquet.png" width="400" alt="Logo of Apache Parquet file format">
-
-You can move one more step ahead, and convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step. That would allow indexing, so you can get faster `SELECT` queries. You can even make use of Parquet encryption. It is based on your creativity and hands-on experience. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
-
-I plan to write about using Parquet in an automated way that provides a similar experience. It may take some months.
-{: .notice--info}
 
 ## Postscriptum
 
