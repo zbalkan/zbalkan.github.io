@@ -23,3 +23,5 @@ echo "COPY (
 echo "SELECT * FROM read_parquet('results.pq/*');" | duckdb
 
 ```
+
+TODO: Add plaintext JSON, compressed JSON and compressed parquet comparison.
