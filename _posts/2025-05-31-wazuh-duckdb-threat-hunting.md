@@ -14,6 +14,8 @@ gallery:
 
 Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
 
+<img src="/assets/duckdb-pipeline.png" width="800" alt="A sample diagram for 3 targets of logs">
+
 1. **Raw Logs to Cheap Storage**: Logs are written as-is to a low-cost location: NFS, SMB share, or object storage (e.g., S3). This supports long-term retention and full-fidelity replay.
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
 3. **SIEM Pipeline**: High-value events are filtered, aggregated, and pushed to a SIEM. This supports real-time detection, alerting, and correlation.
