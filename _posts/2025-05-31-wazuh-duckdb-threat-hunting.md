@@ -136,6 +136,9 @@ Lists all defined views and their SQL definitions for traceability. This helps a
 
 ## Example: Investigate Sysmon Activity on a Host
 
+This section is not a **Threat hunting 101** class. This is just an example on how you can search. The rest belongs to your investgation, regex and SQL skills.
+{: .notice--info}
+
 Once the view is created, open DuckDB:
 
 ```bash
