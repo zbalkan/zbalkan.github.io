@@ -4,7 +4,7 @@ tags:
   - Wazuh
   - SIEM
   - Detection
-  - Duckdb
+  - DuckDB
   - Threat Hunting
 gallery:
   - url: /assets/duckdb-ui.png
@@ -223,7 +223,7 @@ If you do not have a modern SOC with enough budget, most probably your environme
 - It integrates with remote storage like S3 if needed
 - It’s portable, maintainable, and fast enough for real work
 
-I need to remind you that DuckDB is not a search engine. Lucene search engine of ElasticSearch and OpenSearch -including Wazuh Indexer- provide a better experience in searching. Therefore, using SQL annd regex for log search may not be the best user experience. But it is a balanced approach depending on your environment. It is up to you to choose it or not.
+I need to remind you that DuckDB is not a search engine. Lucene search engine of ElasticSearch and OpenSearch -including Wazuh Indexer- provide a better experience in searching. Therefore, using SQL and regex for log search may not be the best user experience. But it is a balanced approach depending on your environment. It is up to you to choose it or not.
 
 This isn’t a replacement for a SIEM or a data lake - but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
 
