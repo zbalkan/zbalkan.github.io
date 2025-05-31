@@ -226,7 +226,3 @@ If you do not have a modern SOC with enough budget, most probably your environme
 I need to remind you that DuckDB is not a search engine. Lucene search engine of ElasticSearch and OpenSearch -including Wazuh Indexer- provide a better experience in searching. Therefore, using SQL and regex for log search may not be the best user experience. But it is a balanced approach depending on your environment. It is up to you to choose it or not.
 
 This isn’t a replacement for a SIEM or a data lake - but for many teams, it’s the most practical, cost-effective way to unlock their archived logs for threat hunting and investigations.
-
-## Postscriptum
-
-Some time ago, I wrote about integrity control for archive logs using [RFC 3161 cryptographic timestamping](https://zaferbalkan.com/log-timestamping/). I'd like to let you know that by using parquet, you can still make use of it.
