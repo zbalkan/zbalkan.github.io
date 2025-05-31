@@ -33,7 +33,7 @@ environment: prod
 analytics:
   provider: "google-gtag"
   google:
-    tracking_id: "G-TZ0GWDVPST"
+    tracking_id: "GTM-WG4NLBQS"
     anonymize_ip: false # default
 
 # Build settings
