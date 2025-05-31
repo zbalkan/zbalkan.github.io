@@ -18,8 +18,6 @@ Threat hunting and incident response require timely, flexible access to logs - e
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
 3. **SIEM Pipeline**: High-value events are filtered, aggregated, and pushed to a SIEM. This supports real-time detection, alerting, and correlation.
 
-<img src="/assets/duckdb-wazuh.png" width="400" alt="Screenshot of the DuckDB UI">
-
 ## The Reality: Compliance Archives Without Hunting Infrastructure
 
 In most organizations, log storage practices are driven more by **compliance requirements** than by security operations. Long-term archives are retained on NFS, SMB shares, or S3 for years - but they are rarely optimized for investigation, threat hunting, or enrichment. The storage is cold, compressed, and flat.
@@ -58,7 +56,8 @@ In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you
 - `/var/ossec/logs/archives/archives.json`: All decoded events - whether they triggered a rule or not
 - `/var/ossec/logs/alerts/alerts.json`: Events that matched a rule above a configurable priority threshold
 
-> First of all, we have an assumption that you use JSON logs for the log archival process. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
+First of all, we have an assumption that you use JSON logs for the log archival process. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
+{: .notice--info}
 
 Organizations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access that I will define below.
 
@@ -80,6 +79,8 @@ Organizations commonly rotate and compress these logs into `.log.gz` or `.json.g
 As a side note, JSON log files are more verbose. It is expected to require 60-80% more storage usage when compressed.
 
 ## A Middle Ground: DuckDB as a Structured Search Layer
+
+<img src="/assets/duckdb-wazuh.png" width="400" alt="Screenshot of the DuckDB UI">
 
 To improve the investigation experience without the overhead of a data lake or OpenSearch, we use **DuckDB**, a lightweight analytical SQL engine that:
 
