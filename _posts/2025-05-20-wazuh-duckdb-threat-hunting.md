@@ -152,7 +152,7 @@ WHERE agent_name = 'win-lab01'
   AND timestamp BETWEEN TIMESTAMP '2025-04-02 08:00:00' AND TIMESTAMP '2025-04-03 18:00:00';
 ```
 
-You can extract structured values from the raw JSON using regex:
+At this point, you need to use simple search or regex to search in `full_log` fields. DuckDB regex uses Google's RE2, and for regex syntax, check RE2 [docs](https://github.com/google/re2/wiki/Syntax). You can extract structured values from the raw JSON using regex:
 
 ```sql
 SELECT
@@ -181,25 +181,6 @@ COPY (
     FROM si_801
 ) TO 'results.json' (FORMAT JSON);
 ```
-
-or even Parquet -with [some performance tricks](https://github.com/duckdb/duckdb/discussions/6478):
-
-```sql
-SET preserve_insertion_order=false;
-COPY (
-    SELECT *
-    FROM si_801
-) TO 'results.pq' (FORMAT 'PARQUET',
-                      CODEC  'Snappy',
-                      PER_THREAD_OUTPUT TRUE);
-```
-
-<img src="/assets/duckdb-parquet.png" width="400" alt="Logo of Apache Parquet file format">
-
-You can see that you don't need anything other than DuckDB to convert the logs to Apache [Parquet format](https://parquet.apache.org/). [DuckDB](https://duckdb.org/docs/stable/data/parquet/overview.html) not only allows reading and writing but also conversion to Parquet format. Since Parquet files are compressed during conversion, you do not need an extra step for it. Using Parquet instead of raw JSON would allow indexing, so you can get faster `SELECT` queries. See [this discussion](https://github.com/duckdb/duckdb/discussions/6478) initiated by [Mark Litwintschik](https://tech.marksblogg.com/) for faster conversions.
-
-I plan to write about using Parquet in an automated way that provides a similar experience. It may take some months.
-{: .notice--info}
 
 All these commands above can be run in the DuckDB shell or using `duckdb -c` from the command line. The third way is that you can just pipe to DuckDB such as:
 
