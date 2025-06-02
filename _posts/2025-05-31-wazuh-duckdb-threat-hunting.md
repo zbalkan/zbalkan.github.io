@@ -192,7 +192,7 @@ WHERE agent_name = 'win-lab01'
   AND full_log LIKE '%auditd%' -- only auditd lines
   AND timestamp BETWEEN TIMESTAMP '2025-06-01 08:00:00'
                     AND TIMESTAMP '2025-06-02 18:00:00'
-  AND regexp_matches(full_log, 'type=USER_ACCT');  -- restrict to “USER_ACCT” events
+  AND regexp_matches(full_log, 'type=USER_ACCT');  -- restrict to "USER_ACCT" events
 ```
 
 After this reminder, let's stick to our scenario and use JSON capabilities. So, to simplify the future queries, I want to create another view, that parses only the logs I care, the ones from the agent name and formatted as Windows Event Logs.
@@ -206,7 +206,11 @@ CREATE OR REPLACE VIEW si_801_json AS
         "location",
         decoder."name" AS decoder,
         full_log
-    FROM read_ndjson_auto(main.list_value("./2025-06-01-siem1.json.gz"), (ignore_errors = CAST('t' AS BOOLEAN)))
+    -- Wrapping the path as a single item list so that we can add new files as:
+    -- read_ndjson_auto(main.list_value("./2025-06-01-siem1.json.gz", "other file", "one more file") ...
+    -- Or we could have used a GLOB pattern
+    -- read_ndjson_auto("./2025-06-0*-*.json.gz")
+    FROM read_ndjson_auto(main.list_value("./2025-06-01-siem1.json.gz"), (ignore_errors = true))
     -- Get all Windows event logs from single endpoint
     WHERE agent_name = 'win-lab01'
         AND json_valid(full_log)
@@ -231,19 +235,13 @@ Or we can extract the fields we care:
 WITH sysmon_events AS (
   SELECT
     timestamp,
-    -- JSON extraction of the child process image
     json_extract_string(full_log, '$.win.eventdata.image') AS image,
-    -- JSON extraction of the parent process image
     json_extract_string(full_log, '$.win.eventdata.parentImage') AS parent_image,
-    -- JSON extraction of the parent’s command line
     json_extract_string(full_log, '$.win.eventdata.parentCommandLine') AS parent_cmd,
-    -- JSON extraction of the child’s command line
     json_extract_string(full_log, '$.win.eventdata.commandLine') AS cmdline
   FROM si_801_json
   WHERE
-    -- JSON filter for Sysmon providerName
     json_extract_string(full_log, '$.win.system.providerName') = 'Microsoft-Windows-Sysmon'
-    -- JSON filter for EventID = "1"
     AND json_extract_string(full_log, '$.win.system.eventID') = '1'
 )
 SELECT *
@@ -263,13 +261,10 @@ SELECT
   COUNT(*) AS event_count
 FROM (
   SELECT
-    -- JSON extraction of parentImage
     json_extract_string(full_log, '$.win.eventdata.parentImage') AS parent_image
   FROM si_801_json
   WHERE agent_name = 'win-lab01'
-    -- JSON filter for Sysmon providerName
     AND json_extract_string(full_log, '$.win.system.providerName') = 'Microsoft-Windows-Sysmon'
-    -- JSON filter for EventID = "1"
     AND json_extract_string(full_log, '$.win.system.eventID') = '1'
 ) AS sub
 GROUP BY parent_image
@@ -287,9 +282,7 @@ WITH sysmon1 AS (
     timestamp AS ts
   FROM si_801_json
   WHERE agent_name = 'win-lab01'
-    -- JSON filter for Sysmon providerName
     AND json_extract_string(full_log, '$.win.system.providerName') = 'Microsoft-Windows-Sysmon'
-    -- JSON filter for EventID = "1"
     AND json_extract_string(full_log, '$.win.system.eventID') = '1'
 )
 SELECT
@@ -308,15 +301,11 @@ Or, you can try to find top child processes by parent process:
 -- Show, for each parentImage, which child processes it spawned most often
 WITH extracted AS (
   SELECT
-    -- JSON extraction of parentImage
     json_extract_string(full_log, '$.win.eventdata.parentImage') AS parent_image,
-    -- JSON extraction of child image
     json_extract_string(full_log, '$.win.eventdata.image') AS image
   FROM si_801_json
   WHERE agent_name = 'win-lab01'
-    -- JSON filter for Sysmon providerName
     AND json_extract_string(full_log, '$.win.system.providerName') = 'Microsoft-Windows-Sysmon'
-    -- JSON filter for EventID = "1"
     AND json_extract_string(full_log, '$.win.system.eventID') = '1'
 )
 SELECT
@@ -347,6 +336,8 @@ WHERE agent_name = 'win-lab01'
   -- JSON filter for parentImage == mshta.exe
   AND ((json_extract_string(full_log, '$.win.eventdata.parentImage') = 'C:\\Windows\\System32\\mshta.exe') OR
   (json_extract_string(full_log, '$.win.eventdata.parentImage') = 'C:\\Windows\\SysWOW64\\mshta.exe'))
+  -- We could have written this keyword search with regex pattern:
+  -- AND regexp_matches(full_log, '\"win\\.eventdata\\.parentImage\".*mshta\\.exe')
 GROUP BY cmdline
 ORDER BY invocation_count DESC;
 ```
@@ -358,47 +349,66 @@ But the best and most popular usage would by building a process tree. We first q
 ```sql
 -- Build a deduplicated process tree (ancestors + descendants) by ProcessGUID
 WITH RECURSIVE
+
+  -- 1. Define the single parameter we’ll use throughout: the target process GUID.
+  --    By putting it in a small CTE, we make it easy to substitute or reuse elsewhere
+  --    without hard-coding the GUID multiple times.
   params AS (
     SELECT
       '{480c9770-8384-683c-1f33-010000002103}'            AS target_guid
   ),
 
+  -- 2. "ancestors" CTE: climb from the target process up through its parents.
+  --    We use a recursive CTE because we don’t know in advance how many generations
+  --    of parents may exist. Each recursion step finds the next parent.
   ancestors AS (
-    -- Anchor: the row matching target_guid, marked as "anchor"
+    -- Anchor member: grab the row for the exact process GUID we care about.
+    --   - depth = 0 marks this as our starting point ("anchor").
+    --   - direction = 'anchor' lets us tag this row so it can be sorted/filtered later.
     SELECT
       s.timestamp                                                      AS ts,
       json_extract_string(s.full_log, '$.win.eventdata.processGuid')       AS proc_guid,
       json_extract_string(s.full_log, '$.win.eventdata.parentProcessGuid') AS parent_pguid,
       json_extract_string(s.full_log, '$.win.eventdata.parentImage')       AS parent_image,
       json_extract_string(s.full_log, '$.win.eventdata.image')             AS process_image,
-      0                                                                AS depth,
-      'anchor'                                                         AS direction
+      0                                                                AS depth,        -- starting depth
+      'anchor'                                                         AS direction    -- label for sorting/logic
     FROM si_801_json AS s
     CROSS JOIN params AS p
-    WHERE json_extract_string(s.full_log, '$.win.system.providerName')   = 'Microsoft-Windows-Sysmon'
+    WHERE
+      -- Only consider Sysmon "Process Create" events to reliably get parent/child info.
+      json_extract_string(s.full_log, '$.win.system.providerName')   = 'Microsoft-Windows-Sysmon'
       AND json_extract_string(s.full_log, '$.win.eventdata.processGuid') = p.target_guid
 
     UNION ALL
 
-    -- Recursive: all true ancestors (depth ≥ 1)
+    -- Recursive member: find the parent row for each ancestor we already found.
+    --   - Join on c.processGuid = anc.parent_pguid to climb one level upward.
+    --   - Increment depth with each step so we know how far from the anchor we are.
+    --   - Keep the same filters so we only pull legitimate Sysmon "Process Create" logs.
     SELECT
       c.timestamp                                                      AS ts,
       json_extract_string(c.full_log, '$.win.eventdata.processGuid')       AS proc_guid,
       json_extract_string(c.full_log, '$.win.eventdata.parentProcessGuid') AS parent_pguid,
       json_extract_string(c.full_log, '$.win.eventdata.parentImage')       AS parent_image,
       json_extract_string(c.full_log, '$.win.eventdata.image')             AS process_image,
-      anc.depth + 1                                                    AS depth,
-      'ancestor'                                                       AS direction
+      anc.depth + 1                                                    AS depth,        -- climb one generation
+      'ancestor'                                                       AS direction    -- mark as ancestor
     FROM ancestors AS anc
     JOIN si_801_json AS c
       ON json_extract_string(c.full_log, '$.win.eventdata.processGuid') = anc.parent_pguid
     CROSS JOIN params AS p
-    WHERE json_extract_string(c.full_log, '$.win.system.providerName')  = 'Microsoft-Windows-Sysmon'
+    WHERE
+      json_extract_string(c.full_log, '$.win.system.providerName')  = 'Microsoft-Windows-Sysmon'
       AND json_extract_string(c.full_log, '$.win.system.eventID')       = '1'
+      -- "eventID=1" ensures we’re grabbing only Process Create records (which contain parent info)
   ),
 
+  -- 3. "descendants" CTE: walk downward from the target to find all children, grandchildren, etc.
+  --    Again, use recursion because we don’t know the fan-out depth a priori.
   descendants AS (
-    -- Anchor: the same row (will be excluded in final)
+    -- Anchor member: same target row as before. We mark depth=0 and direction='descendant'.
+    --   We’ll exclude this anchor from the final descendant list later so it’s not duplicated.
     SELECT
       s.timestamp                                                      AS ts,
       json_extract_string(s.full_log, '$.win.eventdata.processGuid')       AS proc_guid,
@@ -409,12 +419,15 @@ WITH RECURSIVE
       'descendant'                                                     AS direction
     FROM si_801_json AS s
     CROSS JOIN params AS p
-    WHERE json_extract_string(s.full_log, '$.win.system.providerName')   = 'Microsoft-Windows-Sysmon'
+    WHERE
+      json_extract_string(s.full_log, '$.win.system.providerName')   = 'Microsoft-Windows-Sysmon'
       AND json_extract_string(s.full_log, '$.win.eventdata.processGuid') = p.target_guid
 
     UNION ALL
 
-    -- Recursive: all true descendants (depth ≥ 1)
+    -- Recursive member: find rows where the parentProcessGuid equals the proc_guid of the previous level.
+    --   - This finds any immediate children of the current row, then increments depth.
+    --   - Again, filter on Sysmon Process Create events for reliable hierarchy data.
     SELECT
       c.timestamp                                                      AS ts,
       json_extract_string(c.full_log, '$.win.eventdata.processGuid')       AS proc_guid,
@@ -427,10 +440,13 @@ WITH RECURSIVE
     JOIN si_801_json AS c
       ON json_extract_string(c.full_log, '$.win.eventdata.parentProcessGuid') = d.proc_guid
     CROSS JOIN params AS p
-    WHERE json_extract_string(c.full_log, '$.win.system.providerName')  = 'Microsoft-Windows-Sysmon'
+    WHERE
+      json_extract_string(c.full_log, '$.win.system.providerName')  = 'Microsoft-Windows-Sysmon'
       AND json_extract_string(c.full_log, '$.win.system.eventID')       = '1'
   )
 
+-- 4. Final SELECT: union ancestors and descendants into one timeline,
+--    tagging each row with a numeric "dir_rank" so we can sort anchors first, then ancestors, then descendants.
 SELECT
   ts,
   parent_image,
@@ -438,11 +454,11 @@ SELECT
   depth,
   direction,
   CASE direction
-    WHEN 'anchor'    THEN 0
-    WHEN 'ancestor'  THEN 1
+    WHEN 'anchor'     THEN 0
+    WHEN 'ancestor'   THEN 1
     WHEN 'descendant' THEN 2
     ELSE 3
-  END AS dir_rank
+  END AS dir_rank      -- numeric ordering to ensure anchor appears before ancestors/descendants at the same ts
 FROM ancestors
 
 UNION ALL
@@ -454,18 +470,24 @@ SELECT
   depth,
   direction,
   CASE direction
-    WHEN 'anchor'    THEN 0
-    WHEN 'ancestor'  THEN 1
+    WHEN 'anchor'     THEN 0
+    WHEN 'ancestor'   THEN 1
     WHEN 'descendant' THEN 2
     ELSE 3
   END AS dir_rank
 FROM descendants
-WHERE depth > 0
+WHERE depth > 0       -- exclude the "anchor" row from the descendant side to prevent duplicate
 
+-- 5. ORDER BY:
+--    - ts           -> so the entire tree is chronologically ordered.
+--    - dir_rank     -> ensures anchor (0) comes first, then ancestors (1) sorted by depth, 
+--                     and descendants (2) sorted afterwards.
+--    - depth        -> within the same direction and timestamp, closer generations (lower depth) come first 
 ORDER BY
   ts,
   dir_rank,
   depth;
+
 ```
 
 We can end up with a table like this:
