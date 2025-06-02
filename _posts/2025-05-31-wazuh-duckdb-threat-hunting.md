@@ -31,7 +31,7 @@ gallery12:
   - url: /assets/duckdb-ui.png
     image_path: /assets/duckdb-ui.png
     alt: "Screenshot of the DuckDB UI"
-last_modified_at: 2025-06-02T14:00:00+02:00
+last_modified_at: 2025-06-02T22:15:00+03:00
 ---
 
 Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
@@ -552,3 +552,6 @@ Most teams simply cannot afford to spend months building big data lakes and heav
 ## Postscriptum
 
 While I was preparing the article, DuckDB released a data lake solution called [DuckLake](https://duckdb.org/2025/05/27/ducklake.html), where they create data lake house management layer built on SQL. It looks like an amazing solution but not for the problem we have. I considered including that solution in the article -that's why I was late to publish, but the simple nature of Wazuh archive logs, where everything is in the `full_log` field, does not require the complexity overhead. It would have worked great if all the logs were parsed and converted to JSON properly though. Therefore, it is not used as is. But you can give it a try.
+
+I am not an expert on DuckDB's [Friendly SQL](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html) dialect, so I did my best. I am open for suggestions on improving the queries, especially the recursive process tree solution. I am optimistic that there's an iterative way for that.
+{: .notice--info}
