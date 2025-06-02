@@ -31,7 +31,7 @@ gallery12:
   - url: /assets/duckdb-ui.png
     image_path: /assets/duckdb-ui.png
     alt: "Screenshot of the DuckDB UI"
-last_modified_at: 2025-06-01T12:21:45+02:00
+last_modified_at: 2025-06-02T14:00:00+02:00
 ---
 
 Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
@@ -150,7 +150,7 @@ The view exposes:
 
 <script src="https://gist.github.com/zbalkan/d02d46b88b23e6b60cd2193bc09382d4.js"></script>
 
-This script does not accept any parameters, and it is easy to use. You can skipt it if you want to use UI options that I'll mention later.
+This script does not accept any parameters, and it is easy to use. You can skip it if you want to use UI options that I'll mention later.
 
 ```bash
 ./list_cases.sh
@@ -160,7 +160,7 @@ Lists all defined views and their SQL definitions for traceability. This helps a
 
 ## Example: Investigate Sysmon Activity on a Host
 
-This section is not a **Threat hunting 101** class. The following section demonstrates DuckDB capabilities to query Wazuh archive logs with a simple use case. The rest belongs to your investigation, regex and SQL skills.
+This section is not a **Threat hunting 101** class. The following section demonstrates DuckDB capabilities to query Wazuh archive logs with a simple use case. The rest depends on your investigation, regex and SQL skills.
 {: .notice--info}
 
 <img src="/assets/duckdb-lab.png" width="600" alt="Lab design">
@@ -353,7 +353,7 @@ ORDER BY invocation_count DESC;
 
 {% include gallery id="gallery10" caption="Command line arguments with mshta.exe" %}
 
-But the best and most popular usage would bu building a process tree. We first qeury the ancestors, then descendants and join them:
+But the best and most popular usage would by building a process tree. We first query the ancestors, then descendants and join them:
 
 ```sql
 -- Build a deduplicated process tree (ancestors + descendants) by ProcessGUID
