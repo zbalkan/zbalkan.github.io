@@ -7,6 +7,9 @@ tags:
   - Technitium DNS Server
   - DNS Security
   - DNS
+gallery:
+  - url: /assets/dns-blocklist.png
+    image_path: /assets/dns-blocklist.png
 gallery1:
   - url: /assets/dns-conf.png
     image_path: /assets/dns-conf.png
@@ -23,7 +26,9 @@ What makes DNS filtering useful isn’t just the blocking. It’s the visibility
 
 There are several well-established ways to enforce DNS-layer policy. One of the most widely supported mechanisms is RPZ (Response Policy Zones), available in BIND, Unbound, and PowerDNS. RPZ allows administrators to define custom DNS zones that override normal resolution behavior. These zones can block, redirect, or modify DNS responses based on known malicious or unwanted domains. It integrates well with curated feeds and scales to large deployments. RPZ is flexible and proven—but managing it requires zone file handling, feed syncing, and in some cases, custom response logic.
 
-Technitium DNS takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customization, Technitium’s method is fast to deploy and operationally lightweight.
+[Technitium DNS](https://technitium.com/dns/) takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customization, Technitium’s method is fast to deploy and operationally lightweight.
+
+{% include gallery id="gallery" caption="DNS Blocklisting" %}
 
 What tipped the balance for me in this case was Technitium’s **logging**. Well, technically, I built it since I loved the product. Logs were stored locally and they were easily queried on the UI but for a corporate environment, at least syslog forwarding was a must. So, I developed the [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/pull/1056), and [Shreyas Zare](https://github.com/ShreyasZare) completed it with his attention to detail, focus on conventions and great professionalism. After this *not-so-humble* brag, I can say that Technitium DNS now can log DNS events to syslog collectors, and HTTP targets like Elasticsearch if provided the payload. But I built the JSON file logging specifically for Wazuh because reading logs in JSON Lines format is such an easy solution. Yes, it is not aligning with any schema like ECS or OCSF but it is very flexible. With this capability, the resolver not only blocks domains, it also produces structured telemetry about each query: what was requested, who requested it, and what happened. That data can be consumed by Wazuh directly—without external syslog daemons, log shippers, or custom parsing. This makes the combination practical for setups that prioritize visibility and local control.
 
@@ -161,7 +166,7 @@ The three exfiltration rules (100005–100007) are about pattern recognition. Lo
 
 Rule 100008 provides a temporary suppression mechanism. If rule 100004 keeps firing too rapidly from the same source, this rule suppresses repeated alerts for 60 seconds. It doesn’t silence the problem, just stops the alert from becoming its own denial-of-service.
 
-Finally, rule 100009 checks whether allowed queries match any known IOCs from a local warning list. This is particularly useful when a feed mismatch causes a known malicious domain to slip through. Rather than relying on blocking alone, this rule highlights inconsistencies between what should have been stopped and what wasn’t. It's a safety net. But this requires you to convert your feeds to a Wazuh CBD list, which needs to be automated or it would be useless in time. Entropy is everywhere!
+Finally, rule 100009 checks whether allowed queries match any known IOCs from a local warning list. This is particularly useful when a feed mismatch causes a known malicious domain to slip through. Rather than relying on blocking alone, this rule highlights inconsistencies between what should have been stopped and what wasn’t. It's a safety net. But this requires you to convert your feeds to a [Wazuh CDB list](https://documentation.wazuh.com/current/user-manual/ruleset/cdb-list.html), which needs to be automated or it would be useless in time. Entropy is everywhere!
 
 These rules are not perfect, and they are not final. But they are tuned to be useful—to catch common problems early, with context that operators can act on. In practice, it’s less about how many rules you have, and more about how confidently you can explain what each one does, and why it fires when it does.
 
