@@ -16,6 +16,10 @@ gallery1:
 gallery2:
   - url: /assets/dns-sample.png
     image_path: /assets/dns-sample.png
+gallery3:
+  - url: /assets/dns-dashboard.png
+    image_path: /assets/dns-dashboard.png
+
 ---
 
 In my experience, DNS is one of the most reliable and consistent indicators of intent in a network. It shows up early—before connections form, before payloads move, before anything deeper can hide in encryption. For years, I’ve seen environments try to address malicious traffic at the firewall or proxy level, often relying on IP blocklists or signature matches that act too late. DNS filtering takes a quieter, earlier approach. It’s not complicated. If a domain is known to be malicious, we stop it from resolving. That alone prevents many threats from progressing. It’s not everything, but it’s an important first step—and a good example of what people now call shift-left thinking in security: moving prevention closer to where the problem begins.
@@ -35,7 +39,9 @@ What tipped the balance for me in this case was Technitium’s **logging**. Well
 At this point, I need to specify that this is not a tutorial to teach users to install and configure Technitium DNS, therefore the assumption is user already completed their setup for integration.
 {: .notice--info}
 
-## Log Exporter Integration
+## Wazuh and Technitium DNS integration
+
+### Log Exporter Integration
 
 Technitium’s Log Exporter is configured either via the administrative UI or JSON file. In this setup, logs are written to a local file in JSON Lines format:
 
@@ -64,9 +70,9 @@ Technitium’s Log Exporter is configured either via the administrative UI or JS
 
 Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for HTTP and syslog targets easily. You can achieve similar results with syslog as well but if you have an agent on the server, why not use JSON logs?
 
-## Wazuh Agent Configuration
+### Wazuh Agent Configuration
 
-The Wazuh agent reads the JSON log file directly, as I have mentioned before. The configuration below wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks:
+The Wazuh agent reads the JSON log file directly as I have mentioned before. For this integration, it is better to use centralized configuration. First, we must create a new group for dns servers, and put the configuration below inside the agent.conf file. Then add your DNS servers into this group.
 
 ```xml
 <localfile>
@@ -78,24 +84,23 @@ The Wazuh agent reads the JSON log file directly, as I have mentioned before. Th
 </localfile>
 ```
 
-But we want to log the events from Technitium itself as well. While that is out of scope *for now*, it is better to fine tune the default logging configuration. We log to the files and ignore error logs. When there is no resolution, DNS server throws an exception, and it becomes noisy. The queries, whether blocked or allowed, are logged already, so we can cut off the duplicates by ticking "Ignore Resolver Error Logs" option. Since Technitium DNS is designed to be used in containers as well, the default location of logs are in the server's config folder. Neither Linux nor Windows conventions are approving this as a good solution. Therefore, setting "Log Folder Path" must be one of the priorities in configuration. I set the location as `/var/log/dns/` since I am using a Linux server.
+The configuration aove wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks:
+
+But we want to log the events from Technitium itself as well. While that is out of scope *for now*, it is better to fine tune the default logging configuration. We log to the files and ignore error logs. When there is no resolution, DNS server throws an exception, and it becomes noisy. The queries, whether blocked or allowed, are logged already, so we can cut off the duplicates by ticking "Ignore Resolver Error Logs" option. Since Technitium DNS is designed to be used in containers as well, the default location of logs are in the server's config folder, `/etc/dns/`. Neither Linux nor Windows conventions are approving usage of this location as a good solution. Therefore, setting "Log Folder Path" must be one of the priorities in configuration. I set the location as `/var/log/dns/` since I am using a Linux server.
 
 {% include gallery id="gallery1" caption="DNS Config" %}
 
-## Custom Ruleset
+### Custom Ruleset
 
 The following rule group processes Technitium DNS logs. It includes classification of allowed vs. blocked traffic, pattern detection for encoded or long queries, and frequency-based anomaly detection. This can be extended with list-based IOC matching or response code logic.
-
-TODO: This ruleset below is designed for syslog. Convert to JSON fields rather than syslog fields.
-
-{: .notice--primary}
 
 ```xml
 <!-- Catch-all for any Technitium DNS event not matched by more-specific rules -->
 <group name="technitium_dns, dns, custom">
-    <rule id="100001" level="2">
-        <decoded_as>technitium_dns</decoded_as>
-        <description>Technitium DNS rules grouped.</description>
+    <rule id="100001" level="2"> <!-- Set this to level 3 to collect other logsfor debugging or troubleshooting. -->
+        <decoded_as>json</decoded_as>
+        <field name="dns.type">dns</field> <!-- This is just to ensure we are collecting the correct logs. -->
+        <description>Technitium DNS logs grouped.</description>
     </rule>
 
     <rule id="100002" level="3">
@@ -152,9 +157,9 @@ TODO: This ruleset below is designed for syslog. Convert to JSON fields rather t
 </group>
 ```
 
-This ruleset isn’t comprehensive, but it’s built around patterns I’ve found meaningful in actual environments. Each rule is there for a reason: not because it fills a coverage checklist, but because it surfaces behaviors that either indicate compromise or misconfiguration—or both.
+This ruleset isn’t comprehensive, but it’s built around patterns I’ve found meaningful in actual environments. Each rule is there for a reason: not because it fills a coverage checklist, but because it surfaces behaviors that either indicate compromise or misconfiguration —or both.
 
-The first rule (ID: 100001) is a catch-all. It ensures that any log ingested as `technitium_dns` gets grouped and handled properly by Wazuh’s rule engine. This is useful for downstream matching and for maintaining logical separation in dashboards and alerts. The level is set to 2. If you want to build more rules on top of it, update it to level 3 to collect all the logs, so that you can have enough samples to build your rules.
+The first rule (ID: 100001) is a catch-all. It ensures that any log ingested as JSON and has the field `dns.type`-the field value is always `dns`- gets grouped and handled properly by Wazuh’s rule engine. This is useful for downstream matching and for maintaining logical separation in dashboards and alerts. The level is set to 2. If you want to build more rules on top of it, update it to level 3 to collect all the logs, so that you can have enough samples to build your rules.
 
 Rules 100002 and 100003 split traffic into allowed and blocked categories. This separation matters because it lets us track policy outcomes, not just events. Allowed queries are often more interesting than they seem—especially if domains match known indicators but slip through due to filtering gaps. Blocked queries, on the other hand, reflect enforcement working as intended—but still need review when they come from sensitive systems or occur in volume.
 
@@ -170,17 +175,17 @@ Finally, rule 100009 checks whether allowed queries match any known IOCs from a 
 
 These rules are not perfect, and they are not final. But they are tuned to be useful—to catch common problems early, with context that operators can act on. In practice, it’s less about how many rules you have, and more about how confidently you can explain what each one does, and why it fires when it does.
 
-## Dashboard
+### Dashboard
 
 Based on existing logs, it is possible to build a custom dashboard that would be similar to Technitium DNS' own dashboard, as a start. After that, it is up to your appetite. Below you can find the dashboard I have created.
 
-TODO: Dashboard screenshot here.
+{% include gallery id="gallery3" caption="DNS Dashboard" %}
 
 To fill in the dashboard, I created a tester application that creates DNS requests based on two lists: a benign and a malicious one. Using a statistical approach, tester simulates an environment where there is a small amount of malicious traffic to catch. In this case, I picked the top N most popular websites as benign domain list, while picked one of feeds supported by Technitium to be my malicious domain source. In the end, it was possible to populate the dashboard you have seen above.
 
 Now, you can do more analysis, write new detection rules, start investigations on the endpoints that trigger the most alerts. It is up to your playbooks. This is only the beginning.
 
-## Summary
+## Conclusion
 
 DNS-layer blocking is a practical way to stop threats early and see what your endpoints are trying to reach. Whether that blocking is enforced via RPZ in BIND or Unbound, or via simpler native filters in Technitium, the principle is the same: deny known bad domains before resolution succeeds. What distinguishes the approach in this article is the tight connection between enforcement and telemetry. Technitium blocks and logs in one place; Wazuh parses and alerts in another. The workflow is minimal but actionable.
 
