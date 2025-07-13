@@ -72,19 +72,19 @@ Each log entry is a single JSON object containing query metadata. No additional 
 
 ### Wazuh Agent Configuration
 
-The Wazuh agent reads the JSON log file directly as I have mentioned before. For this integration, it is better to use centralized configuration. First, we must create a new group for dns servers, and put the configuration below inside the agent.conf file. Then add your DNS servers into this group.
+The Wazuh agent reads the JSON log file directly as I have mentioned before. For this integration, it is better to use [centralized configuration](https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html). First, we must create a new group for dns servers, and put the configuration below inside the agent.conf file. Then add your DNS servers into this group.
 
 ```xml
 <localfile>
     <log_format>json</log_format>
     <only-future-events>no</only-future-events>
     <location>/var/log/dns/dns_logs.json</location>
-    <out_format>{"dns": $(log) }</out_format>
-    <label key="type">dns</label>
+    <out_format>{"dns": $(log) }</out_format> <!-- Wrapping the original log with a "dns" field so that the flattened log becomes `data.dns.fieldName`. -->
+    <label key="type">dns</label> <!-- This is just to ensure we are collecting the correct logs. -->
 </localfile>
 ```
 
-The configuration aove wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks:
+The configuration above wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks:
 
 But we want to log the events from Technitium itself as well. While that is out of scope *for now*, it is better to fine tune the default logging configuration. We log to the files and ignore error logs. When there is no resolution, DNS server throws an exception, and it becomes noisy. The queries, whether blocked or allowed, are logged already, so we can cut off the duplicates by ticking "Ignore Resolver Error Logs" option. Since Technitium DNS is designed to be used in containers as well, the default location of logs are in the server's config folder, `/etc/dns/`. Neither Linux nor Windows conventions are approving usage of this location as a good solution. Therefore, setting "Log Folder Path" must be one of the priorities in configuration. I set the location as `/var/log/dns/` since I am using a Linux server.
 
@@ -159,7 +159,7 @@ The following rule group processes Technitium DNS logs. It includes classificati
 
 This ruleset isn’t comprehensive, but it’s built around patterns I’ve found meaningful in actual environments. Each rule is there for a reason: not because it fills a coverage checklist, but because it surfaces behaviors that either indicate compromise or misconfiguration —or both.
 
-The first rule (ID: 100001) is a catch-all. It ensures that any log ingested as JSON and has the field `dns.type`-the field value is always `dns`- gets grouped and handled properly by Wazuh’s rule engine. This is useful for downstream matching and for maintaining logical separation in dashboards and alerts. The level is set to 2. If you want to build more rules on top of it, update it to level 3 to collect all the logs, so that you can have enough samples to build your rules.
+The first rule (ID: 100001) is a catch-all. It ensures that any log ingested as JSON and has the field `dns.type` -the field value is always `dns`- gets grouped and handled properly by Wazuh’s rule engine. This is useful for downstream matching and for maintaining logical separation in dashboards and alerts. The level is set to 2. If you want to build more rules on top of it, update it to level 3 to collect all the logs, so that you can have enough samples to build your rules.
 
 Rules 100002 and 100003 split traffic into allowed and blocked categories. This separation matters because it lets us track policy outcomes, not just events. Allowed queries are often more interesting than they seem—especially if domains match known indicators but slip through due to filtering gaps. Blocked queries, on the other hand, reflect enforcement working as intended—but still need review when they come from sensitive systems or occur in volume.
 
