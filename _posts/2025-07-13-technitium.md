@@ -1,5 +1,5 @@
 ---
-title: "DNS-Level Threat Prevention and Monitoring with Wazuh and Technitium"
+title: "DNS-Level Threat Monitoring with Wazuh and Technitium"
 tags:
   - Wazuh
   - SIEM
@@ -192,7 +192,7 @@ Now, you can do more analysis, write new detection rules, start investigations o
 
 ## Wazuh and Technitium DNS integration using Syslog
 
-For those who uses Technitium DNS containerized, it is better to stick to `syslog` target for the `LogExporterApp`. You do not need the `localfile` configuration like JSON logs.
+For those who use Technitium DNS containerized, it is better to stick to `syslog` target for the `LogExporterApp`. You do not need the `localfile` configuration like JSON logs.
 
 Start with configuring the container networking and syslog target properly. Below you can find the default configuration with two changes: the syslog server address and enabled boolean field.
 
