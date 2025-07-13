@@ -1,5 +1,5 @@
 ---
-title: "DNS-Level Threat Monitoring with Wazuh and Technitium"
+title: "DNS-Level Threat Monitoring with Wazuh and Technitium DNS Server"
 tags:
   - Wazuh
   - SIEM
