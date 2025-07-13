@@ -33,8 +33,7 @@ What makes DNS filtering useful isn’t just the blocking. It’s the visibility
 
 There are several well-established ways to enforce DNS-layer policy. One of the most widely supported mechanisms is [RPZ (Response Policy Zones)](https://dnsrpz.info/), available in BIND, Unbound, PowerDNS and many more. RPZ details are explained in the related [IETF Draft](https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-dns-rpz-00). RPZ allows administrators to define custom DNS zones that override normal resolution behavior. These zones can block, redirect, or modify DNS responses based on known malicious or unwanted domains. It integrates well with curated feeds and scales to large deployments. RPZ is flexible and proven—but managing it requires zone file handling, feed syncing, and in some cases, custom response logic.
 
-{% include gallery id="galleryGraph" caption="Technotoum DNS sample graph" %}
-
+{% include gallery id="galleryGraph" caption="" %}
 
 [Technitium DNS](https://technitium.com/dns/) takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customization, Technitium’s method is fast to deploy and operationally lightweight.
 
