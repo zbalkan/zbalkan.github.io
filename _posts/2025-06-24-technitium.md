@@ -124,21 +124,21 @@ The following rule group processes Technitium DNS logs. It includes classificati
     <rule id="100005" level="12" frequency="5" timeframe="120">
       <if_matched_sid>100002</if_matched_sid>
       <same_srcip/>
-      <field name="dns.qName" type="pcre2">[\w\.]{30,}</field>
+      <field name="dns.question.questionName" type="pcre2">[\w\.]{30,}</field>
       <description>Technitium DNS: Possible exfil (multiple long queries)</description>
     </rule>
 
     <rule id="100006" level="12" frequency="5" timeframe="120">
       <if_matched_sid>100002</if_matched_sid>
       <same_srcip/>
-      <field name="dns.qName" type="pcre2">^(?:[A-Za-z0-9+]{4})+(?:[A-Za-z0-9+]{2}==|[A-Za-z0-9+]{3}=)?$</field>
+      <field name="dns.question.questionName" type="pcre2">^(?:[A-Za-z0-9+]{4})+(?:[A-Za-z0-9+]{2}==|[A-Za-z0-9+]{3}=)?$</field>
       <description>Technitium DNS: Possible exfil (base64 encoded query)</description>
     </rule>
 
     <rule id="100007" level="12" frequency="5" timeframe="120">
       <if_matched_sid>100002</if_matched_sid>
       <same_srcip/>
-      <field name="dns.qName" type="pcre2">^(?:[A-Z2-7]{8})+(?:[A-Z2-7]{2}======|[A-Z2-7]{4}====|[A-Z2-7]{5}===|[A-Z2-7]{7}=)?$</field>
+      <field name="dns.question.questionName" type="pcre2">^(?:[A-Z2-7]{8})+(?:[A-Z2-7]{2}======|[A-Z2-7]{4}====|[A-Z2-7]{5}===|[A-Z2-7]{7}=)?$</field>
       <description>Technitium DNS: Possible exfil (base32 encoded query)</description>
     </rule>
 
@@ -151,7 +151,7 @@ The following rule group processes Technitium DNS logs. It includes classificati
 
     <rule id="100009" level="12">
         <if_sid>100002</if_sid>
-        <list field="dns.qName" lookup="match_key">etc/lists/warning_list</list>
+        <list field="dns.question.questionName" lookup="match_key">etc/lists/warning_list</list>
         <description>Technitium DNS: Malicious domain is allowed. Check blocking configuration.</description>
     </rule>
 </group>
