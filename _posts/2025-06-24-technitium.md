@@ -84,7 +84,7 @@ The Wazuh agent reads the JSON log file directly as I have mentioned before. For
 </localfile>
 ```
 
-The configuration above wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks:
+The configuration above wraps each log line under a `dns` object, which keeps fields grouped and reduces collision risks. As a side note, I must remind you to set up logrotate for this log file if you have not. It is not related to Wazuh but for proper maintenance of your log file. DNS logs are noisy, causing the filesystem to run out of space easily.
 
 But we want to log the events from Technitium itself as well. While that is out of scope *for now*, it is better to fine tune the default logging configuration. We log to the files and ignore error logs. When there is no resolution, DNS server throws an exception, and it becomes noisy. The queries, whether blocked or allowed, are logged already, so we can cut off the duplicates by ticking "Ignore Resolver Error Logs" option. Since Technitium DNS is designed to be used in containers as well, the default location of logs are in the server's config folder, `/etc/dns/`. Neither Linux nor Windows conventions are approving usage of this location as a good solution. Therefore, setting "Log Folder Path" must be one of the priorities in configuration. I set the location as `/var/log/dns/` since I am using a Linux server.
 
