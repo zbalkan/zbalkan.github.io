@@ -43,7 +43,7 @@ At this point, I need to specify that this is not a tutorial to teach users to i
 
 ### Log Exporter Integration
 
-Technitium’s Log Exporter is configured either via the administrative UI or JSON file. In this setup, logs are written to a local file in JSON Lines format:
+Technitium’s Log Exporter is configured either via the administrative UI or JSON file. In this article, logs are written to a local file in JSON Lines format:
 
 ```json
 {
@@ -68,7 +68,7 @@ Technitium’s Log Exporter is configured either via the administrative UI or JS
 }
 ```
 
-Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for HTTP and syslog targets easily. You can achieve similar results with syslog as well but if you have an agent on the server, why not use JSON logs?
+Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for `http` and `syslog` targets easily. The `http` target is designed for ElasticSearch, OpenSearch and similar products, and it uploads logs as batches of logs. With the `syslog` target, you can achieve similar results with `json` target as well but if you already have an agent on the DNS server, why not use JSON logs? But if you use containerization, you may consider `syslog` instead [^1].
 
 ### Wazuh Agent Configuration
 
@@ -190,3 +190,138 @@ Now, you can do more analysis, write new detection rules, start investigations o
 DNS-layer blocking is a practical way to stop threats early and see what your endpoints are trying to reach. Whether that blocking is enforced via RPZ in BIND or Unbound, or via simpler native filters in Technitium, the principle is the same: deny known bad domains before resolution succeeds. What distinguishes the approach in this article is the tight connection between enforcement and telemetry. Technitium blocks and logs in one place; Wazuh parses and alerts in another. The workflow is minimal but actionable.
 
 This is just one way to do it. The same structure—blocking, logging, and detecting—can be implemented using other DNS servers and log collectors. What matters most is not the tool itself, but its placement, clarity, and what you do with the data that comes out of it. DNS logs carry signal. Use them early, use them honestly, and write logic you trust. Everything else builds from there.
+
+---
+
+[^1]: For those who uses Technitium DNS containerized, it is better to stick to `syslog` target for the `LogExporterApp`. After configuring the networking and syslog target properly, you must update the decoders and rules. You do not need the `localfile` configuration above. First, add this custom decoder:
+```xml
+<!-- Parent ── fires on any log line that mentions TechnitiumDNSServer -->
+<decoder name="technitium_dns">
+    <prematch>TechnitiumDNSServer</prematch>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">timestamp="([^"]+?)"</regex>
+    <order>dns.timestamp</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">clientIp="([^"]+?)"</regex>
+    <order>srcip</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">protocol="([^"]+?)"</regex>
+    <order>dns.protocol</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">responseType="([^"]+?)"</regex>
+    <order>dns.responseType</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">responseRtt="([^"]+?)"</regex>
+    <order>dns.responseRtt</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">rCode="([^"]+?)"</regex>
+    <order>dns.rCode</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">qName="([^"]+?)"</regex>
+    <order>dns.qName</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">qType="([^"]+?)"</regex>
+    <order>dns.qType</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">qClass="([^"]+?)"</regex>
+    <order>dns.qClass</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">answersSummary="((?:\\.|[^"\\])*)"</regex>
+    <order>dns.answers</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_0="([^"]+?)"</regex>
+    <order>dns.aRData_0</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_1="([^"]+?)"</regex>
+    <order>dns.aRData_1</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_2="([^"]+?)"</regex>
+    <order>dns.aRData_2</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_3="([^"]+?)"</regex>
+    <order>dns.aRData_3</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_4="([^"]+?)"</regex>
+    <order>dns.aRData_4</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_5="([^"]+?)"</regex>
+    <order>dns.aRData_5</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_6="([^"]+?)"</regex>
+    <order>dns.aRData_6</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_7="([^"]+?)"</regex>
+    <order>dns.aRData_7</order>
+</decoder>
+
+<decoder name="technitium_dns_meta">
+    <parent>technitium_dns</parent>
+    <regex offset="after_parent" type="pcre2">aRData_8="([^"]+?)"</regex>
+    <order>dns.aRData_8</order>
+</decoder>
+```
+
+Second, update the custom rules. The root rule would look something like this:
+
+```xml
+    <rule id="100001" level="2"> <!-- Set this to level 3 to collect other logsfor debugging or troubleshooting. -->
+        <decoded_as>technitium_dns</decoded_as>
+        <description>Technitium DNS logs grouped.</description>
+    </rule>
+```
+
+Finally, rename the fields in the rules by replacing `dns.question.questionName` with `dns.qName`. Now, you can have the same logs, with slightly different field names. You can build a similar dashboard and monitor as expected.
