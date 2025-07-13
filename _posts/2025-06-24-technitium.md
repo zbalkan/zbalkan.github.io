@@ -39,7 +39,7 @@ What tipped the balance for me in this case was Technitium’s **logging**. Well
 At this point, I need to specify that this is not a tutorial to teach users to install and configure Technitium DNS, therefore the assumption is user already completed their setup for integration.
 {: .notice--info}
 
-## Wazuh and Technitium DNS integration
+## Wazuh and Technitium DNS integration using JSONLines logs
 
 ### Log Exporter Integration
 
@@ -68,7 +68,7 @@ Technitium’s Log Exporter is configured either via the administrative UI or JS
 }
 ```
 
-Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for `http` and `syslog` targets easily. The `http` target is designed for ElasticSearch, OpenSearch and similar products, and it uploads logs as batches of logs. With the `syslog` target, you can achieve similar results with `json` target as well but if you already have an agent on the DNS server, why not use JSON logs? But if you use containerization, you may consider `syslog` instead [^1].
+Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for `http` and `syslog` targets easily. The `http` target is designed for ElasticSearch, OpenSearch and similar products, and it uploads logs as batches of logs. With the `syslog` target, you can achieve similar results with `json` target as well but if you already have an agent on the DNS server, why not use JSON logs? But if you use containerization, you may consider `syslog` instead.
 
 ### Wazuh Agent Configuration
 
@@ -185,15 +185,37 @@ To fill in the dashboard, I created a tester application that creates DNS reques
 
 Now, you can do more analysis, write new detection rules, start investigations on the endpoints that trigger the most alerts. It is up to your playbooks. This is only the beginning.
 
-## Conclusion
+## Wazuh and Technitium DNS integration using Syslog
 
-DNS-layer blocking is a practical way to stop threats early and see what your endpoints are trying to reach. Whether that blocking is enforced via RPZ in BIND or Unbound, or via simpler native filters in Technitium, the principle is the same: deny known bad domains before resolution succeeds. What distinguishes the approach in this article is the tight connection between enforcement and telemetry. Technitium blocks and logs in one place; Wazuh parses and alerts in another. The workflow is minimal but actionable.
+For those who uses Technitium DNS containerized, it is better to stick to `syslog` target for the `LogExporterApp`. You do not need the `localfile` configuration like JSON logs.
 
-This is just one way to do it. The same structure—blocking, logging, and detecting—can be implemented using other DNS servers and log collectors. What matters most is not the tool itself, but its placement, clarity, and what you do with the data that comes out of it. DNS logs carry signal. Use them early, use them honestly, and write logic you trust. Everything else builds from there.
+Start with configuring the container networking and syslog target properly. Below you can find the default configuration with two changes: the syslog server address and enabled boolean field.
 
----
+```json
+{
+  "maxQueueSize": 1000000,
+  "file": {
+    "path": "./dns_logs.json",
+    "enabled": false
+  },
+  "http": {
+    "endpoint": "http://localhost:5000/logs",
+    "headers": {
+      "Authorization": "Bearer abc123"
+    },
+    "enabled": false
+  },
+  "syslog": {
+    "address": "192.168.0.80",
+    "port": 514,
+    "protocol": "UDP",
+    "enabled": true
+  }
+}
+```
 
-[^1]: For those who uses Technitium DNS containerized, it is better to stick to `syslog` target for the `LogExporterApp`. After configuring the networking and syslog target properly, you must update the decoders and rules. You do not need the `localfile` configuration above. First, add this custom decoder:
+After meeting this prerequisite, you must update the decoders and rules. First, add this custom decoder:
+
 ```xml
 <!-- Parent ── fires on any log line that mentions TechnitiumDNSServer -->
 <decoder name="technitium_dns">
@@ -325,3 +347,9 @@ Second, update the custom rules. The root rule would look something like this:
 ```
 
 Finally, rename the fields in the rules by replacing `dns.question.questionName` with `dns.qName`. Now, you can have the same logs, with slightly different field names. You can build a similar dashboard and monitor as expected.
+
+## Conclusion
+
+DNS-layer blocking is a practical way to stop threats early and see what your endpoints are trying to reach. Whether that blocking is enforced via RPZ in BIND or Unbound, or via simpler native filters in Technitium, the principle is the same: deny known bad domains before resolution succeeds. What distinguishes the approach in this article is the tight connection between enforcement and telemetry. Technitium blocks and logs in one place; Wazuh parses and alerts in another. The workflow is minimal but actionable.
+
+This is just one way to do it. The same structure—blocking, logging, and detecting—can be implemented using other DNS servers and log collectors. What matters most is not the tool itself, but its placement, clarity, and what you do with the data that comes out of it. DNS logs carry signal. Use them early, use them honestly, and write logic you trust. Everything else builds from there.
