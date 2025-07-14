@@ -72,7 +72,7 @@ plugins:
 
 author:
   name   : "Zafer Balkan"
-  avatar : "/assets/avatar.jpg"
+  avatar : "/assets/avatar.webp"
   bio    : "I blog about IT, security and compliance."
   links:
     - label: "LinkedIn"
