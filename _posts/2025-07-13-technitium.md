@@ -33,11 +33,11 @@ What makes DNS filtering useful isn’t just the blocking. It’s the visibility
 
 There are several well-established ways to enforce DNS-layer policy. One of the most widely supported mechanisms is [RPZ (Response Policy Zones)](https://dnsrpz.info/), available in BIND, Unbound, PowerDNS, and many more. RPZ details are explained in the related [IETF Draft](https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-dns-rpz-00). RPZ allows administrators to define custom DNS zones that override normal resolution behavior. These zones can block, redirect, or modify DNS responses based on known malicious or unwanted domains. It integrates well with curated feeds and scales to large deployments. RPZ is flexible and proven, but managing it requires zone file handling, feed syncing, and in some cases, custom response logic.
 
-{% include gallery id="galleryGraph" caption="" %}
+{% include gallery id="galleryGraph" caption="Technitium DNS server has a sleek web UI that you can monitor the DNS requests" %}
 
 [Technitium DNS](https://technitium.com/dns/) takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customization, Technitium’s method is fast to deploy and operationally lightweight.
 
-{% include gallery id="galleryBlocklist" caption="DNS Blocklisting" %}
+{% include gallery id="galleryBlocklist" caption="DNS Blocklisting is simple: Pick one of the feeds from the list or add your own" %}
 
 What tipped the balance for me in this case was Technitium’s **logging**. Well, technically, I built it since I loved the product. Logs were stored locally, and they were easily queried on the UI, but for a corporate environment, at least syslog forwarding was a must. So, I developed the [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/pull/1056), and [Shreyas Zare](https://github.com/ShreyasZare) completed it with his attention to detail, focus on conventions, and great professionalism. After this *not-so-humble* brag, I can say that Technitium DNS can log DNS events to syslog collectors, and HTTP targets like Elasticsearch if provided the payload. But I built the JSON file logging specifically for Wazuh because reading logs in JSON Lines format is such an easy solution. Yes, it is not aligning with any schema like ECS or OCSF, but it is very flexible. With this capability, the resolver not only blocks domains, it also produces structured telemetry about each query: what was requested, who requested it, and what happened. That data can be consumed by Wazuh directly, without external syslog daemons, log shippers, or custom parsing. This makes the combination practical for setups that prioritize visibility and local control.
 
@@ -93,7 +93,7 @@ The configuration above wraps each log line under a `dns` object, which keeps fi
 
 But we want to log the events from Technitium itself as well. While that is out of scope *for now*, it is better to fine-tune the default logging configuration. We log to the files and ignore error logs. When there is no resolution, the DNS server throws an exception, and it becomes noisy. The queries, whether blocked or allowed, are logged already, so we can cut off the duplicates by ticking the "Ignore Resolver Error Logs" option. Since Technitium DNS is designed to be used in containers as well, the default location of logs is in the server's config folder, `/etc/dns/`. Neither Linux nor Windows conventions approve usage of this location as a good solution. Therefore, setting "Log Folder Path" must be one of the priorities in configuration. I set the location as `/var/log/dns/` since I am using a Linux server.
 
-{% include gallery id="gallerySampleConf" caption="DNS Config" %}
+{% include gallery id="gallerySampleConf" caption="Suggested DNS Server logging configuration for fine-tuning" %}
 
 ### Custom Ruleset
 
@@ -184,7 +184,7 @@ These rules are not perfect, and they are not final. But they are tuned to be us
 
 Based on existing logs, it is possible to build a custom dashboard that would be similar to Technitium DNS's dashboard, as a start. After that, it is up to your appetite. Below you can find the dashboard I have created.
 
-{% include gallery id="galleryDashboard" caption="DNS Dashboard" %}
+{% include gallery id="galleryDashboard" caption="Wazuh dashboard example inspired byTechnitium DNS Server dashboard" %}
 
 To fill in the dashboard, I created a tester application that creates DNS requests based on two lists: a benign and a malicious one. Using a statistical approach, the tester simulates an environment where there is a small amount of malicious traffic to catch. In this case, I picked the top N most popular websites as a benign domain list, while picking one of the feeds supported by Technitium to be my malicious domain source. In the end, it was possible to populate the dashboard you have seen above.
 
