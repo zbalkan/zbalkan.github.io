@@ -361,3 +361,5 @@ Finally, rename the fields in the rules by replacing `dns.question.questionName`
 DNS-layer blocking is a practical way to stop threats early and see what your endpoints are trying to reach. Whether that blocking is enforced via RPZ in BIND or Unbound, or via simpler native filters in Technitium, the principle is the same: deny known bad domains before resolution succeeds. What distinguishes the approach in this article is the tight connection between enforcement and telemetry. Technitium blocks and logs in one place; Wazuh parses and alerts in another. The workflow is minimal but actionable.
 
 This is just one way to do it. The same structure—blocking, logging, and detecting—can be implemented using other DNS servers and log collectors. What matters most is not the tool itself, but its placement, clarity, and what you do with the data that comes out of it. DNS logs carry a signal. Use them early, use them honestly, and write logic you trust. Everything else builds from there.
+
+As always, feel free to contact me over LinkedIn or email for any questions and feedback.
