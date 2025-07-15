@@ -99,6 +99,9 @@ But we want to log the events from Technitium itself as well. While that is out 
 
 The following rule group processes Technitium DNS logs. It includes classification of allowed vs. blocked traffic, pattern detection for encoded or long queries, and frequency-based anomaly detection. This can be extended with list-based IOC matching or response code logic.
 
+Visit Wazuh documentation for more information on writing [custom rules](https://documentation.wazuh.com/current/user-manual/ruleset/rules/custom.html) and [decoders](https://documentation.wazuh.com/current/user-manual/ruleset/decoders/custom.html).
+{: .notice--info}
+
 ```xml
 <!-- Catch-all for any Technitium DNS event not matched by more-specific rules -->
 <group name="technitium_dns, dns, custom">
