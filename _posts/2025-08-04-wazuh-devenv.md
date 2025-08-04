@@ -6,6 +6,7 @@ tags:
   - Detection
   - Detection Engineering
   - Testing
+  - Detection-as-Code
 galleryGraph:
   - url: /assets/devenv-dac.png
     image_path: /assets/devenv-dac.png
