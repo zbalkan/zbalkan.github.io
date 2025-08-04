@@ -261,6 +261,8 @@ You can manually validate the result as well. Just copy the log to the `wazuh-lo
 
 {% include gallery id="galleryLogtest" caption="wazuh-logtest result" %}
 
+The `src/tests/regression_tests/builtin` directory contains 1635 tests, an 75 out of them are skipped for various reasons. The top reason is the `send_multiple_logs` function, that accepts a list of logs as a single input. It is useful for temporal rules like "Multiple failed logins" where **N number of logs within T seconds** must trigger an alert. We skip multiple test lines and merge into one. As a side note, I do not suggest running builtin tests very often as they would require 20-30 mins under a 4GB RAM, 2 CPU environment.
+
 This approach allows detection engineers to confirm functionality before promoting rules to production. Even if you don't consider yourself a detection engineer but a sysadmin, a security analyst, a homelab owner, or a single-man-IT-department, there's room for improvement in your daily workload.
 
 ## Benefits?
