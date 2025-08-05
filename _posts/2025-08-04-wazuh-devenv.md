@@ -21,7 +21,7 @@ galleryDebmm:
     image_path: /assets/devenv-debmm.png
 ---
 
-At the beginning were the logs. Then, people started collecting, filtering, correlating, and aggregating them. They implemented data engineering pipelines for log data. Now, it is the software engineering's turn to take the best practices. In combination with these, the discipline of detection engineering has slowly arisen for the last decade. It is a relatively recent term that has found its way into taxonomy, but it caught on very fast. However, it is a matter of scale and [maturity](https://www.elastic.co/security-labs/elastic-releases-debmm).
+At the beginning were the logs. Then, people started collecting, filtering, correlating, and aggregating them. They implemented data engineering pipelines for log data. Now, it is the software engineering's turn to take the best practices. In combination with these, the discipline of detection engineering has slowly arisen over the last decade. It is a relatively recent term that has found its way into taxonomy, but it caught on very fast. However, it is a matter of scale and [maturity](https://www.elastic.co/security-labs/elastic-releases-debmm).
 
 If you are running Wazuh in your environment in your organization, either to protect your entity or others' as a service provider, one of the primary operational challenges you would face is the "customization tax"[^1]. You need to keep your detection rules up to date, working, and not conflicting with each other. You need to write your suppressions properly as well.
 
@@ -38,7 +38,7 @@ Custom detection rules and decoders in Wazuh are often built and deployed manual
 
 This approach does not scale—neither for large teams nor for environments that require accuracy, auditability, or rapid iteration.
 
-What would be the easiest way to solve this problem? Well, a test or staging environment that identical to the production would allow testing of decoders and rules. That is what we did as well. But after some time, test environment starts to differ, a phenomenon called **configuration drift**. The configurations, system settings, environments slowly drift away from their original or defined configuration as time progresses. While it happens on production environments as well, what we care about is the intention or purpose: the purpose of the test/staging environment is to be identical to production. They both drift from the initial state in time while one of them is trying to catch up with the other. This approach is destined to fail. You can build workarounds like resetting test environments periodically. But it becomes a maintenance burden, and most of the time test environment gets  abandoned. Your job is to detect threats in your environment, not maintaining a legacy system.
+What would be the easiest way to solve this problem? Well, a test or staging environment that is identical to the production environment would allow testing of decoders and rules. That is what we did as well. But after some time, the test environment starts to differ, a phenomenon called **configuration drift**. The configurations and system settings slowly drift away from their original or defined configuration as time progresses. While it happens on production environments as well, what we care about is the intention or purpose: the purpose of the test/staging environment is to be identical to production. They both drift from the initial state in time while one of them is trying to catch up with the other. This approach is destined to fail. You can build workarounds like resetting test environments periodically. But it becomes a maintenance burden, and most of the time, the test environment gets  abandoned. Your job is to detect threats in your environment, not to maintain a legacy system.
 
 **Detection-as-Code (DaC)**, at this point, introduces an engineering discipline into detection development. Instead of treating detections as one-off configurations, they are treated as structured code: versioned, reviewed, tested, and deployed in a controlled way.
 
@@ -49,9 +49,9 @@ For Wazuh 4.x, I've implemented a DaC model using a lightweight Python-based tes
 - Use Git workflows for collaboration and promotion
 - Deploy only after tests and reviews have passed
 
-Wazuh recently published a blog article called [Wazuh ruleset as code (RaC)](https://wazuh.com/blog/wazuh-ruleset-as-code-rac/). I suggest reading it first, then proceeding with this article. The two articles complement each other in essence. You can set up your pipeline with the help of other article, then move on to unit testing your rules using this project.
+Wazuh recently published a blog article called [Wazuh ruleset as code (RaC)](https://wazuh.com/blog/wazuh-ruleset-as-code-rac/). I suggest reading it first, then proceeding with this article. The two articles complement each other in essence. You can set up your pipeline with the help of the linked article, then move on to unit testing your rules using this project.
 
-I must warn that it is possible to store configurations, rules and decoders in a repository by keeping the workflow as is. But if that repository is not your source of truth, it is just a glorified backup. It will start drifting from production as well.
+I must warn that it is possible to store configurations, rules, and decoders in a repository by keeping the workflow as is. But if that repository is not your source of truth, it is just a glorified backup. It will start drifting from production as well.
 {: .notice--warning}
 
 ## Workflow Overview
@@ -78,7 +78,7 @@ Please check the [README file](https://github.com/zbalkan/wazuh-devenv/blob/main
 
 - `preflight_tests`: These are tests you should not touch. They check the correct file permissions and Wazuh service availability.
 - `regression_tests`: These tests are the ones you must focus on.
-  - `builtin`: These are generated from the INI-formatted tests from [the Wazuh repository](https://github.com/wazuh/wazuh). I developed a test generator for this purpose, then manually fixed the remaining problems, and pasted the test code into this repository. The directory contains 1635 tests, an 75 out of them are skipped for various reasons. The top reason is the `send_multiple_logs` function, that accepts a list of logs as an input. It is useful for temporal rules like "Multiple failed logins" where **N number of logs within T seconds** must trigger an alert. We skip multiple single-item test and merge into a combined test accepting multiple logs. As a side note, I do not suggest running builtin tests very often as they would require 20-30 mins under a 4GB RAM, 2 CPU environment. You do not need to touch this folder at all.
+  - `builtin`: These are generated from the INI-formatted tests from [the Wazuh repository](https://github.com/wazuh/wazuh). I developed a test generator for this purpose, then manually fixed the remaining problems, and pasted the test code into this repository. The directory contains 1635 tests, and 75 out of them are skipped for various reasons. The top reason is the `send_multiple_logs` function, which accepts a list of logs as input. It is useful for temporal rules like "Multiple failed logins" where **N number of logs within T seconds** must trigger an alert. We skip multiple single-item tests and merge them into a combined test accepting multiple logs. As a side note, I do not suggest running built-in tests very often as they would require 20-30 mins under a 4GB RAM, 2 CPU environment. You do not need to touch this folder at all.
   - `custom`: **This is the place you must write the tests for your custom rules**. It is under regression tests as they are testing whether your rules are working or not after changes.
 - `behavioral_tests`: This directory is designed for Breach and Attack Simulations or advanced testing scenarios. You can read this old article on testing Wazuh with Atomic Red Team. This is an advanced case and out of the scope of this article. If you want to give it a try on behavioral tests, check [these](https://socfortress.medium.com/validate-your-security-detection-rules-23e90a256ae8) [two](https://socfortress.medium.com/how-to-run-atomic-red-team-on-linux-and-automate-attack-simulations-with-velociraptor-d4b52b05721b) articles by Taylor Walton on utilizing Atomic Red Team and Wazuh, and make up your mind on how to build a behavioral test pipeline.
 
@@ -110,9 +110,9 @@ class TestCustomFortigateRules(unittest.TestCase):
         self.assertEqual(response.status, LogtestStatus.RuleMatch)
 ```
 
-First of all, we create a test class for a structured approach. Inside the class, we create our first test code. We define the log as a string. Thn we make use of the `send_log` function provided by the test framework. You can see it is imported from `internal.logtest` namespace. Under the hood, this code sends the provided log to your running Wazuh Manager service programmatically, and get a Python object. The response is of type `LogtestResponse` which has properties like `status`, `full_log`, `timestamp`, `alert`, `output`, `location`, `decoder`, `rule_id`, `rule_level`, `rule_groups`, etc. The foundational test case above checks if there is a rule match. since we did not write a rule, this will fail by default.
+First of all, we create a test class for a structured approach. Inside the class, we create our first test code. We define the log as a string. Then we make use of the `send_log` function provided by the test framework. You can see it is imported from `internal.logtest` namespace. Under the hood, this code sends the provided log to your running Wazuh Manager service programmatically and gets  a Python object. The response is of type `LogtestResponse`, which has properties like `status`, `full_log`, `timestamp`, `alert`, `output`, `location`, `decoder`, `rule_id`, `rule_level`, `rule_groups`, etc. The foundational test case above checks if there is a rule match. Since we did not write a rule, this will fail by default.
 
-Now, we must run our test with `python src/tester.py --disable-behavioral --disable-builtin`
+Now, we must run our test within our IDE or CLI with command `python src/tester.py --disable-behavioral --disable-builtin`:
 
 ```js
 Running tests.preflight_tests tests...
@@ -275,7 +275,7 @@ How does this additional complexity improve your detection environment? I wanted
 
 ### Value measured by Detection-as-Code Maturity
 
-The [Elastic Detection Engineering Behavior Maturity Model (DEBMM)](https://www.elastic.co/security-labs/elastic-releases-debmm) is a structured framework for evaluating and improving how security teams develop, test, deploy, and maintain detection rules. It defines maturity across several key areas including telemetry integration, threat landscape alignment, false positive/negative reduction, stakeholder collaboration, and automation. Each area is broken down into qualitative behaviors and quantitative metrics, allowing teams to assess where they stand and what operational capabilities are required to progress.
+The [Elastic Detection Engineering Behavior Maturity Model (DEBMM)](https://www.elastic.co/security-labs/elastic-releases-debmm) is a structured framework for evaluating and improving how security teams develop, test, deploy, and maintain detection rules. It defines maturity across several key areas, including telemetry integration, threat landscape alignment, false positive/negative reduction, stakeholder collaboration, and automation. Each area is broken down into qualitative behaviors and quantitative metrics, allowing teams to assess where they stand and what operational capabilities are required to progress.
 
 {% include gallery id="galleryDebmm" caption="Detection Engineering Behavior Maturity Model" %}
 
@@ -295,7 +295,7 @@ This puts the project squarely in the **Tier 2 (Intermediate)** category and pro
 
 ### Regression Testing as a First-Class Feature
 
-Entropy is inevitable. Whether you consider detections as code or configurations, this does not matter. Every change has the risk to break the system in time. But every test case written in this model becomes part of a living regression suite. When rules are updated or new ones added, all tests are re-executed. This ensures:
+Entropy is inevitable. Whether you consider detections as code or configurations, this does not matter. Every change has the risk of breaking the system in time. But every test case written in this model becomes part of a living regression suite. When rules are updated or new ones added, all tests are re-executed. This ensures:
 
 - Existing logic isn't broken silently,
 - Rule changes are safe and predictable,
@@ -303,7 +303,7 @@ Entropy is inevitable. Whether you consider detections as code or configurations
 
 ### Deployment Simplicity
 
-This one is debatable. It is easier to update/add/delete the rules from Wazuh dashboard, hit Save, then Restart. But will it work? That's another issue. But at least, when you build your CI/CD pipeline with your tooling -Gitea, GitHub, Gitlab, Bitbucket, Jenkins, etc.- you have an end-to-end secure deployment capability. Once the changes are approved and merged to the `master` or `main` branch, they can be copied to the Wazuh manager and loaded by restarting the service. You can use a pull approach with cron jobs or systemd unit files cloning your repo and then copying files locally on servers, restarting services with bash scripts. Or you can consider a push approach with the Wazuh API in your pipeline to update the rules and decoders.
+This one is debatable. It is easier to update/add/delete the rules from the Wazuh Dashboard, hit Save, then Restart. But will it work? That's another issue. But at least, when you build your CI/CD pipeline with your tooling -Gitea, GitHub, Gitlab, Bitbucket, Jenkins, etc.- you have an end-to-end secure deployment capability. Once the changes are approved and merged to the `master` or `main` branch, they can be copied to the Wazuh manager and loaded by restarting the service. You can use a pull approach with cron jobs or systemd unit files, cloning your repo and then copying files locally on servers, restarting services with bash scripts. Or you can consider a push approach with the Wazuh API in your pipeline to update the rules and decoders.
 
 The Git repo becomes the source of truth.
 
@@ -311,11 +311,11 @@ This simplicity, hopefully, would encourage adoption, reduce long-term operation
 
 ## What's the catch?
 
-Just like any automation project, you pick some repetitive, high effort-low value task and make it "run" by technical means. Now the same task requires a higher level of knowledge and experience than it used to. The people who manages the automation must have higher qualifications than the ones doing the old repetitive task. Now, you need yo train people better. Yes, automation requires investing people more! What a dilemma![^4]
+Just like any automation project, you pick some repetitive, high-effort, low-value task and make it "run" by technical means. Now the same task requires a higher level of knowledge and experience than it used to. The people who manage the automation must have higher qualifications than those doing the old repetitive task. Now, you need to train people better. Yes, automation requires investing more in people! What a dilemma![^4]
 
-With this approach, you do not only need to know about Wazuh rules, but also a bit of Python, Git and a bit of your internal toolkit. It now requires more effort to learn. Is it worth it? It depends on you environment.
+With this approach, you do not only need to know about Wazuh rules, but also a bit of Python, Git, and a bit of your internal toolkit. It now requires more effort to learn. Is it worth it? It depends on your environment.
 
-If, "But, I don't want a complex pipeline!", was your thought, and your decision is final, then you can just stick to your development environment on your local machine. This is called `wazuh-devenv` for a reason. If you are using Windows, you can use a Linux VM or WSL to run this local test framework. If you are on Linux, just use your own machine. I have not tested on Mac, so I cannot suggest anything there. This way, when you ensure the changes to rules and decoders work as expected, you can use Wazuh Dashboard as always. This is a trade-off between simplicity and robustness.
+If "But, I don't want a complex pipeline!" was your thought after reading the article, and your decision is final, then you can just stick to your development environment on your local machine. This is called `wazuh-devenv` for a reason. If you are using Windows, you can use a Linux VM or WSL to run this local test framework. If you are on Linux, just use your own machine. I have not tested on Mac, so I cannot suggest anything there. This way, when you ensure the changes to rules and decoders work as expected, you can use Wazuh Dashboard as always. This is a trade-off between simplicity and robustness.
 
 ## Conclusion
 
