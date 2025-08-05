@@ -42,15 +42,14 @@ What would be the easiest way to solve this problem? Well, a test or staging env
 
 **Detection-as-Code (DaC)**, at this point, introduces an engineering discipline into detection development. Instead of treating detections as one-off configurations, they are treated as structured code: versioned, reviewed, tested, and deployed in a controlled way.
 
-For Wazuh 4.x, I've implemented a DaC model using a lightweight Python-based testing harness and a local Wazuh instance. This setup allows developers to:
+For Wazuh 4.x, I've implemented a DaC model using a lightweight Python-based testing harness and a local Wazuh instance. This setup allows you to:
 
 - Develop and validate rules in isolation
 - Use behavioral testing to confirm expected alerting
 - Use Git workflows for collaboration and promotion
 - Deploy only after tests and reviews have passed
 
-Wazuh recently published a blog article called [Wazuh ruleset as code (RaC)](https://wazuh.com/blog/wazuh-ruleset-as-code-rac/). I suggest reading it first, then proceeding with this article. The two articles complement each other.
-{: .notice--info}
+Wazuh recently published a blog article called [Wazuh ruleset as code (RaC)](https://wazuh.com/blog/wazuh-ruleset-as-code-rac/). I suggest reading it first, then proceeding with this article. The two articles complement each other in essence. You can set up your pipeline with the help of other article, then move on to unit testing your rules using this project.
 
 I must warn that it is possible to store configurations, rules and decoders in a repository by keeping the workflow as is. But if that repository is not your source of truth, it is just a glorified backup. It will start drifting from production as well.
 {: .notice--warning}
@@ -315,6 +314,8 @@ This simplicity, hopefully, would encourage adoption, reduce long-term operation
 Just like any automation project, you pick some repetitive, high effort-low value task and make it "run" by technical means. Now the same task requires a higher level of knowledge and experience than it used to. The people who manages the automation must have higher qualifications than the ones doing the old repetitive task. Now, you need yo train people better. Yes, automation requires investing people more! What a dilemma![^4]
 
 With this approach, you do not only need to know about Wazuh rules, but also a bit of Python, Git and a bit of your internal toolkit. It now requires more effort to learn. Is it worth it? It depends on you environment.
+
+If, "But, I don't want a complex pipeline!", was your thought, and your decision is final, then you can just stick to your development environment on your local machine. This is called `wazuh-devenv` for a reason. If you are using Windows, you can use a Linux VM or WSL to run this local test framework. If you are on Linux, just use your own machine. I have not tested on Mac, so I cannot suggest anything there. This way, when you ensure the changes to rules and decoders work as expected, you can use Wazuh Dashboard as always. This is a trade-off between simplicity and robustness.
 
 ## Conclusion
 
