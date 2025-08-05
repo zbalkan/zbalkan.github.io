@@ -269,6 +269,8 @@ You can manually validate the result as well. Just copy the log to the `wazuh-lo
 
 This approach allows detection engineers to confirm functionality before promoting rules to production. Even if you don't consider yourself a detection engineer but a sysadmin, a security analyst, a homelab owner, or a single-person-IT-department, there's room for improvement in your daily workload.
 
+In the repository, there are some helpers like the `generator.py` that creates a draft test from a sample log file, and the `coverage.py` that measures test coverage for custom rules. They can help you in your journey!
+
 ## What's the value?
 
 How does this additional complexity improve your detection environment? I wanted to describe the added values shortly after the tutorial.
