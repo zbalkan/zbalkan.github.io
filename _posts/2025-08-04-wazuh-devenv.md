@@ -19,6 +19,8 @@ galleryLogtest:
 galleryDebmm:
   - url: /assets/devenv-debmm.png
     image_path: /assets/devenv-debmm.png
+
+last_modified_at: 2025-08-15T14:20:00+03:00
 ---
 
 At the beginning were the logs. Then, people started collecting, filtering, correlating, and aggregating them. They implemented data engineering pipelines for log data. Now, it is the software engineering's turn to take the best practices. In combination with these, the discipline of detection engineering has slowly arisen over the last decade. It is a relatively recent term that has found its way into taxonomy, but it caught on very fast. However, it is a matter of scale and [maturity](https://www.elastic.co/security-labs/elastic-releases-debmm).
@@ -254,9 +256,11 @@ Now we are in the `Green` phase of our `Red, Green, Refactor` process. You can p
         self.assertEqual(response.rule_level, 3)
 
         # Ensure the parsed data is correct
-        self.assertEqual(response.get_data_field(['date']), '2019-10-10')
-        self.assertEqual(response.get_data_field(['time']), '17:01:31')
-        self.assertEqual(response.get_data_field(['devname']), 'FG111E-INFT2')
+        # We are now collecting dynamic field names
+        # Dynamic fields are appended aft root object "data"
+        self.assertEqual(response.get_dynamic_field_value(flatened_field_name='date'), '2019-10-10')      # data.date
+        self.assertEqual(response.get_dynamic_field_value(flatened_field_name='time'), '17:01:31')        # data.time
+        self.assertEqual(response.get_dynamic_field_value(flatened_field_name='devname'), 'FG111E-INFT2') # data.devname
 
         # Ensure the rule groups are correct
         self.assertIn('custom', response.rule_groups)
