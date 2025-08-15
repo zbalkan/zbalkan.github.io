@@ -47,6 +47,9 @@ galleryRegression:
 
 After my previous [blog article](./wazuh-devenv), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for Wazuh. In this article, we will walk through the steps one by one to install and set up the development environment on WSL and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
 
+**Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This artice is more like "my way" od Detectio-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
+{: .notice--info}
+
 ## Setting up the environment
 
 ### Installation
@@ -130,8 +133,6 @@ ls
 15. The installation completes, and now you can work with detections as code with our new development environment.
 
 ## Writing your first tests
-
-Full disclosure: I developed wazuh-devenv, wazuhevtx, and wazuh-testgen because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
 
 ### Wazuh rules under the hood
 
