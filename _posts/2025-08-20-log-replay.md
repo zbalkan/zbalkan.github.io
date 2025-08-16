@@ -47,7 +47,7 @@ galleryRegression:
 
 After my previous [blog article](./wazuh-devenv), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for Wazuh. In this article, we will walk through the steps one by one to install and set up the development environment on WSL[^1] and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
 
-**Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This artice is more like "my way" od Detectio-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
+**Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This article is more like "my way" of implementing Detectio-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
 {: .notice--info}
 
 ## Setting up the environment
@@ -154,9 +154,9 @@ In the graph above[^3], you can see the first-level rules, depicted as the child
 
 Now that we understand the way rules work, we can proceed with writing behavioral rules.
 
-### What is behavioral testing?
+### Behavioral testing through log replay
 
-The Wazuh rules are building blocks chained as tree or graph structures, as we mentioned in the previous paragraph. Therefore, testing single rules ensures that the engineer does not break the evaluation chain. This is the reason I called these tests [regression tests](https://en.wikipedia.org/wiki/Regression_testing): to ensure changes did not break previously functioning parts. But these do not guarantee better detection coverage. You need to use attack simulations for that. You can manually attack test devices or services and monitor the alerts. That way, we can ensure we are covering proper behavior-based detections in our environment.
+The Wazuh rules are building blocks chained as tree or graph structures, as we mentioned in the previous paragraph. Therefore, testing single rules ensures that the engineer does not break the evaluation chain. This is the reason I called these tests [regression tests](https://en.wikipedia.org/wiki/Regression_testing): to ensure changes did not break previously functioning parts. But regression testing do not guarantee better detection coverage, that is the job of attack simulations. You can attack test devices or services and monitor the alerts. That way, we can ensure we are covering proper behavior-based detections in our environment. Refer to the [Emulation of ATT&CK techniques and detection with Wazuh](https://wazuh.com/blog/emulation-of-attck-techniques-and-detection-with-wazuh/) and [Adversary emulation with CALDERA and Wazuh](https://wazuh.com/blog/adversary-emulation-with-caldera-and-wazuh/) article by Wazuh team for testing defenses through attack simulation.
 
 But this is an expensive approach: one behavior at a time and writing detections afterwards requires a high amount of time and human resources. Luckily, there's a middle ground: replaying logs! We can make use of public resources for logs that contain malicious behavior, run them against our test harness, `wazuh-devenv`, and check if we can detect the malicious behavior effectively. And this is exactly what I'll do here.
 
@@ -602,7 +602,7 @@ After you created the rules, ensure the file permissions are correct. Run `./fix
 
 We reached the `GREEN` state. It is now up to the detection engineers to fine-tune the rules more for the `REFACTOR` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
 
-### Regression testing, again
+#### Future-proofing detections through regression testing
 
 We can stop here, but I suggest moving one step further. I have mentioned that regression testing has a purpose: we do not break current functionality in future changes. Since we now have three new rules, we can write tests for these specifically to ensure we do not break them in future updates. If you remember the `wazuh-testgen` tool above, it has the ability to generate boilerplate test code from rules as well. Usage for test generation from existing rules is simple too:
 
