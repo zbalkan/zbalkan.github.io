@@ -45,19 +45,16 @@ galleryRegression:
     image_path: /assets/replay-regression.png
 ---
 
-After my previous [blog article](./wazuh-devenv), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for Wazuh. In this article, we will walk through the steps one by one to install and set up the development environment on WSL and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
+After my previous [blog article](./wazuh-devenv), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for Wazuh. In this article, we will walk through the steps one by one to install and set up the development environment on WSL[^1] and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
 
 **Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This artice is more like "my way" od Detectio-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
 {: .notice--info}
 
 ## Setting up the environment
 
-### Installation
+Here’s a narrative version with the same voice and glossary, no numbered steps:
 
-I am assuming you have your favorite IDE installed for Python-based development. I will use VS Code during this experiment as it is easier to initiate VS Code from WSL and run it in Windows easily.
-
-1. Ensure you have WSL installed. If you don't have it, run the `wsl --install` command in an administrative session. When the WSL feature is installed, you need a reboot.
-2. Install the distro you use in your production environment for proper replication of environments. At the time of writing, the supported WSL distros were listed like this:
+I’m assuming you’ve already got your favorite Python IDE handy; I’ll use VS Code here because it plays nicely with WSL and lets me keep everything inside Windows while coding against Linux. First things first: make sure WSL itself is installed. If it isn’t, open an elevated terminal and run `wsl --install`, then reboot when Windows asks. Once WSL is available, pick the Linux distro that best mirrors your production environment so your tests behave the same way. You can see what’s officially supported at the moment by asking WSL to list them:
 
 ```ini
 wsl.exe --list --online
@@ -87,27 +84,32 @@ OracleLinux_8_10                Oracle Linux 8.10
 OracleLinux_9_5                 Oracle Linux 9.5
 ```
 
-3. I will proceed with Ubuntu LTS for the sake of this experiment. Run `wsl --install -d Ubuntu-22.04` to install Ubuntu WSL.
+For this walkthrough I’ll stick with Ubuntu LTS, so I’ll install it with `wsl --install -d Ubuntu-22.04`.
 
 {% include gallery id="galleryWslInstall" caption="WSL first install screen" %}
 
-4. Let's proceed with optimizing the configuration to limit the memory usage. Otherwise, Wazuh will eat up your memory. Open the file `~/.wslconfig` or create it if it does not exist, and add these lines:
+Before spinning up Wazuh, I like to cap WSL’s resource usage so it doesn’t swallow my RAM. Create or edit `~/.wslconfig` and drop in a sane default:
 
 ```ini
 # Settings apply across all Linux distros running on WSL 2
 [wsl2]
 
-# Limits VM memory to use no more than 4 GB, this can be set as whole numbers using GB or MB
+# Limits VM memory to use no more than 8 GB, this can be set as whole numbers using GB or MB
 memory=8GB 
 
 # Sets the VM to use two virtual processors
 processors=2
 ```
 
-5. Update the memory and processor usage restrictions in accordance with your environment.
-6. Open your WSL instance in the terminal or just type `wsl` in your existing PowerShell/cmd environment.
-7. Proceed with setting the username and password for the first use. Then update all the packages using the default package manager of your distro. I'll use `sudo apt update; sudo apt upgrade -y; sudo apt autoremove` since this is a greenfield environment.
-8. Let's clone the repo for first usage. Clone the repo in a preferred location in your WSL environment. I want to save the code directly under the current user's home directory. Let's see what will happen.
+Tune those values for your workstation, then launch your distro (`wsl` from PowerShell/cmd is fine). On first run, set your username and password, and immediately bring the box up to date. In a fresh Ubuntu, I’ll do:
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt autoremove -y
+```
+
+With the base ready, I clone the development environment directly into my home so paths are simple:
 
 ```bash
 cd ~/
@@ -118,19 +120,15 @@ ls
 
 {% include gallery id="galleryGitLs" caption="Inside the repository" %}
 
-9. Now, we can run `code .` command to open the directory in VS Code. You'll see the repository there, and at this point, we can just make use of VS Code for future updates.
+From here, `code .` launches VS Code rooted in the repo so we can keep iterating in one place.
 
 {% include gallery id="galleryVscode" caption="VS Code first view" %}
 
-10. Let's proceed with `sudo ./install.sh` so that we can initiate the Wazuh development environment installer. It is a script that tries to cover different distros and package managers, and when it comes to the configuration updates, it targets idempotency.
-11. At one step, you will be asked to copy your current custom rules to the repository for further operations. Internally, we get rid of the default locations of `/var/ossec/etc/rules` and `/var/ossec/etc/decoders`, and mount the paths in the `wazuh-devenv` repository instead. Therefore, you will not have an issue with synchronizing different versions of rules and decoders. But this has a side effect. You may have to fix some permissions manually. I'll talk about that later. After you copied your rules and decoders, hit `y` and continue.
+To bootstrap everything, I run `sudo ./install.sh`. The installer is idempotent and distro-aware; it also asks whether you want to copy any existing custom rules. Under the hood, the dev env swaps out the default `/var/ossec/etc/rules` and `/var/ossec/etc/decoders` for paths mounted from the repo so versioning and sync are painless. The trade-off is permissions—you may need to fix a few file modes after the switch. When the prompt appears, copy your rules/decoders if you have them, hit `y`, and continue.
 
 {% include gallery id="galleryVscodePrompt" caption="User is asked to copy custom rules and decoders, if any." %}
 
-12. Then, you'll be prompted once again: `Enter the username to add to the wazuh group:`. This one must be your current user, not `root`. You will use your WSL default user for the future. Under the hood, the script adds this user to the `wazuh` group as a member, so that you can work with files easily.
-13. For a smooth testing experience, create a folder at the root named `.vscode`, and copy the `sample.launch.json` under it. Rename the file to `launch.json`.
-14. Use `venv` or any other module for creating your Python virtual environment. Even though we do not use any external dependencies, isolating the environment is safer.
-15. The installation completes, and now you can work with detections as code with our new development environment.
+You’ll also be prompted for a username to add to the `wazuh` group; use your regular WSL user (not `root`) so file operations stay smooth. For a better debugging loop, I like to create a `.vscode` folder at the repo root and copy `sample.launch.json` into it as `launch.json`. Even though this project doesn’t depend on third-party Python packages, I still isolate with a virtualenv to keep my tooling clean. Once the installer finishes, the environment is ready and we can start treating detections as code—editing rules, replaying logs, and iterating without leaving VS Code.
 
 ## Writing your first tests
 
@@ -138,13 +136,13 @@ ls
 
 Now, I do not plan to repeat myself with the previous example of the Fortinet rule. This time, I will use a more detailed approach. But first, I need to remind the reader of the architectural aspects of Wazuh detections.
 
-Wazuh rules are like building blocks. Unlike other rule languages like Sigma or query languages like SPL or KQL, Wazuh rules are built on top of each other in a tree structure. Wazuh, at the core, is a stream processing engine, and the most important component is the `wazuh-analysisd` service. This service loads Wazuh rules and builds several tree-like structures of rules based on `<if_sid>`, `<if_group>`, `<if_matched_sid>`, or `<if_matched_group>`. If a rule does not have a parent, it will be used first. But if you add a **virtual root** as the ultimate parent, you would see a directed acyclic graph (DAG)[^1]. Hypothetically, you can consider this virtual root as the starting point to match the rules. So, this virtual root rule means `any log`. The `wazuh-analysisd` service then starts checking against first-level children -aka rules with no parent- to find at least a partial match. Then, after finding the first matching node, the log is evaluated against the child rules of that, and so on. Therefore, the logic can be summed up as `the most specific rule wins`. This matching algorithm prevents iterating over all the rules. In the [Big O notation](https://en.wikipedia.org/wiki/Big_O_notation), this means `O(log N)` instead of `O(n)`, a huge performance impact.
+Wazuh rules are like building blocks. Unlike other rule languages like Sigma or query languages like SPL or KQL, Wazuh rules are built on top of each other in a tree structure. Wazuh, at the core, is a stream processing engine, and the most important component is the `wazuh-analysisd` service. This service loads Wazuh rules and builds several tree-like structures of rules based on `<if_sid>`, `<if_group>`, `<if_matched_sid>`, or `<if_matched_group>`. If a rule does not have a parent, it will be used first. But if you add a **virtual root** as the ultimate parent, you would see a directed acyclic graph (DAG)[^2]. Hypothetically, you can consider this virtual root as the starting point to match the rules. So, this virtual root rule means `any log`. The `wazuh-analysisd` service then starts checking against first-level children -aka rules with no parent- to find at least a partial match. Then, after finding the first matching node, the log is evaluated against the child rules of that, and so on. Therefore, the logic can be summed up as `the most specific rule wins`. This matching algorithm prevents iterating over all the rules. In the [Big O notation](https://en.wikipedia.org/wiki/Big_O_notation), this means the time complexity is closer to `O(log N)` instead of `O(N)`, a huge performance impact.
 
 This unique design also has side effects: converting Sigma or some other detection language to Wazuh is not a one-to-one translation job. You must find a parent for a proper detection logic. While you can have rules without a parent, you would end up with independent nodes and basically break the tree/graph structure I mentioned above. In the long term, you'll face performance issues. However, while drafting your rule, that is still the first step. You start with a very specific rule, then find a suitable parent in the current ruleset. We will use this approach very soon.
 
 {% include gallery id="galleryExplorer" caption="Wazuh default ruleset visualized as a directed acyclic graph (DAG)" %}
 
-In the graph above[^2], you can see the first-level rules, depicted as the children of the **virtual root** I created. It shows the rules with no parent rule. This is the starting point of every match. One of the great resources when detecting threats in Windows endpoints is the very noisy `Security Event ID 4688` [^3]. In the graph, you can see the parent-child relationship I have mentioned. In the reverse order, we can see these rules:
+In the graph above[^3], you can see the first-level rules, depicted as the children of the **virtual root** I created. It shows the rules with no parent rule. This is the starting point of every match. One of the great resources when detecting threats in Windows endpoints is the very noisy `Security/4688` [^4]. In the graph, you can see the parent-child relationship I have mentioned. In the reverse order, we can see these rules:
 
 - 67027 - A process was created
 - 60103 - Windows audit success event
@@ -178,7 +176,7 @@ Let's analyze them manually before checking what kind of attacks we are expectin
 
 {% include gallery id="galleryTscon" caption="The lolbin tscon.exe is used to hijack RDP session" %}
 
-In the Security log, three event IDs are most relevant to RDP session hijacking with tscon.exe. Security/4688 records new process creation, allowing us to trace attacker commands. Security/4778 shows a successful RDP session reconnection, while Security/4779 records a session disconnection. Together, they let us reconstruct both the hijack execution and its impact on users.
+In the Security log, three event IDs are most relevant to RDP session hijacking with tscon.exe. [Security/4688](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4688) records new process creation, allowing us to trace attacker commands. Security/4778 shows a successful RDP session reconnection, while [Security/4779](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4779) records a session disconnection. We can then observe the [Security/4778](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4778) event, a reconnect event with same session name but different account name. Together, they let us reconstruct both the hijack execution and its impact on users.
 
 | **Time (UTC)** | **Event**              | **Account**               | **Process / Session**                        | **Details & Interpretation**                                                                 | **Severity**                                     |
 | -------------- | ---------------------- | ------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -598,7 +596,7 @@ We can summarize the detection conditions: In the process creation events (Secur
 </group>
 ```
 
-It is time to run the test once again. We are running the `preflight_tests` and `behavioral_tests`.
+After you created the rules, ensure the file permissions are correct. Run `./fix_permissions.sh` after you added the new rule file. Now, it is time to run the test once again. We are running the `preflight_tests` and `behavioral_tests`.
 
 {% include gallery id="galleryGreen" caption="Unit tests succeeded, we are in Green state." %}
 
@@ -738,6 +736,7 @@ You can see the tests are passing. At this point, we can be sure no change in th
 Log replay in Wazuh, when combined with the wazuh-devenv testing framework, elevates detection engineering from guesswork to a repeatable, code-driven discipline. Helpers like wazuhevtx make short work of converting raw EVTX into Wazuh-ready JSONL, while wazuh-testgen turns complex scenarios into ready-to-run behavioral and regression tests. Together, they let you validate high-fidelity detections against real attack telemetry—just one step shy of full attack simulation—without the operational risk or expense. This workflow keeps your rules sharp, your coverage mapped to MITRE ATT&CK, and your changes regression-proof. If you care about maturing your detection pipeline, download these tools, feed them real-world logs, and see how close you can get to adversary emulation before you ever light the match.
 
 ---
-[^1]:A [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) is a data structure composed of nodes (in this case, Wazuh rules) connected by one-way edges. "Directed" means that the relationship flows in a single direction, from a parent rule to a more specific child rule. "Acyclic" means there are no loops, ensuring that the analysis process always moves forward and terminates. In Wazuh, this structure allows the analysis engine to efficiently filter events by starting with general rules and navigating down a tree to the most specific match, without having to check every single rule for every log.
-[^2]: For this visualization, I used an analysis tool I wrote called simply [rulevis](https://github.com/zbalkan/rulevis). It is in alpha state, but it works!
-[^3]: Remember that the rule IDs are unique to the event channel; therefore, the ID numbers by themselves mean nothing. Use the `<Event Channel> <Event Id>` format to be precise.
+[^1]: It is 2025. When we say WSL, we mention WSL2. Not even MS mention WSL1 in any documents anymore.
+[^2]: A [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) is a data structure composed of nodes (in this case, Wazuh rules) connected by one-way edges. "Directed" means that the relationship flows in a single direction, from a parent rule to a more specific child rule. "Acyclic" means there are no loops, ensuring that the analysis process always moves forward and terminates. In Wazuh, this structure allows the analysis engine to efficiently filter events by starting with general rules and navigating down a tree to the most specific match, without having to check every single rule for every log.
+[^3]: For this visualization, I used an analysis tool I wrote called simply [rulevis](https://github.com/zbalkan/rulevis). It is in alpha state, but it works!
+[^4]: Remember that the rule IDs are unique to the event channel; therefore, the ID numbers by themselves mean nothing. Use the `<Event Channel> <Event Id>` format to be precise.
