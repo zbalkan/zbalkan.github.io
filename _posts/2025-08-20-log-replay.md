@@ -166,7 +166,75 @@ Let's start with an amazing resource, [EVTX-to-MITRE-Attack](https://github.com/
 
 {% include gallery id="galleryLogRepo" caption="EVTX-to-MITRE-Attack repository contains EVTX samples mapped to MITRE ATT&CK TTPs" %}
 
-For educational purposes, I will check if we can detect Lateral Movement via Remote Desktop ([T1021.001](https://attack.mitre.org/techniques/T1021/001/)) using the default rules. But we cannot use the EVTX files in our test environment. The `wazuh-devenv` tests expect logs as plain strings. We need to convert EVTX files to text that Wazuh can use. In a previous article, [Enhancing Wazuh Rule Testing with wazuhevtx: A Solution for Windows Event Logs](https://zaferbalkan.com/wazuhevtx/), I mentioned a tool I developed called [wazuhevtx](https://github.com/zbalkan/wazuhevtx) that works on Windows to convert EVTX files to JSONL-formatted logs, the same way Wazuh agent converts. We can just run `pip install wazuhevtx` or `pipx install wazuhevtx` and copy the generated logs as our test data.
+For educational purposes, I will check if we can detect Lateral Movement via Remote Desktop ([T1021.001](https://attack.mitre.org/techniques/T1021/001/)) using the default rules. Inside the folder, there are three files:
+
+- ID4688-4778 RDP hijack command execution.evtx
+- ID4688,4778,4779 RDP hijack direct.evtx
+- ID4825-Denied RDP connection with valid credentials.evtx
+
+Let's analyze them manually before checking what kind of attacks we are expecting.
+
+#### ID4688,4778,4779 RDP hijack direct.evtx
+
+{% include gallery id="galleryTscon" caption="The lolbin tscon.exe is used to hijack RDP session" %}
+
+In the Security log, three event IDs are most relevant to RDP session hijacking with tscon.exe. Security/4688 records new process creation, allowing us to trace attacker commands. Security/4778 shows a successful RDP session reconnection, while Security/4779 records a session disconnection. Together, they let us reconstruct both the hijack execution and its impact on users.
+
+| **Time (UTC)** | **Event**              | **Account**               | **Process / Session**                        | **Details & Interpretation**                                                                 | **Severity**                                     |
+| -------------- | ---------------------- | ------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 21:01:05.352   | Security/4688          | `SYSTEM (FS01$)`          | `cmd.exe` → `cmd /k tscon 2 /dest:rdp-tcp#8` | Attacker uses `cmd.exe` to launch `tscon`, targeting session hijack.                         | **High**                                         |
+| 21:01:05.358   | Security/4688          | `SYSTEM (FS01$)`          | `tscon.exe` → `tscon 2 /dest:rdp-tcp#8`      | Execution of `tscon.exe` to forcibly attach to another user’s session.                       | **High**                                         |
+| 21:01:05.370   | Security/4779          | `admmig`                  | `RDP-Tcp#8` disconnected                     | User `admmig` forcibly disconnected from RDP session.                                        | **High**                                         |
+| 21:01:05.572   | Security/4688          | `SYSTEM (FS01$)`          | `TSTheme.exe` (under `admmig`)               | RDP theme service launches under disconnected user. Typical side effect of session handover. | **Informational**                                |
+| 21:01:05.744   | Security/4688          | `SYSTEM (FS01$)`          | `TSTheme.exe` (under `admmarsid`)            | RDP theme service starts for hijacked session now assigned to `admmarsid`.                   | **Informational**                                |
+| 21:01:05.831   | Security/4778          | `admmarsid`               | `RDP-Tcp#8` reconnected                      | `admmarsid` reconnects from client `JUMP01`. Confirms hijack succeeded.                      | **High**                                         |
+| 21:01:06.203   | Security/4688          | `SYSTEM (FS01$)`          | `AtBroker.exe` (under `admmarsid`)           | Accessibility broker starts, common during session initialization.                           | **Informational**                                |
+| 21:01:06.206   | Security/4688          | `NETWORK SERVICE (FS01$)` | `rdpclip.exe` (under `admmarsid`)            | RDP clipboard service starts for hijacked user. Normal post-login process.                   | **Informational**                                |
+| 21:01:07.051   | Security/4688          | `SYSTEM (FS01$)`          | `taskhostw.exe`                              | Generic host process for Windows tasks during session startup.                               | **Informational**                                |
+| 21:01:07.150   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (COM surrogate)                | COM process spawns as part of GUI initialization.                                            | **Informational**                                |
+| 21:01:37.111   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (under `admmig`)               | COM surrogate tied to lingering admmig context after hijack.                                 | **Medium**                                       |
+| 21:02:14.789   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (under `admmig`)               | Another COM object launch tied to admmig’s context despite disconnection.                    | **Medium**                                       |
+| 21:02:35.089   | Security/4688          | `SYSTEM (FS01$)`          | `taskhostw.exe`                              | Host process for RDP session environment management.                                         | **Informational**                                |
+| 21:02:35.208   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe`                                | COM surrogate tied to interactive desktop persistence.                                       | **Informational**                                |
+
+Let's define our detection requirements after analyzing the timeline of events. We want Wazuh to alert us when these events were forwarded.
+
+According to the Wazuh [rules classification guide](https://documentation.wazuh.com/current/user-manual/ruleset/rules/rules-classification.html), the highest level of an alert is level **15 - Severe attack**. In the logs above we can see that the hijack succeded, and there is no doubt that the alert must be precise. To help the comprehesion of the user, we must provide clear and rich alerts with proper MITRE ATT&CK TTP IDs. In my humble opinion, the best suited ones would be [T1021.001 - Remote Services: Remote Desktop Protocol](https://attack.mitre.org/techniques/T1021/001/), [T1563.002 - Remote Service Session Hijacking: RDP Hijacking](https://attack.mitre.org/techniques/T1563/002/), and [T1078 - Valid Accounts](https://attack.mitre.org/techniques/T1078).
+
+To satisfy the requirements above, we need to:
+
+1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
+2. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
+3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
+3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
+
+How we will implement the rule depends on us but these are the minimum set of behaviors we want to observe if we replay these logs.
+
+#### ID4688-4778 RDP hijack command execution.evtx
+
+The second log set shows activity from the Security event log, dominated by Security/4688 and a single Security/4778. While process creation is mostly informational, reconnect events are more relevant for detecting possible lateral movement or RDP hijacking.
+
+We must align with the Wazuh rules classification guide once again. It is beter to pick level **13 - Unusual error (high importance)** here. It is worth an alert but we cannot be sure if the attack succeded, with lack of other indicators we had in the previous log. We must:
+
+1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
+2. Ensure that there is an alert with level **13** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
+3. Ensure that there is an alert with level **13** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
+4. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
+
+#### ID4825-Denied RDP connection with valid credentials.evtx
+
+The logs in the last file do not depict an obvious [indicator of attack (IOA)](https://www.splunk.com/en_us/blog/learn/ioa-indicators-of-attack.html), but a medium-level helper that allows us to be informed by the denied authentication for RDP. The requirements are similar here.
+
+1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
+2. Ensure that there is an alert with level **5** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
+3. Ensure that there is an alert with level **5** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
+4. Ensure that there is an alert with level **5** and has a group named *authentication_failed*.
+
+Level 5 means "User generated error", according to the rules classification guide we used before. Since the denial of RDP connection is a denied access, we added a group check as well. They look like accurate levels for these events.
+
+#### Test generation
+
+But we cannot use the EVTX files in our test environment. The `wazuh-devenv` tests expect logs as plain strings. We need to convert EVTX files to text that Wazuh can use. In a previous article, [Enhancing Wazuh Rule Testing with wazuhevtx: A Solution for Windows Event Logs](https://zaferbalkan.com/wazuhevtx/), I mentioned a tool I developed called [wazuhevtx](https://github.com/zbalkan/wazuhevtx) that works on Windows to convert EVTX files to JSONL-formatted logs, the same way Wazuh agent converts. We can just run `pip install wazuhevtx` or `pipx install wazuhevtx` and copy the generated logs as our test data.
 
 {% include gallery id="galleryWazuhevtx" caption="You can use pip or pipx to download wazuhevtx tool" %}
 
@@ -333,35 +401,13 @@ class TestT1021001RemoteDesktopProtocol(unittest.TestCase):
         self.fail("Test not implemented yet. Define expected results.")
 ```
 
-If you remember [the previous post](https://zaferbalkan.com/wazuh-devenv/#workflow-overview), I mentioned the **Red, Green, Refactor** approach there. We are in the **Red** phase now: the tests fail, because we wrote the tests first, not the code. Now, our task is to satisfy the tests and make it green. However, the generated test above is a template. We must define our requirements for how to do that.
+These are templates the generator created but the boilerplate code provides most of the examples we need.
 
-Let's go step by step. On the first two files, namely `ID4688,4778,4779 RDP hijack direct.evtx` and `ID4688-4778 RDP hijack command execution.evtx`, we can see the usage of `tscon.exe`. There's a very old and obvious procedure that we can use in our detections.
+#### Writing tests based on the requirements
 
-{% include gallery id="galleryTscon" caption="The lolbin tscon.exe is used to hijack RDP session" %}
+If you remember [the previous post](https://zaferbalkan.com/wazuh-devenv/#workflow-overview), I mentioned the **Red, Green, Refactor** approach there. We are in the **Red** phase now: the tests fail, because we wrote the tests first, not the code. Now, our task is to satisfy the tests and make it green. However, the generated test above is a template. So, let's write our first tests and run them.
 
-But first, we must fix our tests. Let's define our requirements. The first two event log samples show the usage of `tscon`.
-
-1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
-2. Ensure that there is an alert with level **12** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
-3. Ensure that there is an alert with level **12** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
-
-The first file, `ID4688,4778,4779 RDP hijack direct.evtx` also has a session disconnect and a reconnect event. But the devil is in the details: the RDP session name is the same, but user accounts are different. Let's detect that.
-
-1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
-2. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
-3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
-3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
-
-The last file, `ID4825-Denied RDP connection with valid credentials.evtx`, is not an obvious [indicator of attack (IOA)](https://www.splunk.com/en_us/blog/learn/ioa-indicators-of-attack.html), but a medium-level helper that allows us to be informed by the denied authentication for RDP. The requirements are similar here.
-
-1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
-2. Ensure that there is an alert with level **5** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
-3. Ensure that there is an alert with level **5** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
-4. Ensure that there is an alert with level **5** and has a group named *authentication_failed*.
-
-The first difference is about the MITRE ATT&CK labels, as the first one is an obvious hijacking indicator, and needs an additional [T1563.002 - Remote Service Session Hijacking: RDP Hijacking](https://attack.mitre.org/techniques/T1563/002/) tag. The other difference is in the rule levels. According to the Wazuh [rules classification guide](https://documentation.wazuh.com/current/user-manual/ruleset/rules/rules-classification.html), level 12 means a "High importance event" and level 5 means "User generated error". Since the denial of RDP connection is a denied access, we added a group check as well. They look like accurate levels for these events.
-
-So, let's write our first tests and run them!
+We will implement the requirements one by one in the tests.
 
 ```python
 import unittest
@@ -395,13 +441,6 @@ class TestT1021001RemoteDesktopProtocol(unittest.TestCase):
 
         # Ensure we receive a response for each log sent
         self.assertEqual(len(responses), len(logs))
-
-        # Ensure there is at least one level 12 alert gets triggered with MITRE labels
-        # T1021.001 - Remote Services: Remote Desktop Protocol and T1563.002 - Remote Service Session Hijacking: RDP Hijacking
-        expected_mitre_id: set[str] = {'T1021.001', 'T1563.002'}
-        self.assertTrue(expr=any((expected_mitre_id <= r.rule_mitre_ids) and (int(r.rule_level) == 12)  # type: ignore
-                                 for r in responses if r.rule_mitre_ids),
-                        msg='No level 12 alert found with T1021.001 and T1563.002 MITRE ATT&CK IDs')
 
         # Ensure there is at least one level 15 alert gets triggered with MITRE labels
         # T1021.001 - Remote Services: Remote Desktop Protocol, T1563.002 - Remote Service Session Hijacking: RDP Hijacking
@@ -444,12 +483,14 @@ class TestT1021001RemoteDesktopProtocol(unittest.TestCase):
         # Ensure we receive a response for each log sent
         self.assertEqual(len(responses), len(logs))
 
-        # Ensure there is at least one level 12 alert gets triggered with MITRE labels
-        # T1021.001 - Remote Services: Remote Desktop Protocol and T1563.002 - Remote Service Session Hijacking: RDP Hijacking
-        expected_mitre_id: set[str] = {'T1021.001', 'T1563.002'}
-        self.assertTrue(expr=any((expected_mitre_id <= r.rule_mitre_ids) and (int(r.rule_level) == 12)  # type: ignore
+        # Ensure there is at least one level 13 alert gets triggered with MITRE labels
+        # T1021.001 - Remote Services: Remote Desktop Protocol, T1563.002 - Remote Service Session Hijacking: RDP Hijacking
+        # and T1078 - Valid Accounts
+        expected_mitre_id: set[str] = {'T1021.001', 'T1563.002', 'T1078'}
+        self.assertTrue(expr=any((expected_mitre_id <= r.rule_mitre_ids) and (int(r.rule_level) == 13)  # type: ignore
                                  for r in responses if r.rule_mitre_ids),
-                        msg='No level 12 alert found with T1021.001 and T1563.002 MITRE ATT&CK IDs')
+                        msg='No level 13 alert found with T1021.001, T1563.002 and T1078 MITRE ATT&CK IDs')
+
 
     def test_id4825_denied_rdp_connection_with_valid_credentials(self) -> None:
         # Logs extracted from EVTX file
@@ -475,7 +516,6 @@ class TestT1021001RemoteDesktopProtocol(unittest.TestCase):
         self.assertTrue(expr=any((expected_groups <= r.rule_groups) and (int(r.rule_level) == 5)  # type: ignore
                                  for r in responses if r.rule_mitre_ids),
                         msg='No level 5 alert found with group `authentication_failed`')
-
 ```
 
 We defined our test cases in Python. In order to write an "at least one" rule, I used a Python `set` and checked for an `intersection` using the AND operation with `&`. The rule level check is more readable. Let's run our code without writing any rules.
@@ -484,7 +524,7 @@ We defined our test cases in Python. In order to write an "at least one" rule, I
 
 Unfortunately, the default ruleset of Wazuh does not satisfy the requirements. We must write custom rules. We are definitely in the `RED` state.
 
-Let's define the first rule. We must detect the `tscon` usage for RDP hijacking. Let's cheat a bit here and check what others do. We can only progress by standing on the shoulders of the giants. We have [a Sigma rule in the Sigma HQ repository](https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_tscon_rdp_redirect.yml) exactly for this purpose. Let's check the rule here:
+Let's define the first rule now. We must detect the `tscon` usage for RDP hijacking. Let's cheat a bit here and check what others do. We can only progress by standing on the shoulders of the giants. We have [a Sigma rule in the Sigma HQ repository](https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_tscon_rdp_redirect.yml) exactly for this purpose.
 
 ```yaml
 title: Suspicious RDP Redirect Using TSCON
@@ -515,12 +555,12 @@ falsepositives:
 level: high
 ```
 
-We can summarize the detection conditions here: In the process creation events, search for `/dest:rdp-tcp#` in the command line field. Also, label the alert with proper MITRE ATT&CK TTPs. This is exactly what we wanted. This covers the first two tests. But this is not sufficient. In the first log sample, we have a more reliable indicator of the attack: the session reconnect events. We must cover that with a higher severity. Then, we can focus on the denied RDP connection. It is nothing but the Security Event ID 4825 - A user was denied the access to Remote Desktop. Let's write the rules now:
+We can summarize the detection conditions: In the process creation events (Security/4688), search for ` /dest:rdp-tcp#` in the command line field. This is exactly what we wanted, but not sufficient. In the first log sample, we have a more reliable indicator of the attack: the session disconnect/reconnect events with different accounts but same session name. We must cover that with a higher severity. Then, we can focus on the denied RDP connection in the last file. It is nothing but the Security/4825 - A user was denied the access to Remote Desktop. Let's write the rules now:
 
 ```xml
 <group name="custom,windows,security,windows_security,">
 
-    <rule id="100000" level="12">
+    <rule id="100000" level="13">
         <if_sid>67027</if_sid>
         <field name="win.eventdata.commandLine">/dest:rdp-tcp#</field>
         <description>Suspicious RDP Redirect Using TSCON</description>
@@ -528,6 +568,7 @@ We can summarize the detection conditions here: In the process creation events, 
         <mitre>
             <id>T1563.002</id>
             <id>T1021.001</id>
+            <id>T1078</id>
         </mitre>
     </rule>
 
@@ -557,15 +598,15 @@ We can summarize the detection conditions here: In the process creation events, 
 </group>
 ```
 
-Let's run the test once again. We are running the `preflight_tests` and `behavioral_tests`.
+It is time to run the test once again. We are running the `preflight_tests` and `behavioral_tests`.
 
 {% include gallery id="galleryGreen" caption="Unit tests succeeded, we are in Green state." %}
 
 We reached the `GREEN` state. It is now up to the detection engineers to fine-tune the rules more for the `REFACTOR` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
 
-### Regression testing, again?
+### Regression testing, again
 
-We can stop here, but I suggest moving one step further. I have mentioned that regression testing has a purpose: we do not break current functionality in future changes. Since we now have 3 new rules, we can write tests for these specifically to ensure we do not break them in future updates. If you remember the `wazuh-testgen` tool above, it has the ability to create draft tests from rules as well. Usage for test generation from existing rules is simple too:
+We can stop here, but I suggest moving one step further. I have mentioned that regression testing has a purpose: we do not break current functionality in future changes. Since we now have three new rules, we can write tests for these specifically to ensure we do not break them in future updates. If you remember the `wazuh-testgen` tool above, it has the ability to generate boilerplate test code from rules as well. Usage for test generation from existing rules is simple too:
 
 ```bash
 usage: generator.py rule [-h] --input_dir INPUT_DIR --output_dir OUTPUT_DIR
@@ -595,7 +636,7 @@ class CustomRules(unittest.TestCase):
 
         self.assertEqual(response.status, lt.LogtestStatus.RuleMatch)
         self.assertEqual(response.rule_id, '100000')
-        self.assertEqual(response.rule_level, 12)
+        self.assertEqual(response.rule_level, 13)
         self.assertEqual(response.rule_description, "Suspicious RDP Redirect Using TSCON")
         self.assertIn('custom', response.rule_groups)
         self.assertIn('windows', response.rule_groups)
@@ -639,13 +680,13 @@ import internal.logtest as lt
 
 class RDPHijackRules(unittest.TestCase):
 
-    def test_rule_990100(self) -> None:
+    def test_rule_100000(self) -> None:
         log = r'''{"win": {"system": {"providerName": "Microsoft-Windows-Security-Auditing", "providerGuid": "{54849625-5478-4994-a5ba-3e3b0328c30d}", "eventID": "4688", "version": "2", "level": "0", "task": "13312", "opcode": "0", "keywords": "0x8020000000000000", "systemTime": "2021-05-14T21:01:05.3522301Z", "eventRecordID": "1829814", "processID": "4", "threadID": "5820", "channel": "Security", "computer": "fs01.offsec.lan", "severityValue": "AUDIT_SUCCESS", "message": "A new process has been created.\r\n\r\nCreator Subject:\r\n\tSecurity ID:\t\tS-1-5-18\r\n\tAccount Name:\t\tFS01$\r\n\tAccount Domain:\t\tOFFSEC\r\n\tLogon ID:\t\t0x3E7\r\n\r\nTarget Subject:\r\n\tSecurity ID:\t\tS-1-0-0\r\n\tAccount Name:\t\t-\r\n\tAccount Domain:\t\t-\r\n\tLogon ID:\t\t0x0\r\n\r\nProcess Information:\r\n\tNew Process ID:\t\t0x378\r\n\tNew Process Name:\tC:\\Windows\\System32\\cmd.exe\r\n\tToken Elevation Type:\tTokenElevationTypeDefault (1)\r\n\tMandatory Label:\t\tS-1-16-16384\r\n\tCreator Process ID:\t0x13e8\r\n\tCreator Process Name:\tC:\\Windows\\System32\\cmd.exe\r\n\tProcess Command Line:\tcmd  /k tscon 2 /dest:rdp-tcp#8\r\n\r\nToken Elevation Type indicates the type of token that was assigned to the new process in accordance with User Account Control policy.\r\n\r\nType 1 is a full token with no privileges removed or groups disabled.  A full token is only used if User Account Control is disabled or if the user is the built-in Administrator account or a service account.\r\n\r\nType 2 is an elevated token with no privileges removed or groups disabled.  An elevated token is used when User Account Control is enabled and the user chooses to start the program using Run as administrator.  An elevated token is also used when an application is configured to always require administrative privilege or to always require maximum privilege, and the user is a member of the Administrators group.\r\n\r\nType 3 is a limited token with administrative privileges removed and administrative groups disabled.  The limited token is used when User Account Control is enabled, the application does not require administrative privilege, and the user does not choose to start the program using Run as administrator."}, "eventdata": {"subjectUserSid": "S-1-5-18", "subjectUserName": "FS01$", "subjectDomainName": "OFFSEC", "subjectLogonId": "0x3e7", "newProcessId": "0x378", "newProcessName": "C:\\Windows\\System32\\cmd.exe", "tokenElevationType": "%%1936", "processId": "0x13e8", "commandLine": "cmd  /k tscon 2 /dest:rdp-tcp#8", "targetUserSid": "S-1-0-0", "targetLogonId": "0x0", "parentProcessName": "C:\\Windows\\System32\\cmd.exe", "mandatoryLabel": "S-1-16-16384"}}}'''
         response = lt.send_log(log)
 
         self.assertEqual(response.status, lt.LogtestStatus.RuleMatch)
-        self.assertEqual(response.rule_id, '990100')
-        self.assertEqual(response.rule_level, 12)
+        self.assertEqual(response.rule_id, '100000')
+        self.assertEqual(response.rule_level, 13)
         self.assertEqual(response.rule_description,
                          "Suspicious RDP Redirect Using TSCON")
         self.assertIn('custom', response.rule_groups)  # type: ignore
@@ -653,7 +694,7 @@ class RDPHijackRules(unittest.TestCase):
         self.assertIn('security', response.rule_groups)  # type: ignore
         self.assertIn('windows_security', response.rule_groups)  # type: ignore
 
-    def test_rule_990101(self) -> None:
+    def test_rule_100001(self) -> None:
         logs: list[str] = [
             r'''{"win": {"system": {"providerName": "Microsoft-Windows-Security-Auditing", "providerGuid": "{54849625-5478-4994-a5ba-3e3b0328c30d}", "eventID": "4779", "version": "0", "level": "0", "task": "12551", "opcode": "0", "keywords": "0x8020000000000000", "systemTime": "2021-05-14T21:01:05.3700303Z", "eventRecordID": "1829816", "processID": "576", "threadID": "628", "channel": "Security", "computer": "fs01.offsec.lan", "severityValue": "AUDIT_SUCCESS", "message": "A session was disconnected from a Window Station.\r\n\r\nSubject:\r\n\tAccount Name:\t\tadmmig\r\n\tAccount Domain:\t\tOFFSEC\r\n\tLogon ID:\t\t0x13B5E1E\r\n\r\nSession:\r\n\tSession Name:\t\tRDP-Tcp#8\r\n\r\nAdditional Information:\r\n\tClient Name:\t\tJUMP01\r\n\tClient Address:\t\t10.23.23.9\r\n\r\n\r\nThis event is generated when a user disconnects from an existing Terminal Services session, or when a user switches away from an existing desktop using Fast User Switching."}, "eventdata": {"accountName": "admmig", "accountDomain": "OFFSEC", "logonID": "0x13b5e1e", "sessionName": "RDP-Tcp#8", "clientName": "JUMP01", "clientAddress": "10.23.23.9"}}}''',
             r'''{"win": {"system": {"providerName": "Microsoft-Windows-Security-Auditing", "providerGuid": "{54849625-5478-4994-a5ba-3e3b0328c30d}", "eventID": "4778", "version": "0", "level": "0", "task": "12551", "opcode": "0", "keywords": "0x8020000000000000", "systemTime": "2021-05-14T21:01:05.8317487Z", "eventRecordID": "1829819", "processID": "576", "threadID": "4904", "channel": "Security", "computer": "fs01.offsec.lan", "severityValue": "AUDIT_SUCCESS", "message": "A session was reconnected to a Window Station.\r\n\r\nSubject:\r\n\tAccount Name:\t\tadmmarsid\r\n\tAccount Domain:\t\tOFFSEC\r\n\tLogon ID:\t\t0x6A423\r\n\r\nSession:\r\n\tSession Name:\t\tRDP-Tcp#8\r\n\r\nAdditional Information:\r\n\tClient Name:\t\tJUMP01\r\n\tClient Address:\t\t10.23.23.9\r\n\r\nThis event is generated when a user reconnects to an existing Terminal Services session, or when a user switches to an existing desktop using Fast User Switching."}, "eventdata": {"accountName": "admmarsid", "accountDomain": "OFFSEC", "logonID": "0x6a423", "sessionName": "RDP-Tcp#8", "clientName": "JUMP01", "clientAddress": "10.23.23.9"}}}''',
@@ -673,12 +714,12 @@ class RDPHijackRules(unittest.TestCase):
                                  for r in responses if r.rule_mitre_ids),
                         msg='No level 15 alert found with T1021.001, T1563.002 and T1078 MITRE ATT&CK IDs')
 
-    def test_rule_990105(self) -> None:
+    def test_rule_100002(self) -> None:
         log = r'''{"win": {"system": {"providerName": "Microsoft-Windows-Security-Auditing", "providerGuid": "{54849625-5478-4994-a5ba-3e3b0328c30d}", "eventID": "4825", "version": "0", "level": "0", "task": "12551", "opcode": "0", "keywords": "0x8010000000000000", "systemTime": "2020-07-12T05:27:05.5797045Z", "eventRecordID": "1231498", "processID": "464", "threadID": "992", "channel": "Security", "computer": "fs02.offsec.lan", "severityValue": "AUDIT_FAILURE", "message": "A user was denied the access to Remote Desktop. By default, users are allowed to connect only if they are members of the Remote Desktop Users group or Administrators group.\r\n\r\nSubject:\r\n\tUser Name:\tsvc6test1\r\n\tDomain:\t\tOFFSEC\r\n\tLogon ID:\t0x3457272\r\n\r\nAdditional Information:\r\n\tClient Address:\t10.23.23.9\r\n\r\n\r\nThis event is generated when an authenticated user who is not allowed to log on remotely attempts to connect to this computer through Remote Desktop."}, "eventdata": {"accountName": "svc6test1", "accountDomain": "OFFSEC", "logonID": "0x3457272", "clientAddress": "10.23.23.9"}}}'''
         response = lt.send_log(log)
 
         self.assertEqual(response.status, lt.LogtestStatus.RuleMatch)
-        self.assertEqual(response.rule_id, '990105')
+        self.assertEqual(response.rule_id, '100002')
         self.assertEqual(response.rule_level, 5)
         self.assertEqual(response.rule_description,
                          "Denied Access To Remote Desktop")
