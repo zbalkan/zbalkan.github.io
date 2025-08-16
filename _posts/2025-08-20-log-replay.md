@@ -668,7 +668,7 @@ class CustomRules(unittest.TestCase):
         self.assertIn('windows_security', response.rule_groups)
 ```
 
-The first and the last ones were easy as they included atomic detections. We can just provide the sample logs, and it would suffice. But the second rule was a temporal detection; two rules in a period of time must be triggered for the correlation. For that, we will use the `send_multiple_logs` function and provide 2 logs instead. This way, the regression test will actually be a slimmed-down version of the behavioral test, so it is up to you if you want to test it or not. Let's fix the test and run it once again.
+The first and the last ones were easy as they included atomic detections. We can just provide the sample logs, and it would suffice. But the second rule was a temporal detection; two rules in a period of time must be triggered for the correlation. For that, we will use the `send_multiple_logs` function and provide 2 logs instead. This way, the regression test will actually be a slimmed-down version of the behavioral test, so it is up to you if you want to use this test or not. Let's fix the test and run it once again.
 
 ```python
 import unittest
