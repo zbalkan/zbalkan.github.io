@@ -17,31 +17,31 @@ galleryVscode:
   - url: /assets/replay-vscode.png
     image_path: /assets/replay-vscode.png
 galleryVscodePrompt:
-- url: /assets/replay-vscode-prompt.png
+  - url: /assets/replay-vscode-prompt.png
     image_path: /assets/replay-vscode-prompt.png
 galleryExplorer:
-- url: /assets/replay-explorer.png
+  - url: /assets/replay-explorer.png
     image_path: /assets/replay-explorer.png
 galleryTree:
-- url: /assets/replay-4688.png
+  - url: /assets/replay-4688.png
     image_path: /assets/replay-4688.png
 galleryLogRepo:
-- url: /assets/replay-log-repo.png
+  - url: /assets/replay-log-repo.png
     image_path: /assets/replay-log-repo.png
 galleryWazuhevtx:
-- url: /assets/replay-wazuhevtx.png
+  - url: /assets/replay-wazuhevtx.png
     image_path: /assets/replay-wazuhevtx.png
 galleryTscon:
-- url: /assets/replay-tscon.png
+  - url: /assets/replay-tscon.png
     image_path: /assets/replay-tscon.png
 galleryRed:
-- url: /assets/replay-red.png
+  - url: /assets/replay-red.png
     image_path: /assets/replay-red.png
 galleryGreen:
-- url: /assets/replay-green.png
+  - url: /assets/replay-green.png
     image_path: /assets/replay-green.png
 galleryRegression:
-- url: /assets/replay-regression.png
+  - url: /assets/replay-regression.png
     image_path: /assets/replay-regression.png
 ---
 
