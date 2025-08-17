@@ -95,7 +95,7 @@ Before spinning up Wazuh, I like to cap WSL’s resource usage so it doesn’t s
 [wsl2]
 
 # Limits VM memory to use no more than 8 GB, this can be set as whole numbers using GB or MB
-memory=8GB 
+memory=8GB
 
 # Sets the VM to use two virtual processors
 processors=2
