@@ -50,7 +50,7 @@ After my previous [blog article](https://zaferbalkan.com/wazuh-devenv/), I recei
 **Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This article is more like "my way" of implementing Detectio-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
 {: .notice--info}
 
-## Setting up the environment
+## Setting up the development environment
 
 Here’s a narrative version with the same voice and glossary, no numbered steps:
 
