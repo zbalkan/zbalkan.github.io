@@ -217,7 +217,7 @@ We must align with the Wazuh rules classification guide once again. It is beter 
 1. Ensure that there is a response for each log. This is to ensure the test data is not corrupted and does not break the analysis.
 2. Ensure that there is an alert with level **13** and has a MITRE ATT&CK TTP ID of *T1021.001 - Remote Services: Remote Desktop Protocol*.
 3. Ensure that there is an alert with level **13** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
-4. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
+4. Ensure that there is an alert with level **13** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
 
 #### ID4825-Denied RDP connection with valid credentials.evtx
 
@@ -733,7 +733,7 @@ You can see the tests are passing. At this point, we can be sure no change in th
 
 ## Conclusion
 
-Log replay in Wazuh, when combined with the wazuh-devenv testing framework, elevates detection engineering from guesswork to a repeatable, code-driven discipline. Helpers like wazuhevtx make short work of converting raw EVTX into Wazuh-ready JSONL, while wazuh-testgen turns complex scenarios into ready-to-run behavioral and regression tests. Together, they let you validate high-fidelity detections against real attack telemetry—just one step shy of full attack simulation—without the operational risk or expense. This workflow keeps your rules sharp, your coverage mapped to MITRE ATT&CK, and your changes regression-proof. If you care about maturing your detection pipeline, download these tools, feed them real-world logs, and see how close you can get to adversary emulation before you ever light the match.
+Log replay in Wazuh, when combined with the `wazuh-devenv` testing framework, elevates detection engineering from guesswork to a repeatable, code-driven discipline. Helpers like wazuhevtx make short work of converting raw EVTX into Wazuh-ready JSONL, while wazuh-testgen turns complex scenarios into ready-to-run behavioral and regression tests. Together, they let you validate high-fidelity detections against real attack telemetry—just one step shy of full attack simulation—without the operational risk or expense. This workflow keeps your rules sharp, your coverage mapped to MITRE ATT&CK, and your changes regression-proof. If you care about maturing your detection pipeline, download these tools, feed them real-world logs, and see how close you can get to adversary emulation before you ever light the match.
 
 ---
 [^1]: It is 2025. When we say WSL, we mention WSL2. Not even MS mention WSL1 in any documents anymore.
