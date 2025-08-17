@@ -176,7 +176,7 @@ Let's analyze them manually before checking what kind of attacks we are expectin
 
 {% include gallery id="galleryTscon" caption="The lolbin tscon.exe is used to hijack RDP session" %}
 
-In the Security log, three event IDs are most relevant to RDP session hijacking with tscon.exe. [Security/4688](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4688) records new process creation, allowing us to trace attacker commands. Security/4778 shows a successful RDP session reconnection, while [Security/4779](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4779) records a session disconnection. We can then observe the [Security/4778](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4778) event, a reconnect event with same session name but different account name. Together, they let us reconstruct both the hijack execution and its impact on users.
+In the Security log, three event IDs are most relevant to RDP session hijacking with `tscon.exe`. [Security/4688](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4688) records new process creation, allowing us to trace attacker commands. Security/4778 shows a successful RDP session reconnection, while [Security/4779](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4779) records a session disconnection. We can then observe the [Security/4778](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4778) event, a reconnect event with same session name but different account name. Together, they let us reconstruct both the hijack execution and its impact on users.
 
 | **Time (UTC)** | **Event**              | **Account**               | **Process / Session**                        | **Details & Interpretation**                                                                 | **Severity**                                     |
 | -------------- | ---------------------- | ------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -210,7 +210,7 @@ How we will implement the rule depends on us but these are the minimum set of be
 
 #### ID4688-4778 RDP hijack command execution.evtx
 
-The second log set shows activity from the Security event log, dominated by Security/4688 and a single Security/4778. While process creation is mostly informational, reconnect events are more relevant for detecting possible lateral movement or RDP hijacking.
+The second log set shows activity from the Security event log, dominated by `Security/4688` and a single `Security/4778` event. While process creation is mostly informational, reconnect events are more relevant for detecting possible lateral movement or RDP hijacking.
 
 We must align with the Wazuh rules classification guide once again. It is beter to pick level **13 - Unusual error (high importance)** here. It is worth an alert but we cannot be sure if the attack succeded, with lack of other indicators we had in the previous log. We must:
 
@@ -600,7 +600,7 @@ After you created the rules, ensure the file permissions are correct. Run `./fix
 
 {% include gallery id="galleryGreen" caption="Unit tests succeeded, we are in Green state." %}
 
-We reached the `GREEN` state. It is now up to the detection engineers to fine-tune the rules more for the `REFACTOR` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
+We reached the `Green` state. It is now up to the detection engineers to fine-tune the rules more for the `Refactor` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
 
 #### Future-proofing detections through regression testing
 
