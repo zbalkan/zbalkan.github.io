@@ -602,7 +602,7 @@ After you created the rules, ensure the file permissions are correct. Run `./fix
 
 We reached the `Green` state. It is now up to the detection engineers to fine-tune the rules more for the `Refactor` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
 
-#### Future-proofing detections through regression testing
+### Future-proofing detections through regression testing
 
 We can stop here, but I suggest moving one step further. I have mentioned that regression testing has a purpose: we do not break current functionality in future changes. Since we now have three new rules, we can write tests for these specifically to ensure we do not break them in future updates. If you remember the `wazuh-testgen` tool above, it has the ability to generate boilerplate test code from rules as well. Usage for test generation from existing rules is simple too:
 
