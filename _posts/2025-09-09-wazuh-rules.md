@@ -1,5 +1,5 @@
 ---
-title: "Understanding the Wazuh rules"
+title: "Understanding Wazuh rules"
 tags:
   - Wazuh
   - SIEM
