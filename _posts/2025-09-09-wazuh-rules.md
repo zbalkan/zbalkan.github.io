@@ -62,9 +62,9 @@ typedef struct Node {
 } Node;
 ```
 
-So, there are two relationships a rule can have: sibling and child. Sibling rules point to the rules having the same parent, including the *no-parent* condition. Therefore, it is the `next` pointer in a linked list. The child relationship is more obvious: if the rule engine matches a rule, it will check the child rules afterwards. As you might notice, this is a [Breadth-first search (BFS)](https://en.wikipedia.org/wiki/Breadth-first_search>) algorithm example for the traversal.
+So, there are two relationships a rule can have: sibling and child. Sibling rules point to the rules having the same parent, including the *no-parent* condition. Therefore, it is the `next` pointer in a linked list. The child relationship is more obvious: if the rule engine matches a rule, it will check the child rules afterwards.
 
-To place Wazuh's approach in context, it helps to compare rule structures more broadly. A tree enforces a single parent per node and forbids cycles, which limits flexibility. A directed acyclic graph (DAG) allows multiple parents but still prevents loops. Wazuh's rule structure, however, is more general. It supports multiple parents and allows cycles if the rules are not carefully designed. For instance, a loop referring to itself can cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730).
+To place Wazuh's approach in context, it helps to compare rule structures more broadly. A tree enforces a single parent per node and forbids cycles, which limits flexibility. A directed acyclic graph (DAG) allows multiple parents but still prevents cycles. Wazuh's rule structure, however, is more general. It supports multiple parents and allows cycles if the rules are not carefully designed. For instance, a rule referring to itself, causing a cycle in the graph, can cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730).
 
 {% include gallery id="galleryTheory" caption="Comparison of a generic directed graph, a DAG, and a tree. Wazuh's rule structure most closely resembles the first, because multiple parents and cycles are possible." %}
 
@@ -186,16 +186,16 @@ Let's analyze a set of rules by means of correlation.
     <description>Escalation from multiple parents</description>
   </rule>
 
-,</group>
+</group>
 ```
 
-In this example, rules like **200100**, **200200**, and **200201** act as sibling bases, each with children (`if_sid`). Some rules escalate via `if_group` (200300, 200310, 200620), while others apply thresholds with `if_matched_sid` (200410, 200621). Rule **200510** demonstrates multiple relationships (`if_sid` + `if_group`), and rule **200612** shows convergence, receiving inputs from several different parents. These relationships illustrate how Wazuh builds both horizontal sibling chains and vertical parent–child connections. I suggest having a look at the graph and the rules above together.
+The XML rules above and the diagram show the same ruleset, laid out from left to right so you can see how things get more complex step by step. On the left, rules like **200000** stand on their own with no child rules at all. Then you get sibling bases such as **200100**, **200200**, and **200201**. They don’t do much by themselves, but once another rule points back to them, they start building structure. For example, **200110** links to **200100** with an `if_sid`, while **200210** connects to both **200200** and **200201**. Moving right, you see group-based escalation in **200300**, which pulls in **200310** with an `if_group`. Thresholds come into play with **200410**, which only fires after ten matches of **200400** in sixty seconds. By the time you reach **200500**, the rules are mixing things together: `if_sid`, `if_group`, and multiple branches that eventually converge at **200612**. On the far right, **200600** and **200620** show the same mix of sid links, groups, and thresholds, just in different combinations. Looked at this way, the ruleset moves from simple atomic events to quite intricate chains, and the graph makes those relationships much easier to follow.
 
 {% include gallery id="galleryRules" caption="Visualization of the sample rules above. Dashed arrows indicate siblings, while solid arrows show parent–child or escalation links." %}
 
 ### Visualization and RuleVis
 
-Thinking in correct data structures rather than isolated rules changes how detection engineers approach their work. The flexibility enables powerful detection logic, but it also carries risks. Loops, redundant escalations, and missed links are easier to identify with visualization and documentation. Three practices consistently reduce complexity: document parent–child relationships, visualize the structure at regular intervals, and review it with fresh eyes before promoting changes. Even a simple diagram exported before and after a quarterly review provides tangible proof that the rules evolve deliberately.
+Thinking in correct data structures rather than isolated rules changes how detection engineers approach their work. The flexibility enables powerful detection logic, but it also carries risks. Cycles, redundant escalations, and missed links are easier to identify with visualization and documentation. Three practices consistently reduce complexity: document parent–child relationships, visualize the structure at regular intervals, and review it with fresh eyes before promoting changes. Even a simple diagram exported before and after a quarterly review provides tangible proof that the rules evolve deliberately.
 
 However, there is no native tool providing this feature. I built a script to use personally some time ago. Recently, I decided to release it publicly. It was a single-page solution with D3.js involved. But due to the high memory use, I rewrote it in Python and plain JS that uses D3.js. It runs a local Flask app that parses rules in a folder, builds the graph structure, aggregates and calculates statistics, and properly visualizes them. The tool is named [RuleVis](https://github.com/zbalkan/rulevis) -*not so creative*.
 
