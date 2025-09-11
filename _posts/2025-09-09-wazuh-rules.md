@@ -28,6 +28,9 @@ Wazuh rules are often mistaken for isolated conditions, but in reality, they for
 
 Unlike Sigma or other detection languages/formats, where rules are written independently, Wazuh requires a hierarchical approach. In essence, Wazuh is a [complex event processing (CEP)](https://en.wikipedia.org/wiki/Complex_event_processing) engine for near real-time processing. It fits in the category of [stream processing](https://en.wikipedia.org/wiki/Stream_processing) as well. However, other engines, such as those implementing the RETE algorithm, automatically build a rule network to optimize matching between rules and facts. Some of the other engines using Sigma, YARA, or YARA-L build an [Aho-Corasick](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm) automaton out of the string matching patterns. Wazuh, on the other hand, leaves this decision to the user, making inter-rule relationships an integral part of writing rules rather than an optional enhancement.
 
+Note for the readers: these are based on the current version of Wazuh, aka 4.x, including the future minor versions. The upcoming major version would be Wazuh 5.x and the engine will be a different beast.
+{: .notice--info}
+
 ## Analysis of rule syntax
 
 ### Syntax and correlation
@@ -64,7 +67,7 @@ typedef struct Node {
 
 So, there are two relationships a rule can have: sibling and child. Sibling rules point to the rules having the same parent, including the *no-parent* condition. Therefore, it is the `next` pointer in a linked list. The child relationship is more obvious: if the rule engine matches a rule, it will check the child rules afterwards.
 
-To place Wazuh's approach in context, it helps to compare rule structures more broadly. A tree enforces a single parent per node and forbids cycles, which limits flexibility. A directed acyclic graph (DAG) allows multiple parents but still prevents cycles. Wazuh's rule structure, however, is more general. It supports multiple parents and allows cycles if the rules are not carefully designed. For instance, a rule referring to itself, causing a cycle in the graph, can cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730).
+To place Wazuh's approach in context, it helps to compare rule structures more broadly. A tree enforces a single parent per node and forbids cycles, which limits flexibility. A directed acyclic graph (DAG) allows multiple parents but still prevents cycles. Wazuh's rule structure, however, is more general. It supports multiple parents and allows cycles if the rules are not carefully designed.[^1]
 
 {% include gallery id="galleryTheory" caption="Comparison of a generic directed graph, a DAG, and a tree. Wazuh's rule structure most closely resembles the first, because multiple parents and cycles are possible." %}
 
@@ -209,8 +212,11 @@ While you can run this on your Wazuh server or a test machine as well, I suggest
 
 ## Conclusion
 
-Wazuh's rule engine is best understood as a flexible system of relationships. Once this model is internalized, rules become easier to reason about, maintain, and scale. The complexity does not disappear, but when understood and maintained properly, it becomes a source of flexibility and precision instead of confusion. The engine traverses a graph structure per log, and if the graph is properly designed, the [time complexity](https://en.wikipedia.org/wiki/Time_complexity) gets closer to *O(log N)*, where *N* is the number of rules. If it were a regular list and rules were evalueated in a loop, the complexity would be *O(N)*, which means the worst-case scenario is looping till the last rule in the list. So, the performance of Wazuh relies on a properly built hierarchy of rules.
+Wazuh's rule engine is best understood as a flexible system of relationships. Once this model is internalized, rules become easier to reason about, maintain, and scale. The complexity does not disappear, but when understood and maintained properly, it becomes a source of flexibility and precision instead of confusion. The engine traverses a graph structure per log, and if the graph is properly designed, the [time complexity](https://en.wikipedia.org/wiki/Time_complexity) gets closer to *O(log N)*, where *N* is the number of rules. If it were a regular list and rules were evaluated in a loop, the complexity would be *O(N)*, which means the worst-case scenario is looping till the last rule in the list. So, the performance of Wazuh relies on a properly built hierarchy of rules.
 
 Start with a catch-all rule and get more specific one by one. Wazuh rules are building blocks. That's why you cannot convert from Sigma rules directly. You need to know the existing rules in your ruleset to build new rules on top.
 
 Now that you have a more accurate mental model of the Wazuh rules, review your custom rules to see what you can find and fine-tune. And please, do not copy-paste rules you find on various resources.
+
+---
+[^1]: For instance, a rule referring to itself, causing a cycle in the graph, may cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730). I could not replciate though.
