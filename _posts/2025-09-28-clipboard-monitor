@@ -1,0 +1,77 @@
+---
+title: "ClipboardMonitor 2.0 released"
+tags:
+  - DLP
+  - AMSI
+  - Detection
+  - Clipboard
+  - ClipboardMonitor
+galleryScreenshot:
+  - url: /assets/clipboard-screenshot.png
+    image_path: /assets/clipboard-screenshot.png
+galleryScreenshotRisk:
+  - url: /assets/clipboard-screenshot-risk.png
+    image_path: /assets/clipboard-screenshot-risk.png
+galleryLogs:
+  - url: /assets/clipboard-log-pan.png
+    image_path: /assets/clipboard-log-pan.png
+  - url: /assets/clipboard-log-amsi.png
+    image_path: /assets/clipboard-log-amsi.png
+---
+
+// TODO: We will separate service from the agent to capture clipboard.
+// TODO: Messagebox has changed a bit
+
+I started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious. I wanted to understand what happens between a browser copy and the moment text lands in a privileged window. The first version was nothing more than a learning exercise: some regexes to spot obvious card numbers and a tiny piece of code that would mask them. That small experiment taught me a surprising amount about how the .NET `Clipboard` wrapper maps to Win32, and it exposed a simple attack surface that felt worth exploring.
+
+This refresh, which I call 2.0, kept the lean mindset. I still want small, auditable code that I can read in one sitting. I added an AMSI hand-off inspired by Eric Lawrence's [ClipShield idea](https://textslashplain.com/2024/06/04/attack-techniques-trojaned-clipboard/), but my approach stayed deliberately simpler: the code uses familiar .NET wrappers where they exist and P/Invoke where they do not, unlike Lawrence's C++ code. There are no external libraries or hidden services involved—just the OS, the framework, and a few hundred lines of C# that I can explain to myself after a night away from the keyboard.
+
+In practice the tool listens for `WM_CLIPBOARDUPDATE`, filters plain-text copies from common browser processes, and runs a short pipeline. A fast pattern matcher looks for living-off-the-land verbs such as `powershell`, `mshta` and `msiexec`. A second check tries to identify payment-card PANs, applies Luhn validation, masks the middle digits, and clears the buffer. Anything that survives these stages is queued to a worker that converts the text to UTF-16 and calls `AmsiScanBuffer`. I cache verdicts in memory for thirty seconds so the Run-dialog sentinel can make a quick decision without re-scanning.
+
+Before the Run dialog appears, the program briefly installs a low-level keyboard hook. If you press Win+R while the clipboard entry is flagged, the hook cancels the paste and a message box explains what happened. The message box is intentionally terse: it names the trigger, says the clipboard was cleared or blocked, and that the incident was logged. I may use toast notifications in the future but I am worried that user may snooze the notifications and does not see the alert.
+
+{% include gallery id="galleryScreenshot" caption="Screenshot of PAN detection and AMSI alerts" %}
+
+I like this pattern because it makes the action transparent—the user sees the evidence—and it avoids silent failures that later make investigations harder.
+
+I have run the tool on a handful of machines and iterated against the surprises I found. On one laptop Defender's cloud lookup added a noticeable half-second delay; on another, certain long numeric strings that were not cards triggered the PAN detector and taught me to broaden the brand list and tolerate common separators. These are exactly the kinds of lessons that hobby work is good at finding. I try to surface them quickly in the repo so others can reproduce and add their own edge cases.
+
+If you want to test it yourself, the sequence is simple. Copy a command-line payload in a browser, open Run, paste, and watch the toast.
+
+| Brand                       | Number              |
+| --------------------------- | ------------------- |
+| Visa                        | 4242424242424242    |
+| Visa (debit)                | 4000056655665556    |
+| Mastercard                  | 5555555555554444    |
+| Mastercard (2-series)       | 2223003122003222    |
+| Mastercard (debit)          | 5200828282828210    |
+| Mastercard (prepaid)        | 5105105105105100    |
+| American Express            | 378282246310005     |
+| American Express            | 371449635398431     |
+| Discover                    | 6011111111111117    |
+| Discover                    | 6011000990139424    |
+| Discover (debit)            | 6011981111111113    |
+| Diners Club                 | 3056930009020004    |
+| Diners Club (14-digit card) | 36227206271667      |
+| JCB                         | 3566002020360505    |
+| UnionPay                    | 6200000000000005    |
+| UnionPay (debit)            | 6200000000000047    |
+| UnionPay (19-digit card)    | 6205500000000000004 |
+
+*Test cards from [Stripe Docs](https://docs.stripe.com/testing?testing-method=card-numbers)*
+
+Copy a dummy PAN and paste; you should see the masked result. I do not include exact payloads here—replace the placeholders in the repository with whatever safe test data you prefer. I sign the binary with a self-issued certificate for convenience; if your environment rejects that, build and sign the executable locally.
+
+There are clear limits, and I say them plainly. The monitor ignores images and rich text. Enterprise policies that block user-mode hooks can disable the Run interception. AMSI behaviour varies across vendors, so when AMSI is unavailable the tool falls back to heuristics. I treat those limits as feature signals: they tell me where the design must remain small and observable rather than trying to be everything to everyone.
+
+Recently I added a minimal test suite and refactored internal boundaries. The tests cover the regex and Luhn matchers and include a small integration check that automates a Run dialog paste to confirm the hook cancels the paste when expected. I widened the PAN detector to recognise more brands and to tolerate separators, and I cleaned up the pipeline so the regex stage, AMSI worker, and sentinel are clearer to read and easy to instrument. I also updated the screenshots. In the screenshot below, you can see that some risky words were copied to clipboard and Run dialog combination was run in the risk window . By default the risk window is calculated for *30 seconds*.
+
+{% include gallery id="galleryScreenshotRisk" caption="Screenshot of AMSI alert in correlation with Run dialog" %}
+
+Incidents are logged to the Windows Event Log (Application > ClipboardMonitor). A sample event looks like:
+
+{% include gallery id="galleryLogs" caption="Screenshot of event logs" %}
+
+If this project interests you, please try it on a lab machine and tell me what breaks. Share the crash dumps, the false positives, and any odd AV behaviour you see. Hobby code survives on scrutiny and iteration, and the clipboard still hides a lot of small, useful surprises.
+
+If you want to kick the tyres, the repository contains everything you need to reproduce the behaviour and validate the integrations. Note that [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) implements a very primitive, local DLP: it masks and scrubs likely PANs on the clipboard but it is not an enterprise-grade DLP product and should not be used as one. You may use EICAR and copy the text for basic AMSI alerts. See the README for the minimal test/run steps and a short safety note about never using real payment data in public demos. If you try the project, please open an issue or a pull request with test logs, screenshots, or reproduction steps — small contributions and bug reports are the best way to improve hobby code.
