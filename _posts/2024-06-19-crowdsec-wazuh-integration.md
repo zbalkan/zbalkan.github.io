@@ -8,6 +8,8 @@ tags:
   - IDS
   - IPS
   - Integration
+  - Open Source
+  - Community Contribution
 redirect_from: /2024/06/19/crowdsec-wazuh-integration.html
 ---
 
