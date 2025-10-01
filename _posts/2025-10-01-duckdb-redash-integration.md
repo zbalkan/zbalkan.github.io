@@ -3,9 +3,10 @@ title: "Connect Redash to DuckDB Databases"
 tags:
   - Database
   - Visualization
-  - Duckdb
+  - DuckDB
   - Redash
   - Open Source
+  - Community Contribution
 galleryFeatures:
   - url: /assets/redash-duckdb-connect.png
     image_path: /assets/redash-duckdb-connect.png
