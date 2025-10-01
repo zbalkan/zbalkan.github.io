@@ -7,6 +7,8 @@ tags:
   - Technitium DNS Server
   - DNS Security
   - DNS
+  - Open Source
+  - Community Contribution
 galleryGraph:
   - url: https://technitium.com/dns/
     image_path: /assets/dns-graph.png
