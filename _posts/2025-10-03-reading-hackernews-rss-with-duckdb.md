@@ -3,6 +3,7 @@ title: "Reading Hacker News RSS with DuckDB"
 tags:
   - Database
   - DuckDB
+  - RSS
   - Tips & Tricks
 galleryPure:
   - url: /assets/hackernews-python.png
@@ -145,7 +146,7 @@ Now I can just run:
 duckdb hackernews.db "FROM hackernews;"
 ```
 
-And the latest Hacker News feed shows up immediately. Thanks to [Friendly SQL](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html) dialect, we can omit `SELECT *`.
+And the latest Hacker News feed shows up immediately. Just like any modern terminal, I can Ctrl-click the link and navigate to the page. Also, thanks to [Friendly SQL](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html) dialect, we can omit `SELECT *`, making it short and redable.
 
 {% include gallery id="gallerySQL" caption="Results from pure DuckDB solution" %}
 
