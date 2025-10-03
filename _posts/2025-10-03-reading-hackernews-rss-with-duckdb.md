@@ -147,6 +147,6 @@ duckdb hackernews.db "FROM hackernews;"
 
 And the latest Hacker News feed shows up immediately. Thanks to [Friendly SQL](https://duckdb.org/docs/stable/sql/dialect/friendly_sql.html) dialect, we can omit `SELECT *`.
 
-{% include gallery id="gallerySql" caption="Results from pure DuckDB solution" %}
+{% include gallery id="gallerySQL" caption="Results from pure DuckDB solution" %}
 
 In the end, this wasn’t about building a reader or replacing RSS clients. It was about bending DuckDB in a direction it wasn’t designed for and seeing how far it could go. I like DuckDB because it makes small data fun again: quick to set up, light to use, and surprisingly flexible when you throw odd formats at it. Experiments like this remind me that not everything has to scale to petabytes or enterprise BI. Sometimes it’s enough to take a tiny dataset—like an RSS feed—and enjoy how easily DuckDB turns it into something queryable. That’s why I keep coming back to it.
