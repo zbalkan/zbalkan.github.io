@@ -11,7 +11,7 @@ tags:
 
 I have a very brief announcement.
 
-I released a new minor version of `wazuhevtx`. Thanks to Github user Joshua T., aka [@radiantly](https://github.com/radiantly) for reporting edge cases that revealed parsing issues in more exotic EVTX files.
+I released a new minor version of `wazuhevtx`, the tool I developed for testing Windows Event Logs on [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program). Thanks to Github user Joshua T., aka [@radiantly](https://github.com/radiantly) for reporting edge cases that revealed parsing issues in more exotic EVTX files.
 
 In this update, I chose to prioritize preventing exceptions over strict compliance with Wazuh agent behavior. This means the tool is no longer 100% identical in output, but it is more resilient and stable. The changes address cases where `EventData["Data"]` is missing -seen in VSS event logs, add explicit handling for custom event levels seen in Hello for Business logs, and improve error handling in Microsoft Time Service events.
 
