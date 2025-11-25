@@ -1,5 +1,5 @@
 ---
-title: "Technitium DNS Server as a PDNS with MISP integration"
+title: "DNS Firewalling with MISP & Technitium DNS Server"
 tags:
   - MISP
   - CTI
@@ -12,63 +12,120 @@ tags:
 galleryGraph:
   - url: https://technitium.com/dns/
     image_path: /assets/dns-graph.png
+galleryMispFeeds:
+  - url: /assets/dns-misp-feeds.png
+    image_path: /assets/dns-misp-feeds.png
 galleryMispDiagram:
   - url: /assets/dns-misp-diagram.png
     image_path: /assets/dns-misp-diagram.png
 galleryMispDashboard:
   - url: /assets/dns-misp-dashboard.png
     image_path: /assets/dns-misp-dashboard.png
+galleryMispWazuh:
+  - url: /assets/dns-misp-wazuh.png
+    image_path: /assets/dns-misp-wazuh.png
 galleryPyramidOfPain:
   - url: /assets/dns-pyramidofpain.png
     image_path: /assets/dns-pyramidofpain.png
 ---
 
-In defensive security, DNS occupies an unusual place. It appears early enough in the attack chain to act as a preventive control, yet it also produces some of the most useful behavioral telemetry a defender can hope for. Clients reveal intent through the names they query: a beaconing host, a misled user, a compromised system attempting a callback. For years this signal was either ignored or consumed quietly in the background of SIEMs, perceived as noisy but not strategic. That changed when organizations began to frame DNS enforcement under the broader term “Protective DNS (PDNS),” led initially by agencies such as [CISA in the United States](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and [NCSC in the United Kingdom](https://www.ncsc.gov.uk/information/pdns). PDNS describes something simple: a recursive resolver that evaluates DNS queries against threat intelligence and blocks or redirects those deemed malicious, without needing to modify internal network architecture. According to CISA’s PDNS guidance, the core requirement is the presence of a resolver that inspects DNS queries and “blocks or mitigates access to known malicious domains while ensuring continuity of operations.” CISA and NCSC both emphasize that PDNS does not require advanced machine learning or deep packet inspection. It requires integrating intelligence with resolution decisions.
+Technitium DNS Server is widely known as a powerful, privacy-oriented alternative to tools such as Pi-hole and AdGuard Home. It serves homelabs, tech-savvy users, and many small and medium-sized businesses seeking transparent, self-hosted DNS filtering. With clustering, rich configuration options, structured logging, and an extensible app model, Technitium now sits somewhere between **AdGuard Home** and **AdGuard Enterprise** in terms of flexibility—still self-hosted, still simple, but increasingly capable. Although it was *not* designed as a Protective DNS (PDNS) platform—and PDNS is usually delivered as SaaS—Technitium’s deterministic resolver and extensibility make it capable of **PDNS-style prevention** when coupled with curated intelligence.
 
-Commercial vendors such as Infoblox’s Threat Defense, Cloudflare Gateway DNS filtering, Palo Alto Networks DNS Security, and DNSSense build on these principles with larger infrastructures, predictive analytics, and curated feeds. Despite their differences, they all rest on the same architectural core: DNS queries flow through an intelligence-informed resolver that acts before connections are established. These products did not create PDNS; they popularized its packaging. The definition remains service-oriented and architecture-neutral. In that sense, an open-source resolver can function as a PDNS if it satisfies the same requirements with clarity and predictability.
+My earlier article on [Technitium and Wazuh](https://zaferbalkan.com/technitium/) described DNS as both a behavioral signal and an enforcement control. DNS queries appear early in the attack chain, often long before command-and-control channels stabilize. This recognition drove agencies such as [CISA](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and the [NCSC](https://www.ncsc.gov.uk/information/pdns) to formalize “Protective DNS (PDNS).” PDNS refers to resolvers that evaluate DNS queries against curated intelligence and block malicious domains with predictable logic and minimal architectural disruption. Version 14.2 of Technitium DNS, with its MISP integration, structured log export, and Extended DNS Errors, makes this PDNS-style operating model attainable in a fully self-hosted environment.
+
+While the terminology may feel modern, DNS firewalling itself has **a history**. Paul Vixie outlined the concept of DNS reputation enforcement in 2010 in *Taking Back the DNS*, which introduced [Response Policy Zones (RPZ)](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) as a mechanism for resolvers to apply reputation data. He later documented RPZ formally in the [first IETF draft](https://datatracker.ietf.org/doc/html/draft-vixie-dns-rpz-00). Years afterward, Xavier Mertens demonstrated a practical MISP-to-RPZ workflow in a well-known [SANS Internet Storm Center diary](https://isc.sans.edu/diary/24556), using Bind, a shell script, and RPZ zone files, which is the inspiratio for this article, hence the title. Whether we call it DNS firewalling or PDNS, the principle is more than a decade old. Technitium DNS does not yet implement RPZ—though it is on the roadmap—but its filtering pipeline delivers similar enforcement capabilities through its own native mechanisms.
 
 {% include gallery id="galleryGraph" caption="Technitium DNS server has a sleek web UI that you can monitor the DNS requests" %}
 
-[Technitium DNS Server](https://technitium.com/dns/) sits in an interesting niche. It is not a commercial PDNS platform, nor does it attempt to replicate large-scale cloud filtering architectures. Yet, functionally, it can serve as a PDNS when equipped with curated threat intelligence and proper telemetry. The resolver offers DNSSEC validation, DNS-over-HTTPS and DNS-over-TLS, a deterministic filtering logic, and a configuration model transparent enough to reason about during an incident. With the major release at the beginning of November, [v14, TDNS provides clustering](https://blog.technitium.com/2025/11/technitium-dns-server-v14-released.html), closing an important gap. But in this article, I'd like to mention what has happened on the [latest minor release, on v14.2](https://github.com/TechnitiumSoftware/DnsServer/blob/master/CHANGELOG.md#version-142). The [MISP Connector App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/MispConnectorApp), which integrates curated threat intelligence from a mature platform, and the update on [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), which provides structured telemetry and now supports [EDNS Extended DNS Error](https://datatracker.ietf.org/doc/html/rfc8914) metadata. Combined, these capabilities place Technitium within the architectural and functional scope that CISA, NCSC, and others describe as PDNS, but without any claim of competing with large security vendors. It is a precise, controllable, open-source implementation of the same defensive principle.
+## Technitium’s PDNS-Style Capabilities and What’s New in v14.2
 
-Before discussing the integration, it is worth acknowledging the design expectations. This article, like my earlier [piece on Wazuh and Technitium integration](https://zaferbalkan.com/technitium/), assumes the reader already operates recursive resolvers, understands DNS security fundamentals, and is familiar with [MISP](https://www.misp-project.org/)’s data model and operational workflows. It does not aim to provide a tutorial or a walkthrough. Readers are expected to recognize the difference between a resolver’s policy engine, threat intelligence quality, and enforcement latency. PDNS is not about the resolver alone; it depends on the relationship between intelligence curation, resolution logic, and observability. Vendors such as Infoblox or Cloudflare invest heavily in curation pipelines, proprietary analytics, and statistical enrichment. With open-source tooling, the intelligence side is handled upstream, with MISP acting as the curation environment rather than the resolver guessing intent downstream. This distinction matters because it informs the design of the Technitium MISP integration.
+PDNS in the SaaS sense provides global infrastructure, proprietary analytics, and vendor-maintained curation pipelines. Technitium does not aim to replicate that model. Instead, it offers a self-hosted resolver whose behavior is transparent and predictable—qualities that align closely with the *architectural* definition of PDNS, even if not with the commercial one.
 
-{% include gallery id="galleryMispDiagram" caption="MISP connects the dots in security tooling" %}
+The recent [v14.2 update](https://github.com/TechnitiumSoftware/DnsServer/blob/master/CHANGELOG.md#version-142) adds two features that make PDNS-style prevention practical:
 
-The [MISP Connector App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/MispConnectorApp), developed for Technitium DNS Server and available on its GitHub repository, is intentionally simple. It queries a MISP instance over the REST API, retrieves domain indicators, filters them by `lastSeen` to enforce recency, and populates an in-memory blocklist backed by a disk cache. It does not apply heuristics, scoring, category inference, clustering, or predictive modeling. It does not attempt to interpret attributes beyond presence and age. This simple design is not a limitation; it is the correct separation of responsibilities. MISP is where context, confidence, taxonomies, and clusters live. MISP carries the organizational curation logic—threat reports, CSIRT collaboration, sector-based sharing groups, abuse feeds, validated correlations, and campaign metadata. Curation belongs upstream, where analysts and automated enrichment pipelines define intelligence quality. The resolver is not the place to reconstruct this logic; its job is to apply intelligence deterministically and consistently.
+* The [**MISP Connector App**](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/MispConnectorApp), which integrates curated threat intelligence directly from MISP.
+* Enhancements to the [**Log Exporter App**](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), enabling support for **Extended DNS Errors (EDE)** ([RFC 8914](https://datatracker.ietf.org/doc/html/rfc8914)), allowing Technitium to attach machine-readable block reasons—whether the domain was blocked by a local list or through MISP intelligence.
 
-Technitium’s filtering pipeline, when paired with the MISP Connector, mirrors CISA’s PDNS definition: an upstream resolver evaluates DNS queries using threat intelligence curated elsewhere and blocks malicious queries without altering the internal DNS topology. The resolver simply enforces a list of domain IOCs derived from a reputable intelligence platform. In a world where PDNS is sometimes framed as a set of proprietary capabilities, it is useful to recall that the baseline requirement is modest and architectural. The sophistication lies in the intelligence, not the blocklist application mechanism.
-
-The configuration of the MISP Connector reflects this spirit. The JSON configuration includes fields for the MISP server URL, API key, TLS validation settings, update interval, age threshold, and the option to embed EDNS Extended DNS Error information when blocking. These parameters introduce no surprises for experienced practitioners. The update cadence expresses operational freshness. The `maxIocAge` enforces recency, aligning with the principle that stale indicators create noise and fragmentation. Disabling TLS validation is permitted only because lab environments exist, but it is explicitly discouraged for production. The EDNS metadata option enriches downstream analytics by ensuring that blocked queries carry structured information about the enforcement decision.
+I authored both the MISP Connector and the Log Exporter App to bridge exactly these operational gaps: self-hosted intelligence enforcement and reliable DNS observability.
 
 {% include gallery id="galleryMispDashboard" caption="MISP provides an overview of CTI" %}
 
-From an architectural perspective, this EDNS addition is more meaningful than it first appears. Many PDNS services—from Cloudflare Gateway to Cisco Umbrella—embed metadata into logging or internal dashboards but do not expose EDNS information directly in responses for internal analytics systems to consume. By embedding structured error information in the DNS response, Technitium provides defenders with a richer signal to feed into SIEM pipelines, support investigations, and correlate with endpoint telemetry. This is especially useful in environments where [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) or another SIEM consumes logs directly from the resolver.
+## MISP Connector App: How It Works
 
-The [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), which I originally developed and later refined with contributions from Technitium’s maintainer, completes the picture. My earlier article on [DNS-level monitoring with Wazuh](https://zaferbalkan.com/technitium/) focused on why DNS logs are so valuable: they capture intent even when traffic never forms a connection, and they reveal behaviors that do not appear in firewall-level logs. At the time, Technitium stored logs locally, which was convenient for single-server setups but inadequate for enterprise telemetry. Syslog forwarding, JSON Lines export, and HTTP batching all became necessary for integration into SIEMs. JSON Lines proved particularly effective for [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) because the format is simple, flat, and schema-agnostic. Structured DNS telemetry, especially when enriched with EDNS Extended DNS Error values, becomes the substrate for detection logic that differentiates between allowed traffic, block events, repeated failures, unusually long domain names, encoded query patterns, or sudden bursts of activity from a single source. These are not hypothetical scenarios; they show up in actual investigations.
+This article assumes familiarity with recursive resolvers and the [MISP](https://www.misp-project.org/) data model. The operating philosophy remains simple: intelligence is curated upstream in MISP, enforced deterministically at the resolver, and analyzed downstream through logs or SIEMs.
 
-From a threat-informed defense perspective - albeit a very primitive one, using MISP with Technitium places intelligence at the earliest reliable decision point in the kill chain. DNS queries appear before command channels stabilize or exfiltration attempts begin, so when MISP curates indicators from CIRCL, sector ISACs, Abuse.ch, or commercial feeds, the resolver can act immediately without trying to infer context on its own. PDNS is shaped by architecture rather than feature counts; it depends on using well-maintained intelligence upstream, enforcing it consistently at the resolver, and producing telemetry that downstream systems can analyze. Technitium meets this definition cleanly with the [MISP Connector](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/MispConnectorApp) applying curated domain IOCs and the [Log Exporter](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp) exposing structured decisions. However, in David Bianco's famous [Pyramid of Pain](https://detect-respond.blogspot.com/2013/03/the-pyramid-of-pain.html), we are only processing the *simple* acts of adversary.
+{% include gallery id="galleryMispFeeds" caption="You are expected to curate your feeds properly on MISP" %}
+
+The MISP Connector retrieves domain indicators from MISP over its REST API. Refer to the [official documentation](https://www.circl.lu/doc/misp/automation/#automation-api) for a better understanding the MISP Automation, you need it for getting the API key. The MISP Connector App filters the domain names in the IOCs using the `lastSeen` attribute, maintains a fast in-memory blocklist, and persists it to disk for efficient startup. Unlike older Bind RPZ workflows—which required scripts, zone rotations, and reloads—the integration is native and automatic.
+
+A sample configuration:
+
+```json
+{
+    "enableBlocking": true,
+    "mispServerUrl": "https://misp.example.com",
+    "mispApiKey": "YourMispApiKeyHere",
+    "disableTlsValidation": false,
+    "updateInterval": "2h",
+    "maxIocAge": "15d",
+    "allowTxtBlockingReport": true,
+    "paginationLimit": 5000,
+    "addExtendedDnsError": true
+}
+```
+
+`maxIocAge` ensures recency, keeping enforcement aligned with active campaigns. `allowTxtBlockingReport` adds human-readable details for TXT queries. The `addExtendedDnsError` embeds structured metadata that downstream systems can interpret, which is made possible thanks to Extended EDNS Error feature of Log Exporter App. The rest of the configuration items are clear as well.
+
+{% include gallery id="galleryMispDiagram" caption="MISP connects the dots in security tooling" %}
+
+## Deterministic Enforcement in Technitium DNS
+
+When a domain matches the MISP-derived blocklist, Technitium enforces it predictably:
+
+* **NXDOMAIN**, for standard blocking
+* Optional **TXT blocking report** with an explanatory message
+* **Extended DNS Error**, indicating the precise block reason (MISP IOC or blocklist)
+
+This matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
+
+## Telemetry: Log Exporter and SIEM Integration
+
+The [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), which I initially developed for my own SIEM integration needs, now supports JSON Lines, Syslog, and HTTP batching. With EDE included, each block event carries structured metadata such as:
+
+* “blocked via MISP IOC”
+* “blocked via local blocklist”
+* “policy enforcement due to configuration”
+
+This closes the loop between intelligence, enforcement, and visibility. Tools like [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) ingest these logs to support investigations into beaconing behaviour, encoded queries, repeated block events, or unusual lookup patterns. I"ve already addressed the integration between [Technitium and Wazuh](https://zaferbalkan.com/technitium/), indicated as arrow 1 in the diagram. With the MISP integration, we define the arrow 2.
+
+{% include gallery id="galleryMispWazuh" caption="MISP, TDNS and Wazuh connection" %}
+
+## Technitium + MISP in Threat-Informed Defense
+
+DNS traffic emerges before exfiltration attempts, malicious payload fetches, or C2 channels stabilize. MISP curates indicators from CIRCL, ISACs, Abuse.ch, and organizational sources. When the resolver enforces these indicators, defenders disrupt threats early. In David Bianco’s [Pyramid of Pain](https://detect-respond.blogspot.com/2013/03/the-pyramid-of-pain.html), domains represent a simple layer—but a layer that is inexpensive to detect and operationally meaningful.
 
 {% include gallery id="galleryPyramidOfPain" caption="We can at least achieve the simple ones with this setup" %}
 
-At the same time, expectations need to remain practical. A PDNS resolver cannot address threats that bypass DNS entirely, a limitation acknowledged by CISA, NCSC, and every major DNS security vendor. Technitium’s filtering logic is intentionally minimal—it checks whether a domain appears in the MISP-derived IOC set and whether it is recent enough to matter—because confidence, context, and correlation belong upstream in MISP. This separation of responsibility is by design: intelligence is curated where analysts work; enforcement happens where queries originate; telemetry flows downstream to SIEMs like Wazuh for analysis. The resolver should not reinterpret intelligence. It should enforce it with clarity and predictability.
+## Component Responsibilities
 
-| Component                                              | Responsibility                                        | Characteristics                                                        |
-| ------------------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| **MISP (CIRCL / community / organizational instance)** | Curate, tag, contextualize, correlate, enrich IOCs    | Rich semantics, human and automated curation, taxonomies, event models |
-| **MISP Connector App**                                 | Fetch relevant indicators and enforce recency filters | Simple, deterministic, minimal logic                                   |
-| **Technitium DNS Server**                              | Enforce domain blocks and serve as recursive resolver | Deterministic behavior, predictable blocking                           |
-| **Log Exporter with EDNS metadata**                       | Provide full observability into decisions             | Structured logs, SIEM integration                                      |
-| **SIEM (e.g., Wazuh), NDR, XDR**                                 | Analyze, correlate, build detections                  | Flexible logic, historical context                                     |
+| Component                                              | Responsibility                                     | Characteristics                               |
+| ------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------- |
+| **MISP (CIRCL / community / organizational instance)** | Curate, tag, contextualize, correlate, enrich IOCs | Rich semantics, human and automated workflows |
+| **MISP Connector App**                                 | Fetch indicators, enforce recency filters          | Deterministic, minimal logic                  |
+| **Technitium DNS Server**                              | Enforce domain blocks, serve as recursive resolver | Transparent, predictable behavior             |
+| **Log Exporter with EDNS metadata**                    | Provide observability                              | Structured logs, SIEM-friendly                |
+| **SIEM / NDR / XDR**                                   | Analyze, correlate, build detections               | Flexible logic, behavioural context           |
 
-This division reflects the modern threat-informed defense model: intelligence upstream, enforcement midstream, telemetry downstream.
+## Operational Considerations
 
-From an operational perspective, deploying Technitium in this way requires careful thought around the maturity of the MISP instance. Organizations that feed MISP with wide-open OSINT sources without curation will cause Technitium to block aggressively and noisily. Conversely, overly restrictive filtering reduces coverage. MISP supports confidence scoring, taxonomies, galaxy clusters, distribution settings, and feed management precisely so that organizations can tune their intelligence. Tools like Infoblox or Cloudflare do this tuning internally; open-source users must do it in MISP.
+MISP requires tuning. Importing unfiltered OSINT feeds leads to noisy blocking; using confidence levels, taxonomies, galaxies, and distribution settings ensures meaningful intelligence. Commercial PDNS vendors hide this tuning within proprietary pipelines; open-source users perform it themselves.
 
-Technitium’s predictability makes this adjustment work more transparent. During an investigation, when a resolver returns an NXDOMAIN with an EDNS Extended DNS Error indicating that the query was blocked due to an IOC from MISP, analysts can trace the indicator back to a specific MISP event, examine its context, and understand why it was applied. This is a level of transparency that PDNS users rarely enjoy in commercial ecosystems, where block decisions often originate from opaque proprietary feeds. Transparency does not imply superiority, but it offers clarity and control that many environments value.
+Technitium’s transparency makes this workflow traceable. When a block event includes an EDNS error referencing a specific MISP attribute, analysts can trace it back to the exact event and evaluate its context—clarity rarely found in proprietary PDNS ecosystems.
 
-In practice, Technitium with MISP integration becomes an architectural expression of the PDNS guidance issued by CISA and NCSC: an upstream resolver that applies curated intelligence, blocks malicious domains deterministically, logs decisions comprehensively, and fits into existing architectures without requiring internal DNS redesign. It is neither a replacement for larger DNS security platforms nor a toy. It is a pragmatic solution for organizations that want a clear, open, and controllable PDNS capability rooted in community-driven intelligence and open-source software.
+On the other hand, PDNS or DNS Firewalling is not a silver bullet too. Protective DNS services strengthen client-side resolution by filtering queries through threat intelligence and policy enforcement, yet they do not defend authoritative servers. Attacks such as reflection, amplification and direct denial-of-service bypass resolver paths entirely and target the authoritative IP directly. Parser-level exploits, EDNS abuse and TCP state exhaustion also occur before any Protective DNS layer can intervene. Zone-transfer leaks and DNSSEC-related enumeration remain unaffected because they originate from authoritative configuration rather than resolver filtering. Although Protective DNS can block poisoning attempts against downstream resolvers, it provides no meaningful protection for the authoritative server itself, which must rely on network filtering, hardened configuration and resilient DNS architecture.
 
-The final piece is culture. PDNS is most effective when organizations adopt a threat-informed mindset. That means reviewing indicators regularly, refining intelligence sources, analyzing resolver logs, adjusting filters, and using DNS telemetry to inform broader investigations. Technitium does its part by providing the enforcement and telemetry paths. MISP does its part by offering a platform for meaningful intelligence curation. The resolver does not replace defense-in-depth; it amplifies it.
+## Conclusion
 
-This article, like the [earlier one on Wazuh and Technitium](https://zaferbalkan.com/technitium/), reflects my understanding of DNS as both an enforcement point and a behavioral signal. It also reflects my experience contributing to the [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp) and following the evolution of the Technitium ecosystem. The MISP integration is not complex, not sophisticated, and not predictive. It is precisely as complex as it needs to be: simple, transparent, intelligence-driven, and aligned with recognized PDNS expectations. In a field often overwhelmed by marketing vocabulary and exaggerated claims, this kind of clarity feels refreshing. None of this would be possible without the efforts of the hero behind Technitium DNS Server, [Shreyas Zare](https://github.com/ShreyasZare), and all the distinguished [contributors of MISP project](https://github.com/MISP/MISP/graphs/contributors).
+Technitium DNS with MISP integration provides a clear, controllable, self-hosted way to implement PDNS-style intelligence enforcement. It respects the architecture described by CISA and NCSC—curated intelligence upstream, deterministic enforcement midstream, and structured telemetry downstream—without claiming the scope of commercial PDNS SaaS platforms. This work continues the themes from my [earlier article on Wazuh and Technitium](https://zaferbalkan.com/technitium/): DNS as a powerful enforcement point and source of behavioural signal.
+
+I remain grateful to the contributors who make this ecosystem possible: the creator of Technitium DNS Server, [Shreyas Zare](https://github.com/ShreyasZare), and all contributors to the [MISP project](https://github.com/MISP/MISP/graphs/contributors). And I want to acknowledge earlier pioneers—Paul Vixie, whose [RPZ work](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) shaped DNS reputation enforcement, and Xavier Mertens and the [SANS Internet Storm Center](https://isc.sans.edu/diary/24556), who demonstrated practical MISP-based DNS firewalling long before this integration existed. My contributions—the MISP Connector and Log Exporter Apps—simply aim to build on this lineage in a modern, open-source resolver.
