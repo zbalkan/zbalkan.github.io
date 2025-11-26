@@ -27,6 +27,9 @@ galleryMispWazuh:
 galleryPyramidOfPain:
   - url: /assets/dns-pyramidofpain.png
     image_path: /assets/dns-pyramidofpain.png
+galleryDnsClient:
+  - url: /assets/dns-client.png
+    image_path: /assets/dns-client.png
 ---
 
 Technitium DNS Server is widely known as a powerful, privacy-oriented alternative to tools such as Pi-hole and AdGuard Home. It serves homelabs, tech-savvy users, and many small and medium-sized businesses seeking transparent, self-hosted DNS filtering. With clustering, rich configuration options, structured logging, and an extensible app model, Technitium now sits somewhere between **AdGuard Home** and **AdGuard Enterprise** in terms of flexibility—still self-hosted, still simple, but increasingly capable. Although it was *not* designed as a Protective DNS (PDNS) platform—and PDNS is usually delivered as SaaS—Technitium’s deterministic resolver and extensibility make it capable of **PDNS-style prevention** when coupled with curated intelligence.
@@ -86,15 +89,115 @@ When a domain matches the MISP-derived blocklist, Technitium enforces it predict
 * Optional **TXT blocking report** with an explanatory message
 * **Extended DNS Error**, indicating the precise block reason (MISP IOC or blocklist)
 
+### Sample A record query for a blocked query
+
+You can use the built-in client for the capabilities.
+
+{% include gallery id="galleryDnsClient" caption="DNS Client on dashboard" %}
+
+The query above will produce very detailed information for validation purposes.
+
+```json
+{
+  "Metadata": {
+    "NameServer": "lenovo (127.0.0.1)",
+    "Protocol": "Udp",
+    "DatagramSize": "140 bytes",
+    "RoundTripTime": "0.63 ms"
+  },
+  "EDNS": {
+    "UdpPayloadSize": 1232,
+    "ExtendedRCODE": "NxDomain",
+    "Version": 0,
+    "Flags": "None",
+    "Options": [
+      {
+        "Code": "EXTENDED_DNS_ERROR",
+        "Length": "43 bytes",
+        "Data": {
+          "InfoCode": "Blocked",
+          "ExtraText": "source=misp-connector;domain=stemtopx.com"
+        }
+      }
+    ]
+  },
+  "Identifier": 0,
+  "IsResponse": true,
+  "OPCODE": "StandardQuery",
+  "AuthoritativeAnswer": false,
+  "Truncation": false,
+  "RecursionDesired": true,
+  "RecursionAvailable": true,
+  "Z": 0,
+  "AuthenticData": false,
+  "CheckingDisabled": false,
+  "RCODE": "NxDomain",
+  "QDCOUNT": 1,
+  "ANCOUNT": 0,
+  "NSCOUNT": 1,
+  "ARCOUNT": 1,
+  "Question": [
+    {
+      "Name": "stemtopx.com",
+      "Type": "A",
+      "Class": "IN"
+    }
+  ],
+  "Answer": [],
+  "Authority": [
+    {
+      "Name": "stemtopx.com",
+      "Type": "SOA",
+      "Class": "IN",
+      "TTL": "60 (1m)",
+      "RDLENGTH": "40 bytes",
+      "RDATA": {
+        "PrimaryNameServer": "lenovo",
+        "ResponsiblePerson": "hostadmin@lenovo",
+        "Serial": 1,
+        "Refresh": "14400 (4h)",
+        "Retry": "3600 (1h)",
+        "Expire": "604800 (1w)",
+        "Minimum": "60 (1m)"
+      },
+      "DnssecStatus": "Disabled"
+    }
+  ],
+  "Additional": [
+    {
+      "Name": "",
+      "Type": "OPT",
+      "Class": "1232",
+      "TTL": "0 (0s)",
+      "RDLENGTH": "47 bytes",
+      "RDATA": {
+        "Options": [
+          {
+            "Code": "EXTENDED_DNS_ERROR",
+            "Length": "43 bytes",
+            "Data": {
+              "InfoCode": "Blocked",
+              "ExtraText": "source=misp-connector;domain=stemtopx.com"
+            }
+          }
+        ]
+      },
+      "DnssecStatus": "Disabled"
+    }
+  ]
+}
+```
+
 This matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
 
 ## Telemetry: Log Exporter and SIEM Integration
 
-The [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), which I initially developed for my own SIEM integration needs, now supports JSON Lines, Syslog, and HTTP batching. With EDE included, each block event carries structured metadata such as:
+The [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), which I initially developed for my own SIEM integration needs, now supports JSON Lines, Syslog, and HTTP batching. With EDE included, each block event carries structured metadata. You can see that in the A record response, there is no answer but the `edns` section includes the `{"errType":"Blocked","message":"source=misp-connector;domain=stemtopx.com"}` message. On the other hand, the TXT record query has an ansert and the answer includes the block message, regardless of EDNS.
 
-* “blocked via MISP IOC”
-* “blocked via local blocklist”
-* “policy enforcement due to configuration”
+```json
+{"answers":[],"clientIp":"127.0.0.1","edns":[{"errType":"Blocked","message":"source=misp-connector;domain=stemtopx.com"}],"protocol":"Udp","question":{"questionClass":"IN","questionName":"stemtopx.com","questionType":"A"},"responseCode":"NxDomain","responseType":"Blocked","timestamp":"2025-11-26T10:10:30.567Z"}
+{"answers":[{"dnssecStatus":"Unknown","name":"stemtopx.com","recordClass":"IN","recordData":"\"source=misp-connector;domain=stemtopx.com\"","recordTtl":60,"recordType":"TXT"}],"clientIp":"127.0.0.1","edns":[{"errType":"Blocked","message":"source=misp-connector;domain=stemtopx.com"}],"protocol":"Udp","question":{"questionClass":"IN","questionName":"stemtopx.com","questionType":"TXT"},"responseCode":"NoError","responseType":"Blocked","timestamp":"2025-11-26T10:35:31.168Z"}
+```
 
 This closes the loop between intelligence, enforcement, and visibility. Tools like [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) ingest these logs to support investigations into beaconing behaviour, encoded queries, repeated block events, or unusual lookup patterns. I"ve already addressed the integration between [Technitium and Wazuh](https://zaferbalkan.com/technitium/), indicated as arrow 1 in the diagram. With the MISP integration, we define the arrow 2.
 
