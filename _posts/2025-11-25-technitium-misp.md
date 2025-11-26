@@ -24,6 +24,9 @@ galleryMispDashboard:
 galleryMispWazuh:
   - url: /assets/dns-misp-wazuh.png
     image_path: /assets/dns-misp-wazuh.png
+galleryDig:
+  - url: /assets/dns-dig.png
+    image_path: /assets/dns-dig.png
 galleryPyramidOfPain:
   - url: /assets/dns-pyramidofpain.png
     image_path: /assets/dns-pyramidofpain.png
@@ -34,9 +37,9 @@ galleryDnsClient:
 
 Technitium DNS Server is widely known as a powerful, privacy-oriented alternative to tools such as Pi-hole and AdGuard Home. It serves homelabs, tech-savvy users, and many small and medium-sized businesses seeking transparent, self-hosted DNS filtering. With clustering, rich configuration options, structured logging, and an extensible app model, Technitium now sits somewhere between **AdGuard Home** and **AdGuard Enterprise** in terms of flexibility—still self-hosted, still simple, but increasingly capable. Although it was *not* designed as a Protective DNS (PDNS) platform—and PDNS is usually delivered as SaaS—Technitium’s deterministic resolver and extensibility make it capable of **PDNS-style prevention** when coupled with curated intelligence.
 
-My earlier article on [Technitium and Wazuh](https://zaferbalkan.com/technitium/) described DNS as both a behavioral signal and an enforcement control. DNS queries appear early in the attack chain, often long before command-and-control channels stabilize. This recognition drove agencies such as [CISA](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and the [NCSC](https://www.ncsc.gov.uk/information/pdns) to formalize “Protective DNS (PDNS).” PDNS refers to resolvers that evaluate DNS queries against curated intelligence and block malicious domains with predictable logic and minimal architectural disruption. Version 14.2 of Technitium DNS, with its MISP integration, structured log export, and Extended DNS Errors, makes this PDNS-style operating model attainable in a fully self-hosted environment.
+My earlier article on [Technitium and Wazuh](https://zaferbalkan.com/technitium/) described DNS as both a behavioral signal and an enforcement control. DNS queries appear early in the attack chain, often long before command-and-control channels stabilize. This recognition drove agencies such as [CISA](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and the [NCSC](https://www.ncsc.gov.uk/information/pdns) to formalize “Protective DNS (PDNS).” PDNS refers to resolvers that evaluate DNS queries against curated intelligence and block malicious domains with predictable logic and minimal architectural disruption. Thanks to the recent developments of Technitium DNS, it has gotten closer this PDNS-style operating model attainable in a fully self-hosted environment.
 
-While the terminology may feel modern, DNS firewalling itself has **a history**. Paul Vixie outlined the concept of DNS reputation enforcement in 2010 in *Taking Back the DNS*, which introduced [Response Policy Zones (RPZ)](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) as a mechanism for resolvers to apply reputation data. He later documented RPZ formally in the [first IETF draft](https://datatracker.ietf.org/doc/html/draft-vixie-dns-rpz-00). Years afterward, Xavier Mertens demonstrated a practical MISP-to-RPZ workflow in a well-known [SANS Internet Storm Center diary](https://isc.sans.edu/diary/24556), using Bind, a shell script, and RPZ zone files, which is the inspiratio for this article, hence the title. Whether we call it DNS firewalling or PDNS, the principle is more than a decade old. Technitium DNS does not yet implement RPZ—though it is on the roadmap—but its filtering pipeline delivers similar enforcement capabilities through its own native mechanisms.
+While the terminology may feel modern, DNS firewalling itself has **a history**. Paul Vixie outlined the concept of DNS reputation enforcement in 2010 in *Taking Back the DNS*, which introduced [Response Policy Zones (RPZ)](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) as a mechanism for resolvers to apply reputation data. He later documented RPZ formally in the [first IETF draft](https://datatracker.ietf.org/doc/html/draft-vixie-dns-rpz-00). Years afterward, Xavier Mertens demonstrated a practical MISP-to-RPZ workflow in a well-known SANS Internet Storm Center diary in his called [DNS Firewalling with MISP](https://isc.sans.edu/diary/24556), using Bind, a shell script, and RPZ zone files, which is the inspiration for this effort of mine, hence the title. Whether we call it DNS firewalling or PDNS, the principle is more than a decade old. Technitium DNS does not yet implement RPZ—though it is on the roadmap—but its filtering pipeline delivers similar enforcement capabilities through its own native mechanisms.
 
 {% include gallery id="galleryGraph" caption="Technitium DNS server has a sleek web UI that you can monitor the DNS requests" %}
 
@@ -49,7 +52,10 @@ The recent [v14.2 update](https://github.com/TechnitiumSoftware/DnsServer/blob/m
 * The [**MISP Connector App**](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/MispConnectorApp), which integrates curated threat intelligence directly from MISP.
 * Enhancements to the [**Log Exporter App**](https://github.com/TechnitiumSoftware/DnsServer/tree/master/Apps/LogExporterApp), enabling support for **Extended DNS Errors (EDE)** ([RFC 8914](https://datatracker.ietf.org/doc/html/rfc8914)), allowing Technitium to attach machine-readable block reasons—whether the domain was blocked by a local list or through MISP intelligence.
 
-I authored both the MISP Connector and the Log Exporter App to bridge exactly these operational gaps: self-hosted intelligence enforcement and reliable DNS observability.
+`<humblebrag>`I authored both the MISP Connector and the Log Exporter App`</humblebrag>` to bridge exactly these operational gaps: self-hosted intelligence enforcement and reliable DNS observability.
+
+For collecting EDE information in DNS response, the DNS query must send EDNS first. Not every client supports it, therefore you must be aware of empty `edns` fields in logs.
+{: .notice--info}
 
 {% include gallery id="galleryMispDashboard" caption="MISP provides an overview of CTI" %}
 
@@ -188,7 +194,11 @@ The query above will produce very detailed information for validation purposes.
 }
 ```
 
-This matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
+You can simply use `dig` command for testing as well:
+
+{% include gallery id="galleryDig" caption="dig command showung EDE" %}
+
+This new set of behaviors matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
 
 ## Telemetry: Log Exporter and SIEM Integration
 
