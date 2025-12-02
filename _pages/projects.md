@@ -15,6 +15,7 @@ Below is a curated list of small utilities I have developed.
 | [wazuh-testgen](https://github.com/zbalkan/wazuh-testgen) | A tool to help detection engineers generate Wazuh rule tests either derived from INI test files from Wazuh repository, Windows Event Log (EVTX) files, or Wazuh rule files. | Python |
 | [wazuhevtx](https://github.com/zbalkan/wazuhevtx) | A Python tool that parses EVTX files and converts them into JSON formatted logs mimicking Wazuh agent behavior in version 4.x. wazuhevtx is designed as a helper for wazuh-logtest tool. | Python |
 | [rulevis](https://github.com/zbalkan/rulevis) | A simple tool to visualize the Wazuh ruleset for analysis of connections. It may help finding loops, duplicates, and redundant rules. | Python |
+| [wresult](https://github.com/zbalkan/wresult) | wresult provides the running configuration of a Wazuh agent by reconstructing how it applies ossec.conf and agent.conf. | Python |
 | [sca_guide](https://github.com/zbalkan/sca_guide) | A helper for Wazuh Security Configuration Assessment (SCA) to create a custom SCA based on loosening. | Python |
 
 ### Sysadmin tools
