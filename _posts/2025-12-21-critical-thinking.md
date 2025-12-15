@@ -15,7 +15,7 @@ At the same time, many modern environments no longer behave like collections of 
 
 This is not a tooling problem, nor a skills gap in the usual sense. It is a representational mismatch. Tabular thinking and graph thinking are not competing approaches. They are complementary mental models and communication tools. Each excels at answering different questions, and each fails when applied outside its natural domain. Critical thinking today depends on recognizing which model a problem requires, and on moving deliberately between them. Improving this fluency matters not only for individual understanding, but for how teams align, explain, and decide together.
 
-## 1. Tabular Thinking as a Foundational Skill
+## Tabular Thinking as a Foundational Skill
 
 Tabular thinking is one of the most stable abstractions in knowledge work. Long before databases, ledgers imposed order by forcing observations into consistent categories. This discipline survived because it worked. It reduced ambiguity, supported accountability, and allowed complex activities to be coordinated at scale. The relational database formalized what practitioners already understood intuitively: explicit structure enables control.
 
@@ -95,7 +95,7 @@ At the same time, the risk matrix reveals the natural boundary of classification
 
 Tabular thinking, across all these forms, is essential. It enforces discipline. The risk lies in expecting it to explain systems whose behavior emerges from interaction rather than accumulation.
 
-## 2. When Systems Stop Being Lists
+## When Systems Stop Being Lists
 
 Many environments only appear list-like because we document them that way. Identity systems, operational platforms, and security architectures are often described as inventories, yet they behave as networks. Failures occur not because individual components are unknown, but because their relationships are misunderstood.
 
@@ -103,7 +103,7 @@ Practitioners sense this gap intuitively. Analysts export multiple reports and c
 
 Graph thinking addresses this mismatch by treating relationships as first-class. Entities become nodes. Relationships become edges. Meaning emerges from connectivity. This is not a storage decision first; it is a reasoning shift.
 
-## 3. Graph Thinking as a First-Class Mental Model and a Shared Language
+## Graph Thinking as a First-Class Mental Model and a Shared Language
 
 Graph thinking becomes unavoidable when systems stop behaving like collections of items and start behaving like ecosystems. This shift rarely happens suddenly. It emerges as environments grow, integrate, and accumulate exceptions. At first, everything still fits into inventories and reports. Over time, relationships dominate behavior.
 
