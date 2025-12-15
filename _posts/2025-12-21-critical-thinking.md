@@ -82,14 +82,16 @@ These tables are useful for roadmaps, but they hide dependencies.
 
 ### Matrix Tables
 
-Matrix tables classify subjects across two equally important dimensions. Neither axis dominates. These tables are rare but powerful in threat modeling and control mapping.
+Matrix tables classify subjects across **two equally important dimensions**, where meaning exists only at their intersection. Neither axis dominates the interpretation. In cybersecurity, the most familiar example is the **risk assessment matrix**, which maps likelihood against impact. Risk cannot be evaluated by probability alone or severity alone; it only becomes meaningful when both are considered together. This structure makes the matrix a powerful coordination tool. Executives, security leaders, and auditors can discuss prioritization using a shared language without requiring deep technical context, which explains why this model appears consistently across frameworks, standards, and regulatory guidance.
 
-| ATT&CK Tactic \ Actor | Nation-State  | Cybercrime      | Insider           |
-| --------------------- | ------------- | --------------- | ----------------- |
-| Initial Access        | Spearphishing | Exploit kits    | Credential misuse |
-| Persistence           | Golden SAML   | Scheduled tasks | Rogue accounts    |
+| Likelihood \ Impact | Low Impact | Medium Impact | High Impact | Critical Impact |
+| ------------------- | ---------- | ------------- | ----------- | --------------- |
+| Rare                | Low        | Low           | Medium      | Medium          |
+| Possible            | Low        | Medium        | High        | High            |
+| Likely              | Medium     | High          | High        | Critical        |
+| Almost Certain      | High       | Critical      | Critical    | Critical        |
 
-Matrix tables clarify classification, but they still stop short of expressing paths.
+At the same time, the risk matrix reveals the natural boundary of classification-based thinking. It assumes risks are independent, static, and comparable in isolation. Two risks placed in the same cell may behave very differently once shared assets, identity relationships, or cascading failures are considered. The matrix helps organizations agree on *what matters most*, but it does not explain *how risk moves through the system*. That gap is not a flaw in the model; it is a signal that classification has done its job and a relational model—graph thinking—is required next.
 
 Tabular thinking, across all these forms, is essential. It enforces discipline. The risk lies in expecting it to explain systems whose behavior emerges from interaction rather than accumulation.
 
