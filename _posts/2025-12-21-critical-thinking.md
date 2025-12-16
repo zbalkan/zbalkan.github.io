@@ -29,7 +29,7 @@ At the same time, tables embed a quiet assumption: that the most important quest
 
 This limitation is structural, not accidental. Tables are designed to constrain interpretation. As systems grow more interconnected, this constraint becomes a liability. Recursive queries exist, but they are neither intuitive nor communicative. Humans do not naturally think in joins.
 
-Before leaving tabular thinking, it helps to be precise about *how* tables are structured. Tables are not a single content type. They follow distinct patterns, each optimized for a specific kind of meaning. In cybersecurity and GRC, these patterns appear repeatedly, often without being named.
+Before leaving tabular thinking, it helps to be precise about *how* tables are structured. Tables are not a single content type. They follow distinct patterns, each optimized for a specific kind of meaning. In cybersecurity and GRC, these patterns appear repeatedly, often without being named. Michael Andrews listed [5 common table types](https://storyneedle.com/content-structure-in-tables/), and I provided some IT and cybersecurity related examples for a better understanding.
 
 ### Mutual Comparison Tables
 
