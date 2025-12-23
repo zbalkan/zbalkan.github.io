@@ -138,7 +138,7 @@ In the IT and Cybersecurity domain, the spectrum table is the standard format fo
 
 {% include gallery id="galleryMatrix" caption="Matrix Table" %}
 
-A **Matrix Table** is characterized by its bidirectional structure, where row headings **()** and column headings **()** hold equal logical weight. Unlike tables that prioritize a single subject or primary dimension, a genuine matrix describes two distinct "facets" (Facet X and Facet Y) of a single overarching subject **()**. Every specific value **()** within the table is defined by the intersection of these two properties, meaning each value possesses two independent attributes simultaneously. This structure is often misused in "quasi-matrices" where data only sums or makes sense in one direction; however, a true matrix allows a reader to start with a value and answer two separate, equally important questions about its classification.
+A **Matrix Table** is characterized by its bidirectional structure, where row headings **($P_1$)** and column headings **($P_2$)** hold equal logical weight. Unlike tables that prioritize a single subject or primary dimension, a genuine matrix describes two distinct "facets" (Facet X and Facet Y) of a single overarching subject **($S$)**. Every specific value **($O$)** within the table is defined by the intersection of these two properties, meaning each value possesses two independent attributes simultaneously. This structure is often misused in "quasi-matrices" where data only sums or makes sense in one direction; however, a true matrix allows a reader to start with a value and answer two separate, equally important questions about its classification.
 
 ### Example: Risk Assessment Matrix
 
