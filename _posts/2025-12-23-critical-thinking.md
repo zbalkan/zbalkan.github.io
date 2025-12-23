@@ -1,5 +1,5 @@
 ---
-title: "Tabular Thinking and Graph Thinking: Essential Mental Models for Critical Thinking in the Modern Age"
+title: "Tabular Thinking and Graph Thinking: Essential Mental Models for Cybersecurity Pros"
 tags:
   - Security
   - Human aspects
