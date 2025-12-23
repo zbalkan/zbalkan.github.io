@@ -21,6 +21,13 @@ galleryMatrix:
 gallerySpectrum:
   - url: /assets/critical-spectrum.png
     image_path: /assets/critical-spectrum.png
+galleryGraphs:
+  - url: /assets/critical-vt.png
+    image_path: /assets/critical-vt.png
+  - url: /assets/critical-bloodhound.jpg
+    image_path: /assets/critical-bloodhound.jpg
+  - url: /assets/critical-cmdb.jpg
+    image_path: /assets/critical-cmdb.jpg
 ---
 
 ## Introduction
@@ -157,58 +164,56 @@ In the field of **Governance, Risk, and Compliance (GRC)**, the most iconic appl
 
 ## When Systems Do Not Fit into Tables
 
-Effective table design requires a shift away from ad-hoc, "hand-crafted" layouts that serve only immediate needs toward standardized structures that support long-term business goals and audience comprehension. Too often, tables in technical fields suffer from looking like raw, unedited database exports or idiosyncratic "PowerPoint-style" slides that prioritize visual flair over structural integrity. When tables drop essential explanatory headings or include extraneous, unrelated data, they become untrustworthy and difficult for the audience to use for critical decision-making. By deconstructing existing tables to find recurring patterns and implementing standardized templates, organizations can ensure their data is flexible, easy to update, and consistently interpreted across different contexts.
+Effective table design requires a shift away from ad-hoc, "hand-crafted" layouts toward standardized structures that support long-term business goals. In the realms of ITSM, GRC, and Cybersecurity, this standardization is vital for maintaining clarity. Whether it is a mutual comparison table for vulnerabilities, a matrix for risk, or a spectrum table for service tiers, content engineering ensures that high-stakes data can be reused across multiple reporting channels while maintaining editorial oversight. However, even with perfect standardization, a fundamental limit exists: tables are designed to summarize state, but they struggle to explain behavior.
 
-In the realms of ITSM, GRC, and Cybersecurity, this standardization is vital for maintaining clarity amidst complex technical data. Within Cybersecurity, moving from raw vulnerability logs to standardized mutual comparison tables allows security teams to verify that they are not missing key variables during threat analysis. For GRC professionals, utilizing rigid matrix templates for risk assessments ensures that auditors can trust the bidirectional relationship between probability and impact without the confusion caused by "glib" or poorly labeled marketing-style comparisons. In ITSM, applying spectrum table structures to service catalogs provides a scalable way to present tier variations, ensuring that internal customers understand exactly how service properties change according to the chosen package. Ultimately, content engineering based on these standard structures allows high-stakes IT data to be revised and reused across multiple reporting channels while maintaining full editorial oversight and technical accuracy.
+The inadequacy of a table often surfaces when an environment’s complexity—defined as a function of its size, connectedness, and semi-structure—surpasses the limits of a row-and-column format. Many environments only appear list-like because we document them that way; identity systems and security architectures are often managed as inventories, yet they behave as ecosystems. When systems are highly connected and semi-structured, forcing them into a table suppresses their relational structure. Practitioners sense this gap intuitively when they find themselves manually correlating multiple reports or maintaining diagrams outside of official documentation. These "workarounds" are symptoms of a representational mismatch where the data is correct, but the context is lost.
 
-Many environments only appear list-like because we document them that way. Identity systems, operational platforms, and security architectures are often described as inventories, yet they behave as networks. Failures occur not because individual components are unknown, but because their relationships are misunderstood.
+Graph thinking addresses this mismatch by treating relationships as first-class citizens rather than secondary attributes. In a graph model, meaning is not trapped in a cell; it emerges from the connectivity between nodes and edges. This is not merely a technical storage decision, but a fundamental reasoning shift. By adopting the property graph model—where nodes represent entities like "Users" or "Assets," and named, directed edges represent the "Verbs" of the system—we move away from global scans of isolated records toward a "graph-local" perspective. This allows us to trace influence and follow paths, transforming our documentation from a static list of components into a dynamic map of system behavior.
 
-Practitioners sense this gap intuitively. Analysts export multiple reports and correlate them manually. Engineers maintain diagrams outside official documentation. Incident responders reconstruct timelines from logs never meant to tell stories. These practices persist because tabular representations suppress relational structure.
+## Graph Thinking as a First-Class Mental Model
 
-Graph thinking addresses this mismatch by treating relationships as first-class. Entities become nodes. Relationships become edges. Meaning emerges from connectivity. This is not a storage decision first; it is a reasoning shift.
+Graph thinking becomes an unavoidable necessity when systems stop behaving like collections of independent items and begin behaving like ecosystems. As noted by [Ian Robinson](https://iansrobinson.com/), this transition is typically driven by a surge in three specific variables: size, connectedness, and semi-structure. In the early stages of an IT environment, data is managed within the fixed, predictable schemas of a table. However, as dependencies accumulate and exceptions become the rule, the "connectedness" of the data begins to dominate system behavior. At this tipping point, tabular representations fail because they treat relationships as secondary metadata, such as foreign keys or join tables, rather than first-class citizens. This representational mismatch creates a "cognitive gap," where defenders are trapped in a two-dimensional world of chronologically sorted logs while attackers are freely navigating a multi-dimensional web of trust.
 
-## Graph Thinking as a First-Class Mental Model and a Shared Language
+As a mental model, graph thinking utilizes the **Property Graph Data Model** to provide a shared language for this complexity. In this framework, we describe the world through nodes, which represent entities, and edges, which represent relationships. Unlike the generic, unnamed associations found in a spreadsheet, edges in a graph are named and directed, acting as the "verbs" that connect the system’s "nouns." For example, a User node does not simply exist in a list; it **OWNS** a file, **HAS_ACCESS** to a server, or **AUTHENTICATED_FROM** a specific IP address. These relationships can carry their own properties, such as timestamps or levels of trust, allowing for a "schema-free but structured" approach that can accommodate ad-hoc real-world exceptions without breaking the underlying data model.
 
-Graph thinking becomes unavoidable when systems stop behaving like collections of items and start behaving like ecosystems. This shift rarely happens suddenly. It emerges as environments grow, integrate, and accumulate exceptions. At first, everything still fits into inventories and reports. Over time, relationships dominate behavior.
+### Analyzing Systems through Graph Logic
 
-As a mental model, graph thinking reframes how systems are understood. Instead of asking what exists, it asks how things interact. Instead of listing components, it traces influence. Instead of summarizing state, it explains behavior. Nodes are important, but edges carry meaning.
+In the analytical phase, graph thinking shifts the focus from global scans and aggregations to "graph-local" reasoning. This is the technical implementation of the "Attacker's Mindset" famously described by [John Lambert](https://www.google.com/search?q=https://medium.com/%40johnlatwc/defenders-think-in-lists-attackers-think-in-graphs-127159549736), who observed that while defenders look at tables of isolated assets, attackers see the specific paths that connect them. This approach allows for the discovery of **Transitive Risk**, which is often mathematically invisible to row-based queries. Tabular thinking excels at "Direct Risk," such as identifying that a specific server has a vulnerability, but graph analysis exposes how an attacker might exploit that vulnerability to gain a credential, then move laterally across the network. By treating authentication, network connections, and shared resources as "edges of trust," graph logic reveals the hidden pathways to high-value targets.
 
-This is especially visible in security and operations. Incidents are sequences, not points. Attackers move. Failures propagate. Tables can list alerts, but they struggle to express progression. Graphs make progression explicit.
 
-BloodHound illustrates this in identity environments. Active Directory appears manageable in tables. Users, groups, and permissions can all be listed. Breaches occur because attackers exploit *paths*. BloodHound succeeds because it models trust relationships as a graph and exposes attack paths that tables cannot reveal.
 
-VirusTotal applies the same principle to threat intelligence. Indicators gain meaning through relationships. Files, domains, IPs, and campaigns form networks. Analysts pivot, traverse, and cluster. The workflow is inherently graph-based.
+A critical evolution in this analysis, as highlighted by [Marc Maiffret](https://www.darkreading.com/cyber-risk/think-in-graphs-act-on-risk), is the concept of **True Privilege**. In modern hybrid environments where identity is the new perimeter, an account is rarely just a row in an Active Directory list; it is a gateway to dozens of systems spanning on-prem, cloud, and SaaS nodes. Analyzing systems through graphs allows defenders to calculate the "sum" of all access across these environments. In practice, tools like [BloodHound](https://github.com/BloodHoundAD/BloodHound) use this logic to reveal "attack paths" that are invisible in lists, illustrating how a compromised low-level account can traverse multiple relationships to reach a Domain Admin. Similarly, [VirusTotal](https://www.virustotal.com/) allows analysts to "pivot" through a graph of IP addresses and file hashes to find clusters of related malware campaigns that would remain disconnected in a simple row-and-column report.
 
-Maltego makes this explicit by turning analysis into interactive graph exploration. Entities are added, relationships expanded, hypotheses tested visually. This supports sense-making before conclusions.
+This "graph-local" reasoning also transforms IT operations, particularly within the **Configuration Management Database (CMDB)**. A tabular CMDB might list a server and its OS, but a graph model maps that **Asset** to a **Process**, then to a **Service**, and finally to an **SLA**. When a server fails, the graph view allows for immediate **Network Impact Analysis**, tracing the failure through the web to identify which high-level services are breached. This allows IT teams to respond to millions of interconnected dependencies in milliseconds. Concepts like blast radius, choke points, and transitive risk are native to this perspective, allowing analysts to "spider" through data by following the trail of a process execution chain or a suspicious network flow.
 
-A useful clarification anchors this thinking: trees are graphs with constraints. LDAP hierarchies, DNS zones, process trees, and organizational charts are all graphs. Thinking of them as such makes deviations visible. Many failures occur precisely where tree assumptions silently break.
+### Presenting Systems as Graphs to Drive Action
 
-Graph thinking also changes how scale is perceived. In tables, complexity grows with volume. In graphs, it grows with connectivity. A few highly connected nodes often dominate system behavior. Concepts like blast radius, choke points, and transitive risk are native to graphs.
+The presentation of a graph is far more than a mere illustration; it is a sophisticated communication tool designed to surface hidden assumptions and drive meaningful security outcomes. However, visibility alone does not equal security. As Maiffret warns, even a small organization can generate a graph of millions of nodes and edges, leading to "analysis paralysis." Effective graph presentation must move beyond the chaotic "spaghetti chart" by applying risk-based prioritization. The goal of a graph-based presentation is to turn observations into decisions by highlighting the most dangerous "choose-your-own-adventure" pathways an attacker might take to reach high-value targets. By preserving the relationship context, graphs ensure that an event is only flagged when it deviates from the established neighborhood of a service account or user.
 
-Equally important is graph thinking as a communication tool. Teams often believe they agree because they share data. Graphs surface disagreement early. Missing edges, questionable relationships, and hidden assumptions become visible. A shared graph becomes a shared mental model.
+{% include gallery id="galleryGraphs" caption="Graph usages: VirusTotal, Bloodhound, ServiceNow CMDB tree" %}
 
-Visual graph representations matter because they externalize structure. They allow teams to reason together. They reduce translation overhead. A graph can replace pages of narrative by making causality visible.
+By using relationship-centric narratives, a graph can replace pages of dense technical text. Instead of a long report explaining an identity compromise, a directed graph shows the undeniable flow of an incident from a phishing email to lateral movement. This visual contextualization allows for **Remediation Impact** analysis, identifying a single mitigation—such as fixing a misconfiguration in the identity infrastructure—that eliminates multiple risk pathways simultaneously. In this sense, the defender eventually "wins" back the list: they generate a prioritized list of actions that were derived from the complex logic of the graph, effectively bridging the cognitive gap that [Alexander Goller](https://microsegment.io/post/2025-05-14-attackers-think-in-graphs/) identifies as the defender's "table prison."
 
-Graph literacy, then, becomes an organizational capability. It does not mean everyone must query graphs. It means knowing when a table will hide behavior and when a graph will reveal it.
+Moreover, presenting systems as graphs allows organizations to externalize hidden structures where "tree assumptions" have silently broken. Many IT and security failures occur precisely where a hierarchy, such as an LDAP directory or an organizational chart, has been bypassed by unofficial "shadow" reporting lines. A graph presentation makes these deviations visible, highlighting the gap between what is documented and how the system actually behaves. When graph literacy becomes an organizational capability, it ensures that different teams—such as SOC, GRC, and DevOps—align their mental models around a shared, accurate representation of reality, allowing them to proactively harden the network before an attacker exploits the web.
 
-A simple meta-example explains graphs by being one:
+### Criticism: Why Graphs Are Not a Silver Bullet
+
+Despite the strategic advantages, it is a mistake to suggest that graph thinking is a "silver bullet" for defenders. While they are a multidimensional evolution of the table, they are functionally different tools, and over-reliance on one can lead to operational failure. First, tables remain the superior tool for managing **state**—the "nouns" of the network. To know who owns an asset, its patch level, or its department, a table is the most efficient and reliable representation. Suggesting that defenders should only think in graphs ignores the foundational need for the rigorous, row-based inventory that makes a graph possible in the first place. You cannot run an efficient audit against a complex graph; you need the snapshot of accountability that only a table provides.
+
+Second, the cognitive and operational overhead of graphs can be prohibitive. As Maiffret suggests, the volume of graph data can be overwhelming. Without the simplified structure of a table, junior analysts may struggle to make quick, effective decisions. In many cases, the most effective security outcome is a "list generated from a graph"—using the complex multidimensional logic to produce a simple, prioritized list of actions. The final question for any IT or security professional is not which tool is better, but a constant self-interrogation: *"What am I trying to understand right now, and is my current representation helping me see the answer or hiding it?"*
 
 ```mermaid
 graph TD
-    Nodes[Entities] --> Edges[Relationships]
-    Edges --> Behavior[System Behavior]
-    Behavior --> Decisions[Operational Decisions]
-    Decisions -.-> Nodes
-```
+    Nodes[Entities/Nouns] --> Edges[Named/Directed Relationships]
+    Edges --> Traversal[Graph-Local Reasoning]
+    Traversal --> Discovery[Path & Pattern Recognition]
+    Discovery --> Insights[Behavioral Understanding]
+    Insights -.-> Nodes
 
-Graph thinking does not replace tabular discipline. It complements it. Tables verify. Graphs explain. Together, they align representation with reality.
+```
 
 ## Conclusion
 
 Critical thinking in modern environments is less about intelligence and more about representation. The same data can produce clarity or confusion depending on how it is structured. Tabular thinking provides discipline, accountability, and precision. Graph thinking provides context, explanation, and foresight.
 
-Neither model is sufficient alone. Tables without graphs hide behavior. Graphs without tables lack control. Fluency in both allows individuals to understand systems as they are and teams to align around shared mental models.
-
-The question is not whether to choose one over the other. It is whether we recognize when each is needed. As systems grow more interconnected, this recognition becomes a core professional skill. The organizations that cultivate it will not just respond faster to incidents. They will understand them better, and often prevent them entirely.
-
-The conversation worth having is simple and difficult at the same time: *What are we trying to understand, and is our representation helping or hiding the answer?*
+Neither model is sufficient alone. Tables without graphs hide behavior. Graphs without tables lack control. Fluency in both allows individuals to understand systems as they are and teams to align around shared mental models. The organizations that cultivate this dual fluency will not just respond faster to incidents; they will understand them better, and often prevent them entirely. The conversation worth having is simple and difficult at the same time: *What are we trying to understand, and is our representation helping or hiding the answer?*
