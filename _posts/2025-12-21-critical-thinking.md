@@ -12,6 +12,9 @@ galleryMutual:
 galleryDimensional:
   - url: /assets/critical-dimensional.png
     image_path: /assets/critical-dimensional.png
+galleryAlternativeList:
+  - url: /assets/critical-dimensional.png
+    image_path: /assets/critical-dimensional.png
 ---
 
 ## Introduction
@@ -44,7 +47,7 @@ Before leaving tabular thinking, it helps to be precise about *how* tables are s
 
 In a mutual comparison table, the content structure follows a hierarchical logic where a single category **($S'$)** defines the common nature of everything being discussed. Each row typically represents a specific subject **($S$)** belonging to that category, while the column headings serve as properties **($P$)** that describe the subjects. The cells at the intersection of a row and column provide the specific values **($V$)** that characterize each subject's individual attributes. This creates two distinct statements: first, that the subject is a member of the overarching category, and second, that the subject possesses a specific value for a given property.
 
-### Cybersecurity Example: Critical Vulnerability Assessment
+### Example: Critical Vulnerability Assessment
 
 In this IT Risk Management context, the shared category **($S'$)** is "Active System Vulnerabilities."
 
@@ -65,7 +68,7 @@ In this IT Risk Management context, the shared category **($S'$)** is "Active Sy
 
 In a **Dimensional Table**, the structure is focused on a single subject **($S$)** rather than a list of many items, with the table exploring various facets or "dimensions" of that one topic. The organizational logic centers on a **Primary Property ($P'$)**, which is typically the leftmost column and serves as the foundation for all other data in a row. Because this primary property is essential for the other information to exist, it creates a chain of statements: first establishing an instance of the primary dimension (e.g., a specific year or category), and then providing **Secondary Properties ($P''$)** and **Values ($V$)** that describe that specific instance. As shown in the archetypal diagram, the values of the primary property act as the anchor that explains and supports all secondary properties and values within the same row.
 
-### Cybersecurity Example: Incident Response Playbook
+### Example: Incident Response Playbook
 
 In an IT Security context, a dimensional table can be used to detail the specific dimensions of a single subject, such as a **Data Breach Response Plan**.
 
@@ -83,15 +86,27 @@ In an IT Security context, a dimensional table can be used to detail the specifi
 
 ### Alternative List Tables
 
-Alternative list tables present independent options under different headings. The rows are not related. These tables are common in strategy discussions and trade-off analyses.
+{% include gallery id="galleryAlternativeList" caption="Alternative List Table" %}
 
-| GRC Property  | Conservative Approach | Aggressive Approach   |
-| ------------- | --------------------- | --------------------- |
-| Risk Appetite | Minimal tolerance     | Higher tolerance      |
-| Vendor Risk   | Annual audits         | Continuous monitoring |
-| Compliance    | Checklist-based       | Outcome-based         |
+In an **Alternative List Table**, the structure focuses on a single overarching subject **()**, but unlike dimensional tables, the properties **()** are independent alternatives rather than interconnected facets. The rows do not share a horizontal relationship; instead, each column acts as an independent list of values **()** that categorize different examples or types of that subject. Because these tables often omit a left-hand "key" column to explain what individual values represent, the logical connection between values in the same row can become ambiguous or entirely non-existent. This lack of explicit labels often requires the reader to rely on surrounding text to determine if items across columns are meant to be direct opposites, related pairs, or merely random examples.
 
-Without careful labeling, these tables easily imply relationships that do not exist.
+### Example: Access Control Models
+
+In the context of **Governance, Risk, and Compliance (GRC)**, this format is often used to contrast different philosophies of system access under the subject of "Identity and Access Management (IAM)."
+
+| Property ($P$): Mandatory Access Control (MAC) | Property ($P$): Discretionary Access Control (DAC) |
+| --- | --- |
+| System-enforced security labels | User-defined permissions |
+| High-security/Military environments | General business folders |
+| Deterministic | Flexible |
+| Non-transferable by users | Owner-controlled sharing |
+
+* **The Subject ($S$):** Identity and Access Management (IAM).
+* **The Properties ($P$):** MAC and DAC. These are presented as alternative approaches to the same subject.
+* **Independence of Rows:** Each row provides a comparison point (e.g., Environment vs. Flexibility), but the table does not have a primary dimension like "Year" or "Phase" that forces these values to exist.
+* **Implicit Relationships:** While "System-enforced" and "User-defined" are clear opposites, a reader might need external documentation to understand if "Deterministic" and "Flexible" are the specific technical terms used by the organization to define these alternatives.
+
+Would you like me to help you transform a different IT concept, such as **Agile vs. Waterfall** or **On-Premise vs. Cloud**, into this specific Alternative List format?
 
 ### Spectrum Tables
 
