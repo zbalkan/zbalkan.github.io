@@ -9,6 +9,9 @@ tags:
 galleryMutual:
   - url: /assets/critical-mutual.png
     image_path: /assets/critical-mutual.png
+galleryDimensional:
+  - url: /assets/critical-dimensional.png
+    image_path: /assets/critical-dimensional.png
 ---
 
 ## Introduction
@@ -37,9 +40,9 @@ Before leaving tabular thinking, it helps to be precise about *how* tables are s
 
 ### Mutual Comparison Tables
 
-In a mutual comparison table, the content structure follows a hierarchical logic where a single category **($S'$)** defines the common nature of everything being discussed. Each row typically represents a specific subject **($S$)** belonging to that category, while the column headings serve as properties **($P$)** that describe the subjects. The cells at the intersection of a row and column provide the specific values **($V$)** that characterize each subject's individual attributes. This creates two distinct statements: first, that the subject is a member of the overarching category, and second, that the subject possesses a specific value for a given property.
+{% include gallery id="galleryMutual" caption="Mutual Comparison Table" %}
 
----
+In a mutual comparison table, the content structure follows a hierarchical logic where a single category **($S'$)** defines the common nature of everything being discussed. Each row typically represents a specific subject **($S$)** belonging to that category, while the column headings serve as properties **($P$)** that describe the subjects. The cells at the intersection of a row and column provide the specific values **($V$)** that characterize each subject's individual attributes. This creates two distinct statements: first, that the subject is a member of the overarching category, and second, that the subject possesses a specific value for a given property.
 
 ### Cybersecurity Example: Critical Vulnerability Assessment
 
@@ -51,8 +54,6 @@ In this IT Risk Management context, the shared category **($S'$)** is "Active Sy
 | High | CVE-2024-21413 | **MonikerLink** | Outlook Clients | Fully Mitigated |
 | Critical | CVE-2023-38831 | **WinRAR Exploit** | Finance Workstations | In Progress |
 
-#### Logical Breakdown
-
 * **The Category ($S'$):** Active System Vulnerabilities.
 * **The Subjects ($S$):** Specific security flaws like **Log4Shell** or **MonikerLink**.
 * **The Properties ($P$):** Common identifiers such as CVE IDs, the severity level, and the current status of the fix.
@@ -60,16 +61,25 @@ In this IT Risk Management context, the shared category **($S'$)** is "Active Sy
 
 ### Dimensional Tables
 
-Dimensional tables describe a single subject across a primary varying dimension, often time or maturity. Other properties depend on that primary dimension. These tables are common in framework adoption and program maturity assessments.
+{% include gallery id="galleryDimensional" caption="Dimensional Table" %}
 
-| NIST CSF Govern Phase | Policy Maturity | Risk Register Depth | Executive Reporting |
-| --------------------- | --------------- | ------------------- | ------------------- |
-| Initial               | Ad-hoc          | High-level          | Quarterly           |
-| Repeatable            | Standardized    | Asset-linked        | Monthly             |
-| Defined               | Integrated      | Quantitative        | Weekly              |
-| Managed               | Adaptive        | Predictive          | Real-time           |
+In a **Dimensional Table**, the structure is focused on a single subject **($S$)** rather than a list of many items, with the table exploring various facets or "dimensions" of that one topic. The organizational logic centers on a **Primary Property ($P'$)**, which is typically the leftmost column and serves as the foundation for all other data in a row. Because this primary property is essential for the other information to exist, it creates a chain of statements: first establishing an instance of the primary dimension (e.g., a specific year or category), and then providing **Secondary Properties ($P''$)** and **Values ($V$)** that describe that specific instance. As shown in the archetypal diagram, the values of the primary property act as the anchor that explains and supports all secondary properties and values within the same row.
 
-They communicate progression clearly, but they assume linearity.
+### Cybersecurity Example: Incident Response Playbook
+
+In an IT Security context, a dimensional table can be used to detail the specific dimensions of a single subject, such as a **Data Breach Response Plan**.
+
+| Primary Property ($P'$): Response Phase | Secondary Property ($P''$): Key Stakeholders | Secondary Property ($P''$): Required Tools | Value ($O''$): Primary Objective |
+| --- | --- | --- | --- |
+| **Identification** | SOC Analysts, IT Manager | SIEM, Log Analyzers | Confirm and document the security incident. |
+| **Containment** | Network Security, DevOps | Firewalls, EDR | Limit the scope and magnitude of the threat. |
+| **Eradication** | Security Engineers | Antivirus, Re-imaging Tools | Remove the root cause and artifacts of the threat. |
+| **Recovery** | IT Ops, Business Owners | Backup Systems | Restore systems to normal service safely. |
+
+* **The Subject ($S$):** Data Breach Response Plan.
+* **Primary Property ($P'$):** Response Phase. This is the "key column" that defines the relationship of the content; if a phase (like "Containment") didn't exist, the stakeholders and tools associated with it would not be relevant.
+* **Secondary Properties ($P''$):** Key Stakeholders and Required Tools. these dimensions are structurally dependent on which phase of the response is being discussed.
+* **Values ($V$ or $O''$):** The specific objectives or teams (e.g., **SOC Analysts** or **Limit the scope**) that characterize each individual dimension of the plan.
 
 ### Alternative List Tables
 
