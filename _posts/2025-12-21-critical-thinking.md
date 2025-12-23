@@ -5,6 +5,10 @@ tags:
   - Human aspects
   - Critical thinking
   - Opinion piece  
+
+galleryMutual:
+  - url: /assets/critical-mutual.png
+    image_path: /assets/critical-mutual.png
 ---
 
 ## Introduction
@@ -33,16 +37,26 @@ Before leaving tabular thinking, it helps to be precise about *how* tables are s
 
 ### Mutual Comparison Tables
 
-Mutual comparison tables list multiple subjects that belong to the same category and describe them using shared properties. Each row represents a subject. Each column represents a property. The table asserts both membership in a category and the values of properties for each member. These tables are common in vendor comparisons and control benchmarking.
+In a mutual comparison table, the content structure follows a hierarchical logic where a single category **($S'$)** defines the common nature of everything being discussed. Each row typically represents a specific subject **($S$)** belonging to that category, while the column headings serve as properties **($P$)** that describe the subjects. The cells at the intersection of a row and column provide the specific values **($V$)** that characterize each subject's individual attributes. This creates two distinct statements: first, that the subject is a member of the overarching category, and second, that the subject possesses a specific value for a given property.
 
-| Top EDR Tools (Detection Efficacy) | Detection Rate | False Positive Rate | Cost per Endpoint | Analyst Efficiency |
-| ---------------------------------- | -------------- | ------------------- | ----------------- | ------------------ |
-| CrowdStrike Falcon                 | 99.2%          | 0.4%                | $59.99            | High               |
-| SentinelOne                        | 98.5%          | 0.8%                | $54.99            | High               |
-| Microsoft Defender                 | 97.8%          | 1.2%                | $42.50            | Medium             |
-| VMware Carbon Black                | 96.9%          | 1.5%                | $52.00            | Medium             |
+---
 
-These tables support selection and justification, but they say little about how tools interact once deployed.
+### Cybersecurity Example: Critical Vulnerability Assessment
+
+In this IT Risk Management context, the shared category **($S'$)** is "Active System Vulnerabilities."
+
+| Property ($P$): Threat Level | Property ($P$): CVE ID | Subject ($S$): Vulnerability Name | Property ($P$): Affected System | Property ($P$): Remediation Status |
+| --- | --- | --- | --- | --- |
+| Critical | CVE-2021-44228 | **Log4Shell** | Web Server Cluster | Patch Pending |
+| High | CVE-2024-21413 | **MonikerLink** | Outlook Clients | Fully Mitigated |
+| Critical | CVE-2023-38831 | **WinRAR Exploit** | Finance Workstations | In Progress |
+
+#### Logical Breakdown
+
+* **The Category ($S'$):** Active System Vulnerabilities.
+* **The Subjects ($S$):** Specific security flaws like **Log4Shell** or **MonikerLink**.
+* **The Properties ($P$):** Common identifiers such as CVE IDs, the severity level, and the current status of the fix.
+* **The Values ($V$):** The specific data points, such as **Critical** or **Patch Pending**, which define the risk for that particular flaw.
 
 ### Dimensional Tables
 
