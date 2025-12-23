@@ -23,6 +23,7 @@ github_username: "zbalkan"
 linkedin_username: "zbalkan"
 
 minimal_mistakes_skin: dark
+enable_copy_code_button: true
 search: false
 
 rss: rss
