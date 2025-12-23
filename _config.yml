@@ -95,7 +95,7 @@ footer:
 after_footer_scripts:
   - https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.12.0/mermaid.min.js
   - https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js
-
+  - assets/js/mermaid.js
 
 defaults:
   # _posts
@@ -135,6 +135,6 @@ comments:
     repo_id              : MDEwOlJlcG9zaXRvcnkxNjQwOTY4ODI # Shown during giscus setup at https://giscus.app
     category_name        : General # Full text name of the category
     category_id          : DIC_kwDOCcfrcs4C0K__ # Shown during giscus setup at https://giscus.app
-    discussion_term      : "pathname" # "pathname" (default), "url", "title", "og:title"
+    discussion_term      : "title" # "pathname" (default), "url", "title", "og:title"
     reactions_enabled    : "1" # '1' for enabled (default), '0' for disabled
     theme                : "dark" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
