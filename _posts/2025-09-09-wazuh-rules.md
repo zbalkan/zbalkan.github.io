@@ -219,4 +219,4 @@ Start with a catch-all rule and get more specific one by one. Wazuh rules are bu
 Now that you have a more accurate mental model of the Wazuh rules, review your custom rules to see what you can find and fine-tune. And please, do not copy-paste rules you find on various resources.
 
 ---
-[^1]: For instance, a rule referring to itself, causing a cycle in the graph, may cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730). I could not replciate though.
+[^1]: For instance, a rule referring to itself, causing a cycle in the graph, may cause **out-of-memory** [issues](https://github.com/wazuh/wazuh/issues/10730). I could not replicate though.
