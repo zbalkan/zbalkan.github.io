@@ -1,4 +1,14 @@
-# Detection-as-Code for Wazuh 4.x — Part 0
+---
+title: "Detection-as-Code for Wazuh 4.x: Part 0"
+tags:
+  - Wazuh
+  - SIEM
+  - Detection
+  - Detection Engineering
+  - Testing
+  - Detection-as-Code
+
+---
 
 This piece is “Part 0” because it arrived later in time, but earlier in concept. My earlier posts on building a Wazuh development environment and using log replay for behavioral testing grew from practical experimentation rather than from a planned series. Only after those hands-on articles did it become clear that the work pointed toward a broader foundation: whether detection should be treated as configuration or as an engineered system. This article steps back to articulate that philosophical and methodological baseline, and it does so with appreciation for the many practitioners and researchers who have already shaped the field of Detection Engineering and Detection-as-Code long before my own contributions.
 
