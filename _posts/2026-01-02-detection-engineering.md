@@ -29,7 +29,20 @@ This article is my attempt to articulate that shift, not as a rigid prescription
 
 At the heart of this thinking is the idea that a detection rule is not just a query or pattern filter. It is a software artifact executing a pattern-matching algorithm across a high-velocity data stream. It participates in a larger system that includes decoders, parsers, enrichment logic, storage, scheduling and human response. Once viewed this way, the question is no longer whether rules "work," but whether they behave predictably across time, data variation and operational change. That shift is what begins to move the SOC from craft toward discipline.
 
-A useful lens for this comes from [[ISO/IEC/IEEE 15288 Systems and software engineering — System life cycle processes](https://www.iso.org/standard/81702.html), which frames systems not as isolated components but as interacting elements across a lifecycle. Applied to detection, the pipeline itself becomes the system of interest -from the moment telemetry is generated on an endpoint to the point an alert reaches an analyst. One of the more important refinements that emerges from adopting this framing is recognizing that detections do not simply come into existence and remain indefinitely. In a mature lifecycle, they also evolve, degrade and eventually retire. The 2023 edition of 15288 reinforces retirement as a formal stage, and that maps cleanly to what we often experience informally: old rules that no longer trigger, operate on missing fields or silently produce misleading results, yet are never removed. In an engineered system, retirement is not failure. It is stewardship -an explicit decision to decommission logic when its assumptions no longer hold.
+A useful lens for this comes from [ISO/IEC/IEEE 15288 Systems and software engineering — System life cycle processes](https://www.iso.org/standard/81702.html), which frames systems not as isolated components but as interacting elements across a lifecycle. Applied to detection, the pipeline itself becomes the system of interest -from the moment telemetry is generated on an endpoint to the point an alert reaches an analyst. One of the more important refinements that emerges from adopting this framing is recognizing that detections do not simply come into existence and remain indefinitely. In a mature lifecycle, they also evolve, degrade and eventually retire. The 2023 edition of 15288 reinforces retirement as a formal stage, and that maps cleanly to what we often experience informally: old rules that no longer trigger, operate on missing fields or silently produce misleading results, yet are never removed. In an engineered system, retirement is not failure. It is stewardship -an explicit decision to decommission logic when its assumptions no longer hold. This is not a prescription but a mental model, and I can summarize in this diagram below.
+
+```mermaid
+flowchart LR
+  A[Requirements / Intent] --> B[Design & Assumptions]
+  B --> C[Implementation / Rule Authoring]
+  C --> D[Verification]
+  D --> E[Validation]
+  E --> F[Deployment]
+  F --> G[Monitoring & Feedback]
+  G --> H[Refinement]
+  H --> D
+  G --> I[Retirement]
+```
 
 That perspective also clarifies why verification and validation matter. In classical engineering and in [Software Engineering Body of Knowledge (SWEBOK)](https://www.computer.org/education/bodies-of-knowledge/software-engineering), verification asks whether we built the product correctly, while validation asks whether we built the right product. For detection work, this distinction becomes practical rather than philosophical. Regression and replay testing, including the behavioral testing approaches I have explored in Wazuh environments, allow us to validate that logic meaningfully detects the behaviors it claims to detect. At the same time, verification activities ensure that the introduction of a new rule does not break existing ones or distort upstream decision paths. Over time, my own workflow naturally grew into that pattern: first provoke a failure through replay, then refine logic until the detection is both observable and stable, and finally ensure the surrounding evaluation chain continues to behave as expected.
 
