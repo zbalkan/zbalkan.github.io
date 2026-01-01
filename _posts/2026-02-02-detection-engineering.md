@@ -1,8 +1,8 @@
 # Detection-as-Code for Wazuh 4.x — Part 0
 
-## The Professionalization of the SOC: Toward an Engineering Discipline for Detection
-
 This piece is “Part 0” because it arrived later in time, but earlier in concept. My earlier posts on building a Wazuh development environment and using log replay for behavioral testing grew from practical experimentation rather than from a planned series. Only after those hands-on articles did it become clear that the work pointed toward a broader foundation: whether detection should be treated as configuration or as an engineered system. This article steps back to articulate that philosophical and methodological baseline.
+
+## The Professionalization of the SOC: Toward an Engineering Discipline for Detection
 
 The more time I spend working with detection systems, the more I find myself returning to the traditions of engineering as a profession rather than as a metaphor. Engineering has always implied something deeper than construction or configuration. It is a disciplined commitment to using mathematical and natural sciences, refined through study and practice, to design structures and systems that behave predictably under stress. When bridges, aircraft, power grids or industrial machinery are built, they are built against tolerances, boundary conditions and known constraints, rather than intuition alone. That distinction between craft and profession emerged centuries ago, when trial-and-error building gradually gave way to theory-informed design through calculus, thermodynamics and material science. It is the reason physical systems must justify their reliability.
 
