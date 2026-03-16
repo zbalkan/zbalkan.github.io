@@ -15,6 +15,31 @@ Walk through a casino and you will see rows of slot machines. Someone sits down,
 
 Working with AI development tools can sometimes resemble this pattern more than many engineers are comfortable admitting. A prompt produces code, a design suggestion, or a configuration. The output might be close to what was intended, or it might miss the mark entirely. When that happens, the natural reaction is to adjust the prompt and try again. After several attempts, something that appears workable often emerges. At a superficial level, this resembles productivity. Iteration accelerates, output increases, and systems appear faster to build. Yet software engineering has never been evaluated by whether a system can eventually be generated. The discipline emerged because engineers learned that systems which merely appear to work often fail once they encounter real operating conditions. The central question has always been whether a system behaves predictably under constraints and whether other teams can depend on it once it becomes part of a larger environment. Understanding that distinction matters when discussing AI-assisted development.
 
+Below is a diagram for what I have observed with some vibe coders:
+
+```mermaid
+flowchart LR
+    A[Idea / Problem] --> B[Prompt AI]
+
+    B --> C[AI Generates Code]
+    C --> D[Quick Run / Demo]
+
+    D --> E{Works?}
+
+    E -- No --> F[Tweak Prompt]
+    F --> B
+
+    E -- Kind of --> G[Patch by Prompt]
+    G --> B
+
+    E -- Looks OK --> H[Ship to Production]
+
+    H --> I[Users Find Problems]
+    I --> J[Prompt AI Again]
+
+    J --> B
+```
+
 ## From Programming to Engineering
 
 Much of the current excitement around AI-assisted development centers on speed. Code generation is faster, design alternatives can be explored quickly, and prototypes can appear with far less manual effort than before. These capabilities are real, and in many cases they are genuinely useful. Where the discussion becomes more complicated is when speed begins to be interpreted as evidence that earlier engineering practices are becoming unnecessary. It is increasingly common to hear claims that the traditional development lifecycle is collapsing, that stages such as design and testing can be compressed into a single loop of generation and validation, or that structured development processes belong to a slower era of software development. This interpretation overlooks why those practices appeared. The Software Development Lifecycle did not emerge because engineers preferred process to creativity. It emerged because software projects repeatedly failed when development relied primarily on iteration and intuition.
@@ -86,6 +111,37 @@ Monitoring and observability remain essential in modern systems. They help detec
 
 Monitoring complements those controls. It does not replace them.
 
+## A suggestion
+
+In my humble opinion, there is a middle ground: don't ignore the lessons learned throughout the decades.
+
+```mermaid
+flowchart LR
+  A[Problem / Idea] --> B[Prompting / AI Generation]
+  B --> C[Draft Artifacts<br/>Code / Design / Config]
+  C --> D[Human Review]
+  D --> E{Acceptable?}
+
+  E -- No --> F[Refine Prompt / Constraints]
+  F --> B
+
+  E -- Yes --> G[Implementation / Integration]
+  G --> H[Verification<br/>Build / Static Checks / Review]
+  H --> I[Validation<br/>Tests / Replay / User Need]
+  I --> J{Valid?}
+
+  J -- No --> K[Fix Logic / Assumptions]
+  K --> G
+
+  J -- Yes --> L[Deployment]
+  L --> M[Monitoring / Feedback]
+  M --> N{Issue or Change?}
+
+  N -- Yes --> O[Refinement / Update]
+  O --> G
+
+  N -- No --> P[Operate / Maintain]
+```
 
 ## The Trick Versus the Result
 
