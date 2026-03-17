@@ -15,6 +15,7 @@
 # in the templates via {{ site.myvariable }}.
 title: "zb"
 description: "I blog about IT and security. At least, I will try." # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
+url: "https://zaferbalkan.com"
 
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
@@ -37,14 +38,28 @@ analytics:
     tracking_id: "GTM-WG4NLBQS"
     anonymize_ip: false # default
 
+repository: "zbalkan/zbalkan.github.io"
+# Comments
+comments:
+  provider: "giscus" # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2", "utterances", "custom"
+  giscus:
+    repo              : "zbalkan/zbalkan.github.io"
+    repo_id           : "MDEwOlJlcG9zaXRvcnkxNjQwOTY4ODI=" # Shown during giscus setup at https://giscus.app
+    category_name     : "Blog comments" # Full text name of the category
+    category_id       : "DIC_kwDOCcfrcs4C0LJo" # Shown during giscus setup at https://giscus.app
+    discussion_term   : "pathname" # "pathname" (default), "url", "title", "og:title"
+    reactions_enabled : "1" # '1' for enabled (default), '0' for disabled
+    theme             : "dark" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
+    crossorigin       : "anonymous"
+
 # Build settings
 markdown: kramdown
 remote_theme: mmistakes/minimal-mistakes
 # Outputting
 permalink: /:categories/:title/
-paginate: 8 # amount of posts to show
+paginate: 5 # amount of posts to show
 paginate_path: /page:num/
-timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: Europe/Tallinn # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 include:
   - _pages
@@ -61,16 +76,6 @@ include:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-# Comments
-comments:
-  provider: "giscus" # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2", "utterances", "custom"
-  giscus:
-    repo_id: "MDEwOlJlcG9zaXRvcnkxNjQwOTY4ODI=" # Shown during giscus setup at https://giscus.app
-    category_name: "Blog comments" # Full text name of the category
-    category_id: "DIC_kwDOCcfrcs4C0LJo" # Shown during giscus setup at https://giscus.app
-    discussion_term: "pathname" # "pathname" (default), "url", "title", "og:title"
-    reactions_enabled: 1 # '1' for enabled (default), '0' for disabled
-    theme: "dark_dimmed" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
 
 
 # Plugins (previously gems:)
@@ -87,6 +92,7 @@ author:
   name   : "Zafer Balkan"
   avatar : "/assets/avatar.webp"
   bio    : "I blog about IT, security and compliance."
+  location : "Tallinn, Estonia"
   links:
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
@@ -118,7 +124,7 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: false
+      comments: true
       share: false
       related: true
       excerpt_separator: "<!--more-->"
@@ -140,14 +146,3 @@ tag_archive:
 
 atom_feed:
   hide: false
-repository: zbalkan/zbalkan.github.io
-comments:
-  provider: "giscus"
-  giscus:
-    repo_id              : MDEwOlJlcG9zaXRvcnkxNjQwOTY4ODI= # Shown during giscus setup at https://giscus.app
-    category_name        : "Blog comments" # Full text name of the category
-    category_id          : DIC_kwDOCcfrcs4C0LJo # Shown during giscus setup at https://giscus.app
-    discussion_term      : "title" # "pathname" (default), "url", "title", "og:title"
-    reactions_enabled    : "1" # '1' for enabled (default), '0' for disabled
-    theme                : "dark" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
-    
