@@ -29,8 +29,7 @@ flowchart LR
 
     D --> E{Works?}
 
-    E -- No --> F[Tweak Prompt]
-    F --> B
+    E -- No --> B
 
     E -- Kind of --> G[Patch by Prompt]
     G --> B
@@ -38,9 +37,8 @@ flowchart LR
     E -- Looks OK --> H[Ship to Production]
 
     H --> I[Users Find Problems]
-    I --> J[Prompt AI Again]
+    I --> B
 
-    J --> B
 ```
 
 ## Some History
