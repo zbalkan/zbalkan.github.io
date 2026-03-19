@@ -17,10 +17,12 @@ header:
 
 Walk through a casino and you will see rows of slot machines. Someone sits down, pulls the lever, watches the reels spin, and waits for the result. Most of the time nothing happens. Occasionally a small win appears. Rarely, the machine pays out. If the outcome is disappointing, the response is simple: pull the lever again.
 
-Working with AI development tools can sometimes resemble this pattern more than many engineers are comfortable admitting. A prompt produces code, a design suggestion, or a configuration. The output might be close to what was intended, or it might miss the mark entirely. When that happens, the natural reaction is to adjust the prompt and try again. After several attempts, something that appears workable often emerges. At a superficial level, this resembles productivity. Iteration accelerates, output increases, and systems appear faster to build. Yet software engineering has never been evaluated by whether a system can eventually be generated. The discipline emerged because engineers learned that systems which merely appear to work often fail once they encounter real operating conditions. The central question has always been whether a system behaves predictably under constraints and whether other teams can depend on it once it becomes part of a larger environment. Understanding that distinction matters when discussing AI-assisted development.
+Working with AI development tools can sometimes resemble this pattern more than many engineers are comfortable admitting. A prompt produces code, a design suggestion, or a configuration. The output might be close to what was intended, or it might miss the mark entirely. When that happens, the natural reaction is to adjust the prompt and try again. After several attempts, something that appears workable often emerges.
 
-I need to note that while the slot-machine analogy captures the iterative and sometimes unpredictable nature of AI-assisted development, it is important to note that this process is more accurately described as a **guided stochastic search under constraints**, rather than pure randomness. AI models operate within defined parameters and are optimized towards specific objectives, making their outputs a product of complex algorithms rather than arbitrary chance. This distinction is crucial for a technically literate audience to fully appreciate the nuances of AI's role in software engineering.
+While the slot-machine analogy is useful, in practice AI-assisted development behaves less like pure randomness and more like a **guided stochastic search under constraints**. The model operates within defined parameters and optimization boundaries. Even so, the external behavior can resemble repeated attempts until something acceptable appears.
 {: .notice--info}
+
+At a superficial level, this resembles productivity. Iteration accelerates, output increases, and systems appear faster to build. Yet software engineering has never been evaluated by whether a system can eventually be generated. The discipline emerged because engineers learned that systems which merely appear to work often fail once they encounter real operating conditions. The central question has always been whether a system behaves predictably under constraints and whether other teams can depend on it once it becomes part of a larger environment. Understanding that distinction matters when discussing AI-assisted development.
 
 Below is a diagram for what I have observed with some vibe coders:
 
@@ -47,96 +49,86 @@ flowchart LR
 
 ## Some History
 
-Much of the current excitement around AI-assisted development centers on speed. Code generation is faster, design alternatives can be explored quickly, and prototypes can appear with far less manual effort than before. These capabilities are real, and in many cases they are genuinely useful. Where the discussion becomes more complicated is when speed begins to be interpreted as evidence that earlier engineering practices are becoming unnecessary. It is increasingly common to hear claims that the traditional development lifecycle is collapsing, that stages such as design and testing can be compressed into a single loop of generation and validation, or that structured development processes belong to a slower era of software development. This interpretation overlooks why those practices appeared. The Software Development Lifecycle did not emerge because engineers preferred process to creativity. It emerged because software projects repeatedly failed when development relied primarily on iteration and intuition.
+Much of the current excitement around AI-assisted development centers on speed. Code generation is faster, design alternatives can be explored quickly, and prototypes can appear with far less manual effort than before. These capabilities are real, and in many cases they are genuinely useful.
 
-Early software systems were comparatively small and operated in tightly controlled environments. Programs were often written by the same people who ran them, and informal practices were usually sufficient because the consequences of failure were limited. That situation changed during the 1960s as organizations began commissioning systems whose complexity exceeded the methods used to build them. Systems grew larger, dependencies multiplied, and failures became more costly. Projects ran over budget, schedules slipped, and deployed systems sometimes failed in ways that were difficult to correct. These patterns became widely known as the software crisis. The response was not simply to write code more quickly. Engineers began introducing structure into how systems were specified, designed, verified, and deployed. Over time those practices evolved into what we now describe as the Software Development Lifecycle. Seen from this perspective, the SDLC is less a rigid sequence of stages and more an accumulation of lessons about how complex systems fail.
+Where the discussion becomes more complicated is when speed begins to be interpreted as evidence that earlier engineering practices are becoming unnecessary. It is increasingly common to hear claims that the traditional development lifecycle is collapsing, that stages such as design and testing can be compressed into a single loop of generation and validation, or that structured development processes belong to a slower era of software development.
+
+This interpretation overlooks why those practices appeared. The Software Development Lifecycle did not emerge because engineers preferred process to creativity. It emerged because software projects repeatedly failed when development relied primarily on iteration and intuition.
+
+Early software systems were comparatively small and operated in tightly controlled environments. Programs were often written by the same people who ran them, and informal practices were usually sufficient because the consequences of failure were limited. That situation changed during the 1960s as organizations began commissioning systems whose complexity exceeded the methods used to build them. Systems grew larger, dependencies multiplied, and failures became more costly. Projects ran over budget, schedules slipped, and deployed systems sometimes failed in ways that were difficult to correct. These patterns became widely known as the software crisis.
+
+The response was not simply to write code more quickly. Engineers began introducing structure into how systems were specified, designed, verified, and deployed. Over time those practices evolved into what we now describe as the Software Development Lifecycle. Seen from this perspective, the SDLC is less a rigid sequence of stages and more an accumulation of lessons about how complex systems fail.
 
 ## Why the SDLC Exists
 
 The SDLC did not emerge fully formed as a predefined framework. It developed gradually as engineers discovered which practices prevented particular classes of failure. Requirements practices appeared because teams were building systems that did not match the needs they were supposed to solve. Architecture reviews emerged because structural design mistakes were expensive to correct once implementation had begun. Testing became formalized because defects discovered in production were disruptive and costly. Change and release controls appeared because uncontrolled updates could destabilize operational systems. Monitoring eventually became essential because even well-tested systems behave differently once they encounter real environments.
 
-Viewed this way, the SDLC is not simply a workflow but a **formal risk management model**. It is a collection of controls that exist because particular risks occur often enough to justify preventing them. These controls explicitly map to various risk classes, such as requirements risk (e.g., building the wrong system), structural risk (e.g., architectural flaws), and operational risk (e.g., deployment instability). Modern governance frameworks follow a similar logic. NIST’s Risk Management Framework integrates risk considerations directly into the system lifecycle, and COBIT approaches enterprise IT governance as the coordination of objectives, resources, and risk. The principle behind both is straightforward: technology risk does not disappear simply because systems become easier to build.
+Viewed this way, the SDLC is not simply a workflow but a **formal risk management model**. It is a collection of controls that exist because particular risks occur often enough to justify preventing them. These controls implicitly map to risk classes such as requirements risk, structural risk, and operational risk.
+
+Modern governance frameworks follow a similar logic. NIST’s Risk Management Framework integrates risk considerations directly into the system lifecycle, and COBIT approaches enterprise IT governance as the coordination of objectives, resources, and risk. The principle behind both is straightforward: technology risk does not disappear simply because systems become easier to build.
 
 On the other hand, AI-assisted development clearly changes how software can be produced. It reduces the effort required to generate code, helps developers explore alternative approaches quickly, and allows teams to move from idea to prototype much faster than before. What it does not change are the underlying risks.
 
 Systems can still be built against incorrect requirements. Architectures can still fail under real workloads. Implementations can still contain vulnerabilities. Deployments can still disrupt production environments. Systems can still become difficult to maintain. Those risks existed before AI and they remain today. If the risks remain, the need for controls remains as well.
 
-This leads to a simple observation. Controls exist because certain failures occur often enough to justify preventing them. If the risk of misunderstanding requirements still exists, then requirements governance must exist. If architecture can still be flawed, then design review must exist. If code can still contain defects, verification must exist. If deployment can still disrupt operations, change management must exist. Removing a control while the underlying risk remains does not eliminate the risk. It simply makes the system harder to govern.
+This leads to a simple observation. Controls exist because certain failures occur often enough to justify preventing them. Removing a control while the underlying risk remains does not eliminate the risk. It simply makes the system harder to govern.
 
 Looking at the lifecycle through the lens of risk control clarifies the situation.
 
-| SDLC Control Area | Risk Mitigated | Status in AI Development | Concern |
-| --- | --- | --- | --- |
-| Requirements governance | Building the wrong system | Still exists | AI can implement unclear requirements quickly |
-| Requirements traceability | Weak linkage between need and implementation | Still exists | Generated artifacts may lack traceability |
-| Architecture review | Structural design flaws | Still exists | Pattern-based designs may ignore real constraints |
-| Secure design review | Insecure trust boundaries | Still exists | Generated designs may repeat insecure patterns |
-| Secure implementation | Coding vulnerabilities | Still exists | AI-generated code may include known flaws |
-| Static analysis | Undetected defects | Still exists | Code volume may exceed review capacity |
-| Dependency governance | Supply-chain risk | Still exists | Generated solutions may introduce unknown dependencies |
-| Testing and verification | Functional defects | Still exists | Generated tests may mirror code assumptions |
-| Independent verification | Correlated validation failure | Often weaker | Code and tests may originate from the same model |
-| Code review | Unsafe changes | Still exists | Developers may not fully understand generated code |
-| Release management | Operational instability | Still exists | Faster generation increases deployment pressure |
-| Monitoring | Undetected failures | Still exists | Higher change velocity increases reliance on detection |
+| SDLC Control Area         | Risk Mitigated                               | Status in AI Development | Concern                                                |
+| ------------------------- | -------------------------------------------- | ------------------------ | ------------------------------------------------------ |
+| Requirements governance   | Building the wrong system                    | Still exists             | AI can implement unclear requirements quickly          |
+| Requirements traceability | Weak linkage between need and implementation | Still exists             | Generated artifacts may lack traceability              |
+| Architecture review       | Structural design flaws                      | Still exists             | Pattern-based designs may ignore real constraints      |
+| Secure design review      | Insecure trust boundaries                    | Still exists             | Generated designs may repeat insecure patterns         |
+| Secure implementation     | Coding vulnerabilities                       | Still exists             | AI-generated code may include known flaws              |
+| Static analysis           | Undetected defects                           | Still exists             | Code volume may exceed review capacity                 |
+| Dependency governance     | Supply-chain risk                            | Still exists             | Generated solutions may introduce unknown dependencies |
+| Testing and verification  | Functional defects                           | Still exists             | Generated tests may mirror code assumptions            |
+| Independent verification  | Correlated validation failure                | Often weaker             | Code and tests may originate from the same model       |
+| Code review               | Unsafe changes                               | Still exists             | Developers may not fully understand generated code     |
+| Release management        | Operational instability                      | Still exists             | Faster generation increases deployment pressure        |
+| Monitoring                | Undetected failures                          | Still exists             | Higher change velocity increases reliance on detection |
 
-AI reduces the marginal cost of code generation, but not necessarily system entropy or operational complexity. It does not lower the complexity of operating it.
+AI reduces the marginal cost of code generation, but not system entropy or operational complexity.
 
-Another issue involves assurance. Traditional lifecycle practices produce evidence: traceability between requirements and tests, review records, design decisions, and defect metrics. These artifacts allow organizations to reason about whether a system has been properly validated. Many AI-assisted workflows do not yet produce equivalent evidence consistently.
+Another issue involves assurance. Traditional lifecycle practices produce evidence: traceability between requirements and tests, review records, design decisions, and defect metrics. These artifacts allow organizations to reason about whether a system has been properly validated.
 
-A system may be described as automatically tested or agent-verified, but those descriptions rarely explain what was actually tested, how complete the coverage is, or whether the validation process was independent of the generation process. This introduces the risk of **correlated validation failure**, where both the generated code and its corresponding tests originate from the same model, potentially overlooking the same flaws.
+Many AI-assisted workflows do not yet produce equivalent evidence consistently. In practice, this often introduces the risk of **correlated validation failure**, where both the generated code and its corresponding tests originate from the same model and may overlook the same flaws.
 
 The issue is not that AI-generated systems cannot work. The issue is that quality becomes harder to measure when development accelerates while assurance evidence becomes thinner.
 
-It is also important to remember that the SDLC represents only one part of the broader product lifecycle. Once software is deployed, its consequences are usually carried by other teams. Operations must keep it running. Security teams must defend it. Platform teams must support dependencies. Audit and compliance teams may need to review its controls. Business teams ultimately depend on the system functioning correctly.
-
-Low-quality software rarely remains a local problem. A fragile system shifts effort outward to the rest of the organization. Development may appear faster, but the operational cost often appears later. Few organizations have time to run their business on software that only works well enough to demonstrate a concept.
-
-AI development tools also reduce the barrier for creating systems outside formal governance structures. Organizations have always struggled with shadow IT because teams will build solutions when official processes move too slowly. AI simply makes that easier. Applications, integrations, and automations can now be assembled quickly with minimal effort.
-
-Some of those systems will solve legitimate problems. Others will quietly accumulate risk. Systems built outside governance often lack clear ownership, consistent security controls, and reliable documentation. Over time this produces environments that are difficult to secure, difficult to audit, and difficult to recover when failures occur.
-
-Monitoring and observability remain essential in modern systems. They help detect problems quickly and support incident response. But monitoring is reactive. It tells you that something has already started to fail. Preventive controls earlier in the lifecycle-design validation, testing, and controlled release-exist because preventing failures is usually far less costly than recovering from them.
-
-Monitoring complements those controls. It does not replace them.
-
 ## Concrete Failure Scenario: Misconfigured Cloud Infrastructure
 
-To illustrate the tangible impact of neglecting SDLC controls in an AI-assisted environment, consider a scenario where a developer uses an AI tool to generate a cloud infrastructure configuration (e.g., Terraform or CloudFormation) for a new microservice. The prompt is vague, leading the AI to include a security group rule that inadvertently opens port 22 (SSH) to the entire internet (0.0.0.0/0). This misconfiguration, a **structural design flaw** and an **insecure trust boundary**, could easily be overlooked if the organization relies solely on the AI's output without proper human review or automated secure design analysis. If this configuration is deployed, it creates a critical vulnerability, allowing unauthorized access to the microservice.
+Consider a simple but realistic scenario. A developer uses an AI tool to generate a cloud infrastructure configuration for a new microservice. The prompt is vague, and the generated configuration includes a security group rule that opens port 22 (SSH) to the internet (0.0.0.0/0).
 
-This failure scenario highlights how a lack of robust architecture review and secure implementation controls, even with AI acceleration, can lead to severe operational and security risks. The speed of AI generation, in this case, exacerbates the problem by potentially deploying insecure configurations faster, underscoring that while AI reduces the marginal cost of code generation, it does not diminish the need for stringent risk mitigation.
+The system functions correctly. It deploys, responds to requests, and passes basic validation. However, it violates a fundamental security assumption. Without architecture review or secure design validation, the issue remains undetected until it is exploited or discovered during audit.
 
-## A suggestion
+This is not a failure of generation speed. It is a failure of missing controls.
 
-There is a pragmatic middle ground that integrates AI's generative power with established engineering discipline. This approach involves defining clear control insertion points throughout the development lifecycle. For instance, human review and approval must occur after initial AI generation of artifacts (code, design, configuration) to assess correctness, adherence to standards, and security implications. Automated static analysis and dynamic testing tools should be integrated into the continuous integration/continuous deployment (CI/CD) pipeline to detect vulnerabilities and functional defects. Independent verification, distinct from AI-generated tests, is crucial for validating system behavior, especially in safety-critical and regulated environments. At each of these gates, sufficient evidence-such as review records, static analysis reports, and independent test results-must be generated and maintained to ensure accountability and provide assurance. This operationalized middle ground ensures that while AI accelerates development, the fundamental principles of risk management and quality assurance are upheld.
+## Does a practical middle ground exist?
 
-```mermaid
-flowchart LR
-  A[Problem / Idea] --> B[Prompting / AI Generation]
-  B --> C[Draft Artifacts<br/>Code / Design / Config]
-  C --> D[Human Review]
-  D --> E{Acceptable?}
+A more practical middle ground, at least in my experience, is to integrate AI into the lifecycle without removing control points.
 
-  E -- No --> F[Refine Prompt / Constraints]
-  F --> B
+Human review should follow initial AI-generated artifacts to assess correctness, constraints, and security implications. Automated analysis and testing should be embedded in CI/CD pipelines. Independent verification, distinct from AI-generated tests, becomes more important, not less.
 
-  E -- Yes --> G[Implementation / Integration]
-  G --> H[Verification<br/>Build / Static Checks / Review]
-  H --> I[Validation<br/>Tests / Replay / User Need]
-  I --> J{Valid?}
+At each stage, evidence should be produced and retained. Review decisions, validation results, and test coverage still matter because they are the basis for trust.
 
-  J -- No --> K[Fix Logic / Assumptions]
-  K --> G
+This approach does not eliminate error. It reduces the likelihood that errors propagate unchecked.
 
-  J -- Yes --> L[Deployment]
-  L --> M[Monitoring / Feedback]
-  M --> N{Issue or Change?}
+The example above is an obvious failure caused by missing controls. More concerning are the less visible ones.
 
-  N -- Yes --> O[Refinement / Update]
-  O --> G
+When AI tools generate logic and data flows, reviewers may lack sufficient context to fully understand the implications of changes. This can degrade the shared mental model within a team.
 
-  N -- No --> P[Operate / Maintain]
-```
+Over time, systems may remain functional but become harder to reason about, harder to review, and harder to safely modify. In practice, this loss of clarity appears to be a natural consequence of how these systems are produced rather than an isolated mistake.
+
+## Another risk in the shadows
+
+AI development tools lower the barrier for creating systems outside formal governance structures. Organizations have always struggled with [shadow IT](https://en.wikipedia.org/wiki/Shadow_IT) because teams will build solutions when official processes move too slowly. AI makes that easier.
+
+Applications and integrations can now be assembled quickly with minimal effort. Some will solve legitimate problems. Others will accumulate risk. From an operational perspective, these systems often lack ownership, documentation, and architectural consistency. They introduce technical debt and integration complexity. From a security perspective, they expand the attack surface, introduce inconsistent controls, and create audit and compliance challenges.
+
+The speed of generation amplifies both outcomes.
 
 ## Conclusion
 
