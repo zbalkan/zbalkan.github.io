@@ -15,6 +15,9 @@ Walk through a casino and you will see rows of slot machines. Someone sits down,
 
 Working with AI development tools can sometimes resemble this pattern more than many engineers are comfortable admitting. A prompt produces code, a design suggestion, or a configuration. The output might be close to what was intended, or it might miss the mark entirely. When that happens, the natural reaction is to adjust the prompt and try again. After several attempts, something that appears workable often emerges. At a superficial level, this resembles productivity. Iteration accelerates, output increases, and systems appear faster to build. Yet software engineering has never been evaluated by whether a system can eventually be generated. The discipline emerged because engineers learned that systems which merely appear to work often fail once they encounter real operating conditions. The central question has always been whether a system behaves predictably under constraints and whether other teams can depend on it once it becomes part of a larger environment. Understanding that distinction matters when discussing AI-assisted development.
 
+I need to note that while the slot-machine analogy captures the iterative and sometimes unpredictable nature of AI-assisted development, it is important to note that this process is more accurately described as a **guided stochastic search under constraints**, rather than pure randomness. AI models operate within defined parameters and are optimized towards specific objectives, making their outputs a product of complex algorithms rather than arbitrary chance. This distinction is crucial for a technically literate audience to fully appreciate the nuances of AI's role in software engineering.
+{: .notice--info}
+
 Below is a diagram for what I have observed with some vibe coders:
 
 ```mermaid
@@ -50,9 +53,9 @@ Early software systems were comparatively small and operated in tightly controll
 
 The SDLC did not emerge fully formed as a predefined framework. It developed gradually as engineers discovered which practices prevented particular classes of failure. Requirements practices appeared because teams were building systems that did not match the needs they were supposed to solve. Architecture reviews emerged because structural design mistakes were expensive to correct once implementation had begun. Testing became formalized because defects discovered in production were disruptive and costly. Change and release controls appeared because uncontrolled updates could destabilize operational systems. Monitoring eventually became essential because even well-tested systems behave differently once they encounter real environments.
 
-Viewed this way, the SDLC is not simply a workflow. It is a collection of controls that exist because particular risks occur often enough to justify preventing them. Modern governance frameworks follow a similar logic. NIST’s Risk Management Framework integrates risk considerations directly into the system lifecycle, and COBIT approaches enterprise IT governance as the coordination of objectives, resources, and risk. The principle behind both is straightforward: technology risk does not disappear simply because systems become easier to build.
+Viewed this way, the SDLC is not simply a workflow but a **formal risk management model**. It is a collection of controls that exist because particular risks occur often enough to justify preventing them. These controls explicitly map to various risk classes, such as requirements risk (e.g., building the wrong system), structural risk (e.g., architectural flaws), and operational risk (e.g., deployment instability). Modern governance frameworks follow a similar logic. NIST’s Risk Management Framework integrates risk considerations directly into the system lifecycle, and COBIT approaches enterprise IT governance as the coordination of objectives, resources, and risk. The principle behind both is straightforward: technology risk does not disappear simply because systems become easier to build.
 
-Ob the other hand, AI-assisted development clearly changes how software can be produced. It reduces the effort required to generate code, helps developers explore alternative approaches quickly, and allows teams to move from idea to prototype much faster than before. What it does not change are the underlying risks.
+On the other hand, AI-assisted development clearly changes how software can be produced. It reduces the effort required to generate code, helps developers explore alternative approaches quickly, and allows teams to move from idea to prototype much faster than before. What it does not change are the underlying risks.
 
 Systems can still be built against incorrect requirements. Architectures can still fail under real workloads. Implementations can still contain vulnerabilities. Deployments can still disrupt production environments. Systems can still become difficult to maintain. Those risks existed before AI and they remain today. If the risks remain, the need for controls remains as well.
 
@@ -75,11 +78,11 @@ Looking at the lifecycle through the lens of risk control clarifies the situatio
 | Release management | Operational instability | Still exists | Faster generation increases deployment pressure |
 | Monitoring | Undetected failures | Still exists | Higher change velocity increases reliance on detection |
 
-AI lowers the cost of producing software. It does not lower the complexity of operating it.
+AI reduces the marginal cost of code generation, but not necessarily system entropy or operational complexity. It does not lower the complexity of operating it.
 
 Another issue involves assurance. Traditional lifecycle practices produce evidence: traceability between requirements and tests, review records, design decisions, and defect metrics. These artifacts allow organizations to reason about whether a system has been properly validated. Many AI-assisted workflows do not yet produce equivalent evidence consistently.
 
-A system may be described as automatically tested or agent-verified, but those descriptions rarely explain what was actually tested, how complete the coverage is, or whether the validation process was independent of the generation process.
+A system may be described as automatically tested or agent-verified, but those descriptions rarely explain what was actually tested, how complete the coverage is, or whether the validation process was independent of the generation process. This introduces the risk of **correlated validation failure**, where both the generated code and its corresponding tests originate from the same model, potentially overlooking the same flaws.
 
 The issue is not that AI-generated systems cannot work. The issue is that quality becomes harder to measure when development accelerates while assurance evidence becomes thinner.
 
@@ -95,9 +98,15 @@ Monitoring and observability remain essential in modern systems. They help detec
 
 Monitoring complements those controls. It does not replace them.
 
+## Concrete Failure Scenario: Misconfigured Cloud Infrastructure
+
+To illustrate the tangible impact of neglecting SDLC controls in an AI-assisted environment, consider a scenario where a developer uses an AI tool to generate a cloud infrastructure configuration (e.g., Terraform or CloudFormation) for a new microservice. The prompt is vague, leading the AI to include a security group rule that inadvertently opens port 22 (SSH) to the entire internet (0.0.0.0/0). This misconfiguration, a **structural design flaw** and an **insecure trust boundary**, could easily be overlooked if the organization relies solely on the AI's output without proper human review or automated secure design analysis. If this configuration is deployed, it creates a critical vulnerability, allowing unauthorized access to the microservice.
+
+This failure scenario highlights how a lack of robust architecture review and secure implementation controls, even with AI acceleration, can lead to severe operational and security risks. The speed of AI generation, in this case, exacerbates the problem by potentially deploying insecure configurations faster, underscoring that while AI reduces the marginal cost of code generation, it does not diminish the need for stringent risk mitigation.
+
 ## A suggestion
 
-In my humble opinion, there is a middle ground: don't ignore the lessons learned throughout the decades.
+There is a pragmatic middle ground that integrates AI's generative power with established engineering discipline. This approach involves defining clear control insertion points throughout the development lifecycle. For instance, human review and approval must occur after initial AI generation of artifacts (code, design, configuration) to assess correctness, adherence to standards, and security implications. Automated static analysis and dynamic testing tools should be integrated into the continuous integration/continuous deployment (CI/CD) pipeline to detect vulnerabilities and functional defects. Independent verification, distinct from AI-generated tests, is crucial for validating system behavior, especially in safety-critical and regulated environments. At each of these gates, sufficient evidence-such as review records, static analysis reports, and independent test results-must be generated and maintained to ensure accountability and provide assurance. This operationalized middle ground ensures that while AI accelerates development, the fundamental principles of risk management and quality assurance are upheld.
 
 ```mermaid
 flowchart LR
