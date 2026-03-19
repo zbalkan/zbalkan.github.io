@@ -9,6 +9,10 @@ tags:
   - AI-generated code
   - SDLC
   - Shadow IT
+header:
+  image: /assets/slot-machines.jpg
+  caption: "Photo credit: [**Ays Be**](https://unsplash.com/@aysha_be?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/photos/black-and-white-game-machine-BD4pN-2zw7s?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)"
+
 ---
 
 Walk through a casino and you will see rows of slot machines. Someone sits down, pulls the lever, watches the reels spin, and waits for the result. Most of the time nothing happens. Occasionally a small win appears. Rarely, the machine pays out. If the outcome is disappointing, the response is simple: pull the lever again.
