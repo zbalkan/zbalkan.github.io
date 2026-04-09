@@ -37,20 +37,8 @@ sequenceDiagram
     end
 ```
 
-This shows up in routine communication more often than it should. A message appears in a team chat asking whether a specific feature should be enabled because "it improves detection." There is no description of what is currently not being detected, no indication of gaps, and no context around the environment. The discussion starts with the feature.
+This shows up in routine communication more often than it should. A message appears in a team chat asking whether a specific feature should be enabled because "it improves detection." There is no description of what is currently not being detected, no indication of gaps, and no context around the environment. The discussion starts with the feature. A ticket suggests migrating a service to a different platform because it "scales better." There is no evidence of load, no constraints identified, and no operational issue described. The implementation discussion begins anyway. In a meeting, a recommendation is made to introduce caching for performance. When asked where the latency is, or what the baseline is, the answers are unclear. The solution is specific, but the problem is not. These are not edge cases. They are small, daily examples of the same pattern. The presence of a structured answer shifts the centre of gravity. Instead of asking what is happening, the discussion moves toward whether the proposed solution should be accepted, modified, or rejected.
 
-A ticket suggests migrating a service to a different platform because it "scales better." There is no evidence of load, no constraints identified, and no operational issue described. The implementation discussion begins anyway.
+At some point, someone asks a simple question: what problem are we solving? By then, the conversation is already shaped around Y. The model output becomes a reference point, and it often needs to be challenged before the original problem can be reconstructed. That is the inversion. Instead of validating a solution against a problem, the problem has to be rediscovered from the solution. This is not about models being right or wrong. It is about missing context. LLMs do not see the system they are being applied to. They do not see constraints, dependencies, or previous decisions. Those exist outside the prompt. The output fills the gaps with something plausible, and plausibility is often enough to move work forward.
 
-In a meeting, a recommendation is made to introduce caching for performance. When asked where the latency is, or what the baseline is, the answers are unclear. The solution is specific, but the problem is not.
-
-These are not edge cases. They are small, daily examples of the same pattern. The presence of a structured answer shifts the centre of gravity. Instead of asking what is happening, the discussion moves toward whether the proposed solution should be accepted, modified, or rejected.
-
-At some point, someone asks a simple question: what problem are we solving? By then, the conversation is already shaped around Y. The model output becomes a reference point, and it often needs to be challenged before the original problem can be reconstructed. That is the inversion. Instead of validating a solution against a problem, the problem has to be rediscovered from the solution.
-
-This is not about models being right or wrong. It is about missing context. LLMs do not see the system they are being applied to. They do not see constraints, dependencies, or previous decisions. Those exist outside the prompt. The output fills the gaps with something plausible, and plausibility is often enough to move work forward.
-
-The correction is straightforward, but it requires discipline. Ask for the problem. Paraphrase it. Separate assumptions from requirements. Make constraints explicit. Validate the problem before discussing solutions. The guidance from xyproblem.info still applies because the underlying issue has not changed.
-
-What has changed is the rate at which Y appears, and the distance it travels before someone asks about X.
-
-The corrective action remains the same. Identify X first. Then decide whether Y is relevant.
+The correction is straightforward, but it requires discipline. Ask for the problem. Paraphrase it. Separate assumptions from requirements. Make constraints explicit. Validate the problem before discussing solutions. The guidance from [xyproblem.info](https://xyproblem.info/) still applies because the underlying issue has not changed. What has changed is the rate at which Y appears, and the distance it travels before someone asks about X. The corrective action remains the same. Identify X first. Then decide whether Y is relevant, which is not most of the time.
