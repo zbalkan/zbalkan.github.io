@@ -5,6 +5,9 @@ tags:
   - Cybersecurity
   - Vulnerability management
   - Opinion piece
+header:
+  image: /assets/factory.jpg
+  caption: "Production line of Type 69-II of the Inner Mongolia First Machinery Group for the Iran-Iraq war. During the Iran-Iraq war both sides purchased thousands of type 69-II tanks from China, the left row was the orders from Iraq, the right was for Iran. [Source](https://old.reddit.com/r/MilitaryPorn/comments/10rfbm2/production_line_of_type_69ii_of_the_inner/)"
 ---
 
 ## A Familiar Pattern
