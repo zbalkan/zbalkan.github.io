@@ -9,8 +9,6 @@ tags:
   - Lecture
 ---
 
-# Wazuh, Splunk, and Detection Engineering
-
 I recently had the chance to give a lecture titled **"Wazuh and Splunk for Detection Engineering"** as part of the University of Iceland course [*TÖL401M Hakkaðu hakkarana: Greining netárása og varnir gegn þeim*](https://ugla.hi.is/kennsluskra/?tab=nam&chapter=namskeid&id=71264820260).
 
 The title mentioned Wazuh and Splunk, but the lecture was really about detection engineering. I used both tools as familiar reference points, briefly touched on newer platforms built around data lakes and security pipelines, and also emphasized why detection as code matters. Different architectures, different trade-offs, but ultimately the same underlying problem.
