@@ -1,0 +1,28 @@
+---
+title: "Wazuh, Splunk, and Detection Engineering"
+tags:
+  - Detection Engineering
+  - Detection-as-Code
+  - Wazuh
+  - Splunk
+  - SIEM
+  - Lecture
+---
+
+# Wazuh, Splunk, and Detection Engineering
+
+I recently had the chance to give a lecture titled **"Wazuh and Splunk for Detection Engineering"** as part of the University of Iceland course [*TÖL401M Hakkaðu hakkarana: Greining netárása og varnir gegn þeim*](https://ugla.hi.is/kennsluskra/?tab=nam&chapter=namskeid&id=71264820260).
+
+The title mentioned Wazuh and Splunk, but the lecture was really about detection engineering. I used both tools as familiar reference points, briefly touched on newer platforms built around data lakes and security pipelines, and also emphasized why detection as code matters. Different architectures, different trade-offs, but ultimately the same underlying problem.
+
+That was the main point I wanted to make. Tools matter, but they are secondary. The harder part is building detections in a way that is structured, testable, and maintainable. That is also why detection as code is important. Without that discipline, even capable platforms eventually fill up with brittle content nobody fully trusts.
+
+I tend to reduce that whole discussion to a simple duck test:
+
+> If it ingests telemetry, normalizes it, runs detection logic, and produces alerts analysts triage, it is a SIEM.
+
+The naming changes. The responsibilities do not.
+
+I will write separately about the actual content of the Wazuh and Splunk comparison, because that deserves its own article. This is just a short note on the lecture itself.
+
+I am grateful to the students for their time and engagement. I hope I managed to be useful, even in a small way, to people who will be the next generation of cybersecurity professionals. And many thanks to Dr. Stephen Urs Fedtke for the invitation and the opportunity to contribute to the course.
