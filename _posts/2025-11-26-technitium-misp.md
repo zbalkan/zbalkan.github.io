@@ -33,7 +33,11 @@ galleryPyramidOfPain:
 galleryDnsClient:
   - url: /assets/dns-client.png
     image_path: /assets/dns-client.png
+last_modified_at: 2026-04-25
 ---
+
+**Update – 25 April 2026:** Technitium DNS Server 15.0 [removed the MISP Connector App from the official](https://github.com/TechnitiumSoftware/DnsServer/blob/master/CHANGELOG.md) DNS Apps distribution. This article therefore describes the design and operation of the connector as it existed in Technitium DNS Server 14.2-14.3. The architectural idea remains useful, but this should not be treated as current installation guidance for Technitium DNS Server 15.0 or later. For current deployments, a safer approach is to export domain indicators from MISP into a plain domain blocklist and consume that list through Technitium’s built-in blocking features or the Advanced Blocking App. I plan to distribute the connector myself as a separate repository, and provide the information about the new repository when it is ready.
+{: .notice--danger}
 
 Technitium DNS Server started as a simple home-lab resolver but has matured into something I’d now place between AdGuard Home and AdGuard Enterprise. It remains self-hosted and lightweight but has grown into a capable platform thanks to its clustering, structured logging, and app-based extensibility. While it was never built as a Protective DNS (PDNS)[^1] service—and PDNS is typically offered as SaaS—its deterministic resolver and flexible architecture make PDNS-style filtering easy to achieve when paired with curated intelligence.
 
