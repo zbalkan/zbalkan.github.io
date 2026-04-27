@@ -3,12 +3,12 @@ title: "How AI Accelerates the Talent Crisis"
 tags:
   - AI
   - Software Engineering
-  - Sybersecurity
+  - Cybersecurity
   - System dynamics
   - Opinion piece
 header:
-  image: https://www.flickr.com/photos/testlab/21496317363
-  caption: "Photo credit: **The domino effect** by [Kurt:S](Kurt:S). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
+  image: https://live.staticflickr.com/5705/21496317363_eb96849f18_3k.jpg
+  caption: "Photo credit: [The domino effect](https://www.flickr.com/photos/testlab/21496317363) by [Kurt:S](https://www.flickr.com/photos/testlab/). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
 ---
 
 If you have spent enough time in software engineering, cybersecurity, IT, or adjacent technical fields, you have likely encountered the familiar joke that companies want a junior with ten years of experience. The joke persists because it reflects something uncomfortably real. Many organizations have long wanted entry-level hires who arrive partially trained, operationally useful from day one, and somehow still available at junior salaries. The economics behind that expectation are obvious enough: training people is expensive, mentoring consumes senior time, and building apprenticeship capacity often slows teams down before it speeds them up. If someone else can absorb those costs first, the individual firm benefits.
