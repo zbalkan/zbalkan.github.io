@@ -17,7 +17,7 @@ None of this is new. The underinvestment in junior talent predates the current A
 
 This is not an attempt to argue that AI has created a new workforce problem, nor is it an attempt to present some novel revelation about technical hiring. The issue is widely recognized. The value in discussing it through system dynamics is narrower and more practical: to describe the structural feedback mechanisms through which AI may accelerate an already familiar problem. Once the feedback structure of a system is understood, its long-term behavior becomes easier to reason about, and the consequences of local optimization become easier to identify before they fully materialize.
 
-## A systemic perspective for the problem: archetypes
+## A Systemic Perspective on the Problem
 
 System dynamics studies how systems behave over time based on their internal feedback structures. Rather than analyzing isolated decisions, it examines how decisions interact, reinforce one another, or produce delayed effects elsewhere in the system. One of its core tools is the causal loop diagram, or CLD. A CLD maps variables and the causal relationships between them. A positive relationship means two variables tend to move in the same direction, while a negative relationship means they move in opposite directions. From those relationships emerge feedback loops. Some reinforce change and amplify movement, while others constrain it and stabilize the system. Over time, practitioners of system dynamics observed that certain feedback structures recur across very different domains. These recurring structural patterns are commonly referred to as archetypes. The argument of this article is straightforward: the current AI-driven pressure to reduce junior hiring appears to fit several known archetypes associated with delayed systemic degradation.
 
@@ -73,6 +73,24 @@ flowchart LR
     AI -->|-| TRAIN
     AI -->|+| DEP["Dependence on workaround"]
     DEP -->|+| AI
+```
+
+### Fixes That Fail
+
+The **Fixes That Fail** archetype describes situations where an intervention solves an immediate problem but creates delayed side effects that worsen the original condition. In this context, replacing junior capacity with AI-assisted experienced staff may improve short-term throughput and reduce labor costs, but the downstream effects can gradually undermine those gains.
+
+As apprenticeship opportunities shrink, fewer practitioners develop into experienced contributors. The resulting skill shortages increase review bottlenecks, reduce institutional depth, and concentrate operational burden on a shrinking pool of senior staff. Over time, the organization may find that the intervention intended to improve delivery has weakened the very human capability required to sustain it.
+
+```mermaid
+flowchart LR
+    PROBLEM["Delivery pressure / labor cost pressure"] -->|+| FIX["Reduce junior hiring via AI substitution"]
+    FIX -->|+| RELIEF["Short-term throughput / cost relief"]
+    RELIEF -->|-| PROBLEM
+
+    FIX -->|-| PIPE["Apprenticeship pipeline strength"]
+    PIPE -->|+| TALENT["Future experienced talent availability"]
+    TALENT -->|-| BOTTLENECK["Skill bottlenecks / review overload"]
+    BOTTLENECK -->|+| PROBLEM
 ```
 
 ### Tragedy of the Commons
