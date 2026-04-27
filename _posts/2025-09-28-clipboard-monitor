@@ -6,6 +6,11 @@ tags:
   - Detection
   - Clipboard
   - ClipboardMonitor
+  - Data masking
+  - Utility
+  - Community contribution
+  - Open Source
+  - PAN
 galleryScreenshot:
   - url: /assets/clipboard-screenshot.png
     image_path: /assets/clipboard-screenshot.png
@@ -19,24 +24,65 @@ galleryLogs:
     image_path: /assets/clipboard-log-amsi.png
 ---
 
-// TODO: We will separate service from the agent to capture clipboard.
-// TODO: Messagebox has changed a bit
+I started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious about one narrow question: what happens between copying text in a browser and pasting it into privileged Windows surfaces?
 
-I started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious. I wanted to understand what happens between a browser copy and the moment text lands in a privileged window. The first version was nothing more than a learning exercise: some regexes to spot obvious card numbers and a tiny piece of code that would mask them. That small experiment taught me a surprising amount about how the .NET `Clipboard` wrapper maps to Win32, and it exposed a simple attack surface that felt worth exploring.
+The first version was intentionally small. It used simple pattern checks for obvious card-like data and a basic masking flow. That experiment taught me a lot about clipboard internals and where user-mode defenses can still be practical.
 
-This refresh, which I call 2.0, kept the lean mindset. I still want small, auditable code that I can read in one sitting. I added an AMSI hand-off inspired by Eric Lawrence's [ClipShield idea](https://textslashplain.com/2024/06/04/attack-techniques-trojaned-clipboard/), but my approach stayed deliberately simpler: the code uses familiar .NET wrappers where they exist and P/Invoke where they do not, unlike Lawrence's C++ code. There are no external libraries or hidden services involved—just the OS, the framework, and a few hundred lines of C# that I can explain to myself after a night away from the keyboard.
+I postponed writing this release post for a while. I finally finished it after reading this excellent write-up on chained social-engineering and notification abuse: [ToastFix: chaining a ClickFix attack with toast notifications](https://0xh4lpy.medium.com/toastfix-chaining-a-clickfix-attack-with-toast-notifications-72082694fef9).
 
-In practice the tool listens for `WM_CLIPBOARDUPDATE`, filters plain-text copies from common browser processes, and runs a short pipeline. A fast pattern matcher looks for living-off-the-land verbs such as `powershell`, `mshta` and `msiexec`. A second check tries to identify payment-card PANs, applies Luhn validation, masks the middle digits, and clears the buffer. Anything that survives these stages is queued to a worker that converts the text to UTF-16 and calls `AmsiScanBuffer`. I cache verdicts in memory for thirty seconds so the Run-dialog sentinel can make a quick decision without re-scanning.
+## What 2.0 focuses on
 
-Before the Run dialog appears, the program briefly installs a low-level keyboard hook. If you press Win+R while the clipboard entry is flagged, the hook cancels the paste and a message box explains what happened. The message box is intentionally terse: it names the trigger, says the clipboard was cleared or blocked, and that the incident was logged. I may use toast notifications in the future but I am worried that user may snooze the notifications and does not see the alert.
+ClipboardMonitor 2.0 keeps the same design goal: small, auditable code with direct platform APIs and minimal moving parts. The current flow combines lightweight layers:
+
+1. **Clipboard listener** using `WM_CLIPBOARDUPDATE`.
+2. **Browser-origin risk scan** for suspicious command text plus AMSI verdicting.
+3. **PAN detection/masking** for likely payment-card data.
+4. **Shortcut correlation guard** to warn when risky copied text is likely heading into elevated execution paths.
+
+For browser-origin text, ClipboardMonitor checks suspicious verbs (for example `pwsh`, `powershell`, `mshta`, `cmd`, `msiexec`) and submits clipboard content to AMSI for malware scoring. If content is flagged, clipboard text is overwritten and a toast notification is displayed.
+
+For PAN-like strings, it identifies valid candidates, applies masking, scrubs/replaces clipboard content, and logs the incident.
 
 {% include gallery id="galleryScreenshot" caption="Screenshot of PAN detection and AMSI alerts" %}
 
-I like this pattern because it makes the action transparent—the user sees the evidence—and it avoids silent failures that later make investigations harder.
+## ToastFix-inspired hardening
 
-I have run the tool on a handful of machines and iterated against the surprises I found. On one laptop Defender's cloud lookup added a noticeable half-second delay; on another, certain long numeric strings that were not cards triggered the PAN detector and taught me to broaden the brand list and tolerate common separators. These are exactly the kinds of lessons that hobby work is good at finding. I try to surface them quickly in the repo so others can reproduce and add their own edge cases.
+The ToastFix article pushed me to treat notification and clipboard chaining more seriously. In practical terms, I extended ClipboardMonitor so suspicious clipboard content that resembles scriptable execution chains and notification-driven lure patterns gets surfaced earlier in the pipeline.
 
-If you want to test it yourself, the sequence is simple. Copy a command-line payload in a browser, open Run, paste, and watch the toast.
+This does **not** try to be a full anti-phishing product. The intent is narrower: make risky clipboard-to-execution transitions more visible, and make the warning path immediate.
+
+## Run/elevation correlation guard
+
+ClipboardMonitor tracks a short risk window (**30 seconds**) after a suspicious browser copy. Within that window, it watches for:
+
+- **Win+R** (Run dialog)
+- **Win+X, then I** (elevated shell path)
+
+When triggered, the tool raises a warning with sanitized context so the user can see why the action was blocked or flagged.
+
+{% include gallery id="galleryScreenshotRisk" caption="Screenshot of risk correlation with Run / elevated-shell shortcuts" %}
+
+## Logging and observability
+
+Incidents are written to **Windows Event Log**:
+
+- Log: `Application`
+- Source: `ClipboardMonitor`
+
+The logs are there for debugging, false-positive triage, and AV/AMSI behavior differences between hosts.
+
+{% include gallery id="galleryLogs" caption="Screenshot of event logs" %}
+
+## Practical test flow
+
+If you want to test in a lab machine:
+
+1. Start ClipboardMonitor.
+2. Copy suspicious command text from a browser tab.
+3. Press **Win+R** or **Win+X, I**.
+4. Confirm the warning and event log entries.
+
+For PAN checks, use test-card numbers only:
 
 | Brand                       | Number              |
 | --------------------------- | ------------------- |
@@ -60,18 +106,14 @@ If you want to test it yourself, the sequence is simple. Copy a command-line pay
 
 *Test cards from [Stripe Docs](https://docs.stripe.com/testing?testing-method=card-numbers)*
 
-Copy a dummy PAN and paste; you should see the masked result. I do not include exact payloads here—replace the placeholders in the repository with whatever safe test data you prefer. I sign the binary with a self-issued certificate for convenience; if your environment rejects that, build and sign the executable locally.
+## Scope and limits
 
-There are clear limits, and I say them plainly. The monitor ignores images and rich text. Enterprise policies that block user-mode hooks can disable the Run interception. AMSI behaviour varies across vendors, so when AMSI is unavailable the tool falls back to heuristics. I treat those limits as feature signals: they tell me where the design must remain small and observable rather than trying to be everything to everyone.
+ClipboardMonitor is intentionally narrow:
 
-Recently I added a minimal test suite and refactored internal boundaries. The tests cover the regex and Luhn matchers and include a small integration check that automates a Run dialog paste to confirm the hook cancels the paste when expected. I widened the PAN detector to recognise more brands and to tolerate separators, and I cleaned up the pipeline so the regex stage, AMSI worker, and sentinel are clearer to read and easy to instrument. I also updated the screenshots. In the screenshot below, you can see that some risky words were copied to clipboard and Run dialog combination was run in the risk window . By default the risk window is calculated for *30 seconds*.
+- It focuses on text clipboard paths, not rich-content DLP coverage.
+- Hook/interception behavior can vary in locked-down enterprise environments.
+- AMSI outcomes depend on the installed antimalware provider and policy.
 
-{% include gallery id="galleryScreenshotRisk" caption="Screenshot of AMSI alert in correlation with Run dialog" %}
+So this remains a local, hobby-grade defensive utility — useful for visibility and experimentation, but not an enterprise DLP replacement.
 
-Incidents are logged to the Windows Event Log (Application > ClipboardMonitor). A sample event looks like:
-
-{% include gallery id="galleryLogs" caption="Screenshot of event logs" %}
-
-If this project interests you, please try it on a lab machine and tell me what breaks. Share the crash dumps, the false positives, and any odd AV behaviour you see. Hobby code survives on scrutiny and iteration, and the clipboard still hides a lot of small, useful surprises.
-
-If you want to kick the tyres, the repository contains everything you need to reproduce the behaviour and validate the integrations. Note that [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) implements a very primitive, local DLP: it masks and scrubs likely PANs on the clipboard but it is not an enterprise-grade DLP product and should not be used as one. You may use EICAR and copy the text for basic AMSI alerts. See the README for the minimal test/run steps and a short safety note about never using real payment data in public demos. If you try the project, please open an issue or a pull request with test logs, screenshots, or reproduction steps — small contributions and bug reports are the best way to improve hobby code.
+If you test it, please share logs, false positives, crashes, and AV-specific quirks via issues/PRs. That feedback improves the project quickly.
