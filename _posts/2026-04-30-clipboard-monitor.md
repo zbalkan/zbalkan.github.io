@@ -1,5 +1,5 @@
 ---
-title: "ClipboardMonitor 2.0 released"
+title: "ClipboardMonitor 2.0 Released"
 tags:
   - DLP
   - AMSI
@@ -24,65 +24,53 @@ galleryLogs:
     image_path: /assets/clipboard-log-amsi.png
 ---
 
-I started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious about one narrow question: what happens between copying text in a browser and pasting it into privileged Windows surfaces?
+I originally started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious about a fairly narrow question: what actually happens between copying text in a browser and pasting it into privileged Windows surfaces? Clipboard operations tend to be treated as mundane UI plumbing, yet they often sit quietly between untrusted content and sensitive execution paths. That made them interesting to me.
 
-The first version was intentionally small. It used simple pattern checks for obvious card-like data and a basic masking flow. That experiment taught me a lot about clipboard internals and where user-mode defenses can still be practical.
+The first version of the tool was intentionally minimal. It used simple pattern checks for obvious PAN-like data, basic masking logic, and little else. The primary goal was not to build a serious DLP product, but to explore clipboard internals and to understand where lightweight user-mode interception can still be practical on modern Windows systems. That experiment proved useful enough to justify a second pass.
 
-I postponed writing this release post for a while. I finally finished it after reading this excellent write-up on chained social-engineering and notification abuse: [ToastFix: chaining a ClickFix attack with toast notifications](https://0xh4lpy.medium.com/toastfix-chaining-a-clickfix-attack-with-toast-notifications-72082694fef9).
+I first started writing this post on September 26, 2025. For various reasons, it stayed unfinished while the tool kept changing in small increments. Eight months later, I can finally publish it with ClipboardMonitor 2.0 in a shape that better reflects what I originally wanted to explore.
 
-## What 2.0 focuses on
+The final push came after reading this excellent write-up on chained social-engineering and notification abuse: [ToastFix: chaining a ClickFix attack with toast notifications](https://0xh4lpy.medium.com/toastfix-chaining-a-clickfix-attack-with-toast-notifications-72082694fef9). That piece reinforced something many defenders already know intuitively: small interaction chains matter. A copied command, a deceptive prompt, a keyboard shortcut, and a few seconds of user trust can be enough.
 
-ClipboardMonitor 2.0 keeps the same design goal: small, auditable code with direct platform APIs and minimal moving parts. The current flow combines lightweight layers:
+## What Changed in 2.0
 
-1. **Clipboard listener** using `WM_CLIPBOARDUPDATE`.
-2. **Browser-origin risk scan** for suspicious command text plus AMSI verdicting.
-3. **PAN detection/masking** for likely payment-card data.
-4. **Shortcut correlation guard** to warn when risky copied text is likely heading into elevated execution paths.
+ClipboardMonitor 2.0 keeps the same general philosophy as the first release: small, auditable code, direct use of platform APIs, and minimal abstraction where it adds no value. The project remains intentionally narrow in scope, but the internal pipeline is now more layered.
 
-For browser-origin text, ClipboardMonitor checks suspicious verbs (for example `pwsh`, `powershell`, `mshta`, `cmd`, `msiexec`) and submits clipboard content to AMSI for malware scoring. If content is flagged, clipboard text is overwritten and a toast notification is displayed.
+The current flow combines several lightweight controls. Clipboard changes are tracked through `WM_CLIPBOARDUPDATE`, browser-origin text is scanned for suspicious command patterns and submitted to AMSI, PAN-like values are identified and masked, and a short-lived correlation layer now watches for risky follow-up behavior after suspicious clipboard activity.
 
-For PAN-like strings, it identifies valid candidates, applies masking, scrubs/replaces clipboard content, and logs the incident.
+In practical terms, browser-origin clipboard text is checked for command-oriented patterns such as `powershell`, `pwsh`, `cmd`, `mshta`, or `msiexec`. Matching content is then submitted to AMSI for provider-backed scanning. If the content is flagged, ClipboardMonitor overwrites the clipboard and displays a warning toast. PAN-like values continue to be detected through validation and masking logic, with the clipboard scrubbed or replaced as appropriate.
 
 {% include gallery id="galleryScreenshot" caption="Screenshot of PAN detection and AMSI alerts" %}
 
-## ToastFix-inspired hardening
+## ToastFix-Inspired Hardening
 
-The ToastFix article pushed me to treat notification and clipboard chaining more seriously. In practical terms, I extended ClipboardMonitor so suspicious clipboard content that resembles scriptable execution chains and notification-driven lure patterns gets surfaced earlier in the pipeline.
+The ToastFix write-up pushed me to think more seriously about clipboard and notification chaining as part of social-engineering workflows. In response, I expanded ClipboardMonitor’s logic so suspicious clipboard content that resembles scriptable execution chains or notification-driven lure patterns can be surfaced earlier in the decision pipeline.
 
-This does **not** try to be a full anti-phishing product. The intent is narrower: make risky clipboard-to-execution transitions more visible, and make the warning path immediate.
+To be clear, this does **not** attempt to become a full anti-phishing or anti-social-engineering platform. That would be unrealistic and well outside the intended scope of the project. The goal is narrower: make risky clipboard-to-execution transitions more visible, and make that warning path immediate enough to be useful.
 
-## Run/elevation correlation guard
+## Execution Correlation Guard
 
-ClipboardMonitor tracks a short risk window (**30 seconds**) after a suspicious browser copy. Within that window, it watches for:
+One of the more notable additions in 2.0 is a short-lived execution correlation guard. After suspicious browser-origin clipboard content is detected, ClipboardMonitor tracks a risk window of **30 seconds**. Within that period, it monitors for common shortcut paths associated with rapid command execution, specifically **Win+R** for the Run dialog and **Win+X, I** for the elevated shell path.
 
-- **Win+R** (Run dialog)
-- **Win+X, then I** (elevated shell path)
+If that sequence occurs within the active risk window, the tool raises a warning and presents sanitized context so the user can understand why the action was flagged or blocked.
 
-When triggered, the tool raises a warning with sanitized context so the user can see why the action was blocked or flagged.
+The logic here is intentionally heuristic. It is not trying to prove maliciousness. It is simply recognizing that suspicious clipboard content followed immediately by privileged execution shortcuts is often worth surfacing.
 
 {% include gallery id="galleryScreenshotRisk" caption="Screenshot of risk correlation with Run / elevated-shell shortcuts" %}
 
-## Logging and observability
+## Logging and Observability
 
-Incidents are written to **Windows Event Log**:
+ClipboardMonitor now writes incidents into the **Windows Event Log**, using the standard `Application` log under the source name `ClipboardMonitor`.
 
-- Log: `Application`
-- Source: `ClipboardMonitor`
-
-The logs are there for debugging, false-positive triage, and AV/AMSI behavior differences between hosts.
+This serves several purposes. First, it makes debugging easier when testing behavioral differences between hosts. Second, it provides visibility into AMSI or AV-provider variance, which can differ substantially depending on the installed stack and policy configuration. Third, it gives users a basic audit trail for false-positive triage.
 
 {% include gallery id="galleryLogs" caption="Screenshot of event logs" %}
 
-## Practical test flow
+## Practical Test Flow
 
-If you want to test in a lab machine:
+If you want to test the tool in a lab environment, the simplest workflow is straightforward. Start ClipboardMonitor, copy suspicious command text from a browser tab, and then invoke either **Win+R** or **Win+X, I**. If the correlation logic is functioning as expected, the warning path and corresponding event log entries should appear.
 
-1. Start ClipboardMonitor.
-2. Copy suspicious command text from a browser tab.
-3. Press **Win+R** or **Win+X, I**.
-4. Confirm the warning and event log entries.
-
-For PAN checks, use test-card numbers only:
+For PAN testing, use test-card numbers only.
 
 | Brand                       | Number              |
 | --------------------------- | ------------------- |
@@ -106,14 +94,10 @@ For PAN checks, use test-card numbers only:
 
 *Test cards from [Stripe Docs](https://docs.stripe.com/testing?testing-method=card-numbers)*
 
-## Scope and limits
+## Scope and Limits
 
-ClipboardMonitor is intentionally narrow:
+ClipboardMonitor remains intentionally narrow in scope, and it is important to be explicit about that. It focuses on text clipboard paths only. It is not attempting broad DLP coverage, rich-content inspection, or deep enterprise-grade policy enforcement. Hook and interception behavior may vary depending on endpoint hardening and enterprise restrictions, and AMSI outcomes remain dependent on the installed antimalware provider and local policy.
 
-- It focuses on text clipboard paths, not rich-content DLP coverage.
-- Hook/interception behavior can vary in locked-down enterprise environments.
-- AMSI outcomes depend on the installed antimalware provider and policy.
+Accordingly, this should be viewed as a local defensive utility and research project rather than a serious enterprise DLP replacement. Its value lies primarily in visibility, experimentation, and exploring what small defensive controls can still achieve in user mode when applied thoughtfully.
 
-So this remains a local, hobby-grade defensive utility — useful for visibility and experimentation, but not an enterprise DLP replacement.
-
-If you test it, please share logs, false positives, crashes, and AV-specific quirks via issues/PRs. That feedback improves the project quickly.
+If you test it, and especially if you encounter false positives, crashes, provider-specific AMSI quirks, or behavioral inconsistencies across hosts, feel free to open an issue or PR. Feedback of that kind is usually what improves these projects fastest.
