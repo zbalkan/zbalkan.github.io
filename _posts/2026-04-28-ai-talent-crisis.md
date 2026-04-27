@@ -23,6 +23,8 @@ System dynamics studies how systems behave over time based on their internal fee
 
 Software engineering provides the clearest illustration, but the same logic extends well beyond development. Cybersecurity has analogous apprenticeship paths through SOC analysis, junior detection engineering, operational security roles, and similar early-career positions. The broader issue is therefore not about junior developers specifically, but about the erosion of apprenticeship pipelines in knowledge work more generally.
 
+System dynamics is also concerned with behavior over time, not merely static structure. A system may appear healthy in the short term while accumulating delayed structural weaknesses that only become visible later. That temporal dimension is particularly relevant here, because the core argument of this article is not that AI causes immediate workforce collapse, but that it may strengthen feedback loops whose consequences emerge only after years of compounding effects.
+
 Before discussing the archetypes, it is useful to establish how a causal loop diagram is read. Consider a simple adoption model. As more people adopt a product or idea, adoption may accelerate through word of mouth or network effects. At the same time, the more adoption occurs, the fewer potential adopters remain. One dynamic reinforces growth while the other constrains it.
 
 ```mermaid
@@ -33,65 +35,11 @@ flowchart LR
     A -->|-| PA
 ```
 
-The purpose of a CLD is not numerical prediction but structural understanding. It helps explain why systems behave as they do by visualizing the feedback mechanisms embedded within them. With that foundation established, we can examine the apprenticeship problem through several common archetypes.
+The purpose of a CLD is not numerical prediction but structural understanding. It helps explain why systems behave as they do by visualizing the feedback mechanisms embedded within them.
 
-### Success to the Successful
+These archetypes should not be read as competing explanations for the same phenomenon, nor as mutually exclusive diagnoses from which only one can be "correct." They describe the same system from different analytical angles and at different levels of abstraction. Some operate primarily within firms, some describe market-wide dynamics, and others describe delayed constraints that emerge over time. The value of using multiple archetypes is not to force a single diagnosis, but to examine how overlapping feedback structures may interact.
 
-The **Success to the Successful** archetype describes systems where advantage compounds because resources flow toward those already performing well. In the context of AI-assisted knowledge work, this dynamic is particularly relevant because AI tends to benefit experienced practitioners more than inexperienced ones. A senior engineer, analyst, or operator can often use AI effectively because they possess the surrounding judgment required to validate output, identify errors, refine prompts, and integrate results into broader context. A junior lacks much of that judgment and therefore cannot leverage the tool in the same way.
-
-This creates an asymmetry. The more AI improves the productivity of experienced personnel, the more trust organizations place in their output, and the more high-value work they allocate to them. As that work concentrates around already-capable staff, juniors receive fewer opportunities to learn by doing. With fewer meaningful opportunities, junior skill growth slows, which in turn increases organizational reliance on existing senior staff. The visible gain is productivity. The hidden cost is reduced capability formation.
-
-```mermaid
-flowchart LR
-    AI["AI tooling adoption by experienced staff"] -->|+| PROD["Experienced practitioner productivity"]
-    PROD -->|+| TRUST["Organizational trust in augmented output"]
-    TRUST -->|+| WORK["High-value work allocated to experienced staff"]
-    WORK -->|+| AI
-
-    WORK -->|-| JUNIOR["Junior learning opportunities"]
-    JUNIOR -->|+| GROWTH["Junior skill growth"]
-    GROWTH -->|-| RELIANCE["Reliance on existing seniors"]
-    RELIANCE -->|+| WORK
-```
-
-### Shifting the Burden
-
-The **Shifting the Burden** archetype appears when organizations rely on symptomatic fixes instead of addressing structural causes. Many firms struggle with junior productivity not because juniors are inherently ineffective, but because their internal systems for developing them are poor. Weak onboarding, inconsistent mentorship, inadequate documentation, poor engineering discipline, and chaotic delivery processes all make junior development harder than it needs to be.
-
-AI offers a convenient workaround. Rather than improving the environment so less experienced personnel can become productive more quickly, firms can use AI to reduce perceived dependence on juniors altogether. This alleviates immediate delivery pressure while leaving the underlying developmental weakness untouched. Over time, the organization may become more dependent on the workaround while its underlying ability to build human capability declines.
-
-```mermaid
-flowchart LR
-    PRESS["Delivery pressure"] -->|+| AI["Use AI as substitute for junior capacity"]
-    AI -->|+| RELIEF["Short-term delivery relief"]
-    RELIEF -->|-| PRESS
-
-    PRESS -->|+| TRAIN["Investment in training and mentorship"]
-    TRAIN -->|+| CAP["Human capability development"]
-    CAP -->|-| PRESS
-
-    AI -->|-| TRAIN
-    AI -->|+| DEP["Dependence on workaround"]
-    DEP -->|+| AI
-```
-
-### Fixes That Fail
-
-The **Fixes That Fail** archetype describes situations where an intervention solves an immediate problem but creates delayed side effects that worsen the original condition. In this context, replacing junior capacity with AI-assisted experienced staff may improve short-term throughput and reduce labor costs, but the downstream effects can gradually undermine those gains.
-
-As apprenticeship opportunities shrink, fewer practitioners develop into experienced contributors. The resulting skill shortages increase review bottlenecks, reduce institutional depth, and concentrate operational burden on a shrinking pool of senior staff. Over time, the organization may find that the intervention intended to improve delivery has weakened the very human capability required to sustain it.
-
-```mermaid
-flowchart LR
-    PROBLEM["Delivery pressure / labor cost pressure"] -->|+| FIX["Reduce junior hiring via AI substitution"]
-    FIX -->|+| RELIEF["Short-term throughput / cost relief"]
-    RELIEF -->|-| PROBLEM
-
-    FIX -->|-| PIPE["Apprenticeship pipeline strength"]
-    PIPE -->|+| TALENT["Future experienced talent availability"]
-    TALENT -->|-| BOTTLENECK["Skill bottlenecks / review overload"]
-    BOTTLENECK -->|+| PROBLEM
-```
+With that foundation established, we can examine the apprenticeship problem through several common archetypes.
 
 ### Tragedy of the Commons
 
@@ -111,22 +59,85 @@ flowchart LR
     SCARCITY -->|+| AVOID
 ```
 
-### Limits to Growth
+At the macro level, this may be the central structural problem. The remaining archetypes can be understood as lower-level mechanisms through which this broader market dynamic manifests inside organizations.
 
-The **Limits to Growth** archetype describes systems where reinforcing gains eventually encounter delayed balancing constraints. AI can increase output, sometimes substantially, but raw output has rarely been the only constraint in technical work. Software delivery, security operations, and similar disciplines remain bounded by review, validation, architecture, governance, testing, maintenance, and operational ownership.
+### Success to the Successful
 
-If AI increases production faster than organizations can review and govern that production, the bottleneck simply moves elsewhere. Organizations may therefore mistake local throughput gains for sustainable systemic productivity improvements. The system appears to accelerate until balancing constraints assert themselves in the form of quality degradation, technical debt, or governance overload.
+The **Success to the Successful** archetype describes systems where competing activities or groups receive unequal resources, causing advantage to compound over time. In this context, the relevant competition is not simply between senior and junior staff, but between investment in senior-augmented execution and investment in junior capability development.
+
+AI tends to benefit experienced practitioners more than inexperienced ones. A senior engineer, analyst, or operator can often use AI effectively because they possess the judgment required to validate output, identify errors, refine prompts, and integrate results into broader context. A junior lacks much of that judgment and therefore cannot leverage the tool in the same way.
+
+As AI increases the productivity of experienced personnel, organizations may place greater trust in their output and allocate more work, tooling, and attention toward senior-augmented execution. The more resources flow in that direction, the fewer remain for structured junior development. The visible gain is immediate productivity. The hidden tradeoff is reduced investment in future capability formation.
 
 ```mermaid
 flowchart LR
-    AI["AI-assisted output generation"] -->|+| OUT["Output volume"]
-    OUT -->|+| SPEED["Perceived delivery speed"]
-    SPEED -->|+| AI
+    AI["AI tooling for experienced staff"] -->|+| PROD["Senior-augmented productivity"]
+    PROD -->|+| TRUST["Trust in senior-augmented execution"]
+    TRUST -->|+| RES["Resources allocated to senior-led delivery"]
+    RES -->|+| AI
 
-    OUT -->|+| REVIEW["Validation / review burden"]
-    REVIEW -->|-| QUALITY["Effective quality control"]
-    QUALITY -->|-| DEBT["Errors / debt / operational burden"]
-    DEBT -->|-| SPEED
+    RES -->|-| DEV["Resources allocated to junior development"]
+    DEV -->|+| GROWTH["Junior capability growth"]
+    GROWTH -->|-| DEP["Dependence on current seniors"]
+    DEP -->|+| RES
+```
+
+### Shifting the Burden
+
+The **Shifting the Burden** archetype appears when organizations rely on symptomatic fixes instead of addressing structural causes. Many firms struggle with junior productivity not because juniors are inherently ineffective, but because their internal systems for developing them are poor. Weak onboarding, inconsistent mentorship, inadequate documentation, poor engineering discipline, and chaotic delivery processes all make junior development harder than it needs to be.
+
+AI itself is not the problem in this model. The issue arises when organizations use AI primarily as a substitute for building the human systems required to develop capability. Rather than improving the environment so less experienced personnel can become productive more quickly, firms can use AI to reduce perceived dependence on juniors altogether. This alleviates immediate delivery pressure while leaving the underlying developmental weakness untouched.
+
+```mermaid
+flowchart LR
+    PRESS["Delivery pressure"] -->|+| AI["Use AI as substitute for junior capacity"]
+    AI -->|+| RELIEF["Short-term delivery relief"]
+    RELIEF -->|-| PRESS
+
+    PRESS -->|+| TRAIN["Investment in training and mentorship"]
+    TRAIN -->|+| CAP["Human capability development"]
+    CAP -->|-| PRESS
+
+    AI -->|-| TRAIN
+    AI -->|+| DEP["Dependence on workaround"]
+    DEP -->|+| AI
+```
+
+### Fixes That Fail
+
+The **Fixes That Fail** archetype describes situations where an intervention solves an immediate problem but creates delayed side effects that worsen the original condition. While **Shifting the Burden** focuses on substitution of a symptomatic solution for a fundamental one, **Fixes That Fail** focuses on the delayed adverse consequences produced by that substitution itself.
+
+In this context, replacing junior capacity with AI-assisted experienced staff may improve short-term throughput and reduce labor costs, but the downstream effects can gradually undermine those gains. As apprenticeship opportunities shrink, fewer practitioners develop into experienced contributors. The resulting skill shortages increase review bottlenecks, reduce institutional depth, and concentrate operational burden on a shrinking pool of senior staff.
+
+```mermaid
+flowchart LR
+    PROBLEM["Delivery pressure / labor cost pressure"] -->|+| FIX["Reduce junior hiring via AI substitution"]
+    FIX -->|+| RELIEF["Short-term throughput / cost relief"]
+    RELIEF -->|-| PROBLEM
+
+    FIX -->|-| PIPE["Apprenticeship pipeline strength"]
+    PIPE -->|+| TALENT["Future experienced talent availability"]
+    TALENT -->|-| BOTTLENECK["Skill bottlenecks / senior overload"]
+    BOTTLENECK -->|+| PROBLEM
+```
+
+Over time, the organization may find that the intervention intended to improve delivery has weakened the very human capability required to sustain it.
+
+### Growth and Underinvestment
+
+The **Growth and Underinvestment** archetype describes systems where growth or performance improvements are pursued without proportional investment in the capacity required to sustain them. In this context, AI may increase throughput and apparent productivity while masking underinvestment in the infrastructure that develops future practitioners.
+
+Training capacity is not limited to headcount. It depends on mentorship bandwidth, documentation quality, onboarding processes, engineering discipline, and the institutional willingness to allocate experienced staff toward development rather than pure execution. If organizations use AI to expand output without reinvesting part of those gains into apprenticeship infrastructure, they may enjoy short-term performance while gradually eroding the capacity needed to sustain future growth.
+
+```mermaid
+flowchart LR
+    AI["AI-assisted productivity gains"] -->|+| OUT["Short-term output growth"]
+    OUT -->|+| PRESS["Pressure to sustain/increase output"]
+    PRESS -->|-| INVEST["Investment in training capacity"]
+
+    INVEST -->|+| CAP["Apprenticeship / mentorship capacity"]
+    CAP -->|+| TALENT["Future talent development"]
+    TALENT -->|+| OUT
 ```
 
 ### Reflection
