@@ -154,7 +154,7 @@ flowchart LR
     TALENT -->|+| OUT
 ```
 
-### Reflection
+## Reflection
 
 None of this is a novel complaint. Most practitioners already understand some version of the problem. They know organizations often want underpaid experience, avoid mentorship overhead, and rely on someone else to produce trained talent. The value of system dynamics is not that it reveals this reality for the first time, but that it explains why the pattern persists despite being widely recognized.
 
