@@ -1,0 +1,25 @@
+name: Archive to Wayback Machine
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  wait-and-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Deployment
+        run: |
+          echo "Waiting 120 seconds for zaferbalkan.com to finish deploying..."
+          sleep 120
+
+      - name: Request Wayback Machine Archive
+        run: |
+          curl -f -X POST "https://web.archive.org/save/https://zaferbalkan.com" \
+               -d "url=https://zaferbalkan.com" \
+               -d "capture_all=on"
+          
+          echo "Snapshot requested for zaferbalkan.com"
+ 
