@@ -46,8 +46,8 @@ jobs:
           )
 
           graphql_query = """
-          query($query: String!, $cursor: String) {
-            search(query: $query, type: ISSUE, first: 100, after: $cursor) {
+          query($searchQuery: String!, $cursor: String) {
+            search(query: $searchQuery, type: ISSUE, first: 100, after: $cursor) {
               issueCount
               pageInfo {
                 hasNextPage
@@ -84,13 +84,11 @@ jobs:
               cmd = [
                   "gh", "api", "graphql",
                   "-f", f"query={graphql_query}",
-                  "-F", f"query={search_query}",
+                  "-F", f"searchQuery={search_query}",
               ]
 
               if cursor:
                   cmd.extend(["-F", f"cursor={cursor}"])
-              else:
-                  cmd.extend(["-F", "cursor="])
 
               raw = subprocess.check_output(cmd, text=True)
               data = json.loads(raw)
@@ -101,8 +99,6 @@ jobs:
                   if not node:
                       continue
 
-                  # Defensive check. The search query should already enforce this,
-                  # but the rendered page should only include confirmed merged PRs.
                   if not node.get("merged"):
                       continue
 
