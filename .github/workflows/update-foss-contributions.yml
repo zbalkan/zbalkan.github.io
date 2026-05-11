@@ -214,7 +214,7 @@ jobs:
 
       - name: Commit updated page
         run: |
-          if git diff --quiet -- foss.md; then
+          if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to commit."
             exit 0
           fi
