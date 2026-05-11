@@ -23,7 +23,7 @@ jobs:
           GITHUB_USER: zbalkan
           EXCLUDED_ORGS: "zbalkan DeltaZulu-OU"
           SINCE_DATE: "2016-01-01"
-          OUTPUT_FILE: "foss.md"
+          OUTPUT_FILE: "_pages/foss.md"
         run: |
           python3 <<'PY'
           import json
