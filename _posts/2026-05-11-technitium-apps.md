@@ -31,4 +31,4 @@ This is not an unusual outcome in open source. A feature can be useful and still
 
 From here, these versions will develop outside the Technitium DNS Server tree. The MISP Connector will remain focused on bringing curated domain intelligence into the resolver. The newer Log Exporter will remain focused on producing DNS telemetry that is easier to route, enrich, and consume without turning the resolver itself into an observability project.
 
-The apps are separate now, but the reason they exist is the same as before: there was a gap I wanted to close, and the simplest durable way to close it was to build the missing piece.
+The apps are separate now, but the reason they exist has not changed. I needed these pieces, so I built them.
