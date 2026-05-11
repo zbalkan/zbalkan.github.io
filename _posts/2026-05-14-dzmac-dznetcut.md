@@ -16,7 +16,7 @@ header:
   caption: "Photo credit: [Detailed view of a network switch featuring multiple ethernet ports and LED indicators](https://www.pexels.com/photo/close-up-photo-of-network-switch-2881227/) by [Brett Sayles](https://www.pexels.com/@brett-sayles/). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
 ---
 
-I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release — current version is [VERSION], available at [PROJECT LINK].
+ I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release and are available under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organization.
 
 They are not one product, and I do not want to force them into a single artificial category. DZMAC is for adapter identity work: inspecting, changing, randomizing, and restoring MAC addresses on Windows. dznetcut is an offensive Layer 2 testing tool: discovering hosts on a local network and running targeted ARP disruption tests.
 
@@ -60,7 +60,7 @@ DZMAC.exe -n "Ethernet" -m 02-11-22-33-44-55   # apply a specific MAC address
 DZMAC.exe -n "Ethernet" -r02                    # randomize with the LAA bit set (02 prefix)
 DZMAC.exe -n "Ethernet" -ro                     # restore the original hardware address
 DZMAC.exe -n "Ethernet" -re                     # re-enable the adapter without changing the address
-````
+```
 
 The exact adapter name matters. If there is any doubt, I use the GUI first to confirm the connection name or device description, then move to the CLI for repeated runs.
 
