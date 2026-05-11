@@ -39,24 +39,84 @@ jobs:
 
           exclusion_query = " ".join(f"-org:{org}" for org in excluded_orgs)
 
-          query = (
+          search_query = (
               f"is:closed is:pr author:{github_user} "
               f"archived:false {exclusion_query} "
               f"merged:>{since_date}"
           )
 
-          cmd = [
-              "gh", "search", "prs",
-              query,
-              "--limit", "1000",
-              "--json",
-              "repository,title,url,number,mergedAt,createdAt"
-          ]
+          graphql_query = """
+          query($query: String!, $cursor: String) {
+            search(query: $query, type: ISSUE, first: 100, after: $cursor) {
+              issueCount
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+              nodes {
+                ... on PullRequest {
+                  title
+                  url
+                  number
+                  createdAt
+                  closedAt
+                  merged
+                  mergedAt
+                  repository {
+                    name
+                    nameWithOwner
+                    owner {
+                      login
+                    }
+                  }
+                }
+              }
+            }
+          }
+          """
 
-          print(f"Using query: {query}")
+          print(f"Using query: {search_query}")
 
-          raw = subprocess.check_output(cmd, text=True)
-          prs = json.loads(raw)
+          prs = []
+          cursor = None
+
+          while True:
+              cmd = [
+                  "gh", "api", "graphql",
+                  "-f", f"query={graphql_query}",
+                  "-F", f"query={search_query}",
+              ]
+
+              if cursor:
+                  cmd.extend(["-F", f"cursor={cursor}"])
+              else:
+                  cmd.extend(["-F", "cursor="])
+
+              raw = subprocess.check_output(cmd, text=True)
+              data = json.loads(raw)
+
+              search = data["data"]["search"]
+
+              for node in search["nodes"]:
+                  if not node:
+                      continue
+
+                  # Defensive check. The search query should already enforce this,
+                  # but the rendered page should only include confirmed merged PRs.
+                  if not node.get("merged"):
+                      continue
+
+                  if not node.get("mergedAt"):
+                      continue
+
+                  prs.append(node)
+
+              page_info = search["pageInfo"]
+
+              if not page_info["hasNextPage"]:
+                  break
+
+              cursor = page_info["endCursor"]
 
           grouped = defaultdict(list)
 
@@ -64,7 +124,7 @@ jobs:
               repo = pr["repository"]
               owner = repo["owner"]["login"]
               name = repo["name"]
-              full_name = f"{owner}/{name}"
+              full_name = repo["nameWithOwner"]
 
               grouped[(owner, name, full_name)].append({
                   "title": pr["title"],
@@ -94,7 +154,7 @@ jobs:
           lines.append("")
           lines.append(f"Generated: {generated_at}")
           lines.append("")
-          lines.append(f"Query: `{query}`")
+          lines.append(f"Query: `{search_query}`")
           lines.append("")
           lines.append(f"Total merged PRs found: **{total_prs}**")
           lines.append(f"Repositories with merged PRs: **{total_repos}**")
