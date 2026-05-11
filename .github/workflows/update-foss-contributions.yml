@@ -1,0 +1,171 @@
+name: Update FOSS contributions page
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs daily at 06:30 UTC
+    - cron: "30 6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-foss-contributions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate FOSS contributions page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_USER: zbalkan
+          EXCLUDED_ORGS: "zbalkan DeltaZulu-OU"
+          SINCE_DATE: "2016-01-01"
+          OUTPUT_FILE: "foss.md"
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import subprocess
+          from collections import defaultdict
+          from datetime import datetime, timezone
+
+          github_user = os.environ["GITHUB_USER"]
+          excluded_orgs = os.environ["EXCLUDED_ORGS"].split()
+          since_date = os.environ["SINCE_DATE"]
+          output_file = os.environ["OUTPUT_FILE"]
+
+          exclusion_query = " ".join(f"-org:{org}" for org in excluded_orgs)
+
+          query = (
+              f"is:closed is:pr author:{github_user} "
+              f"archived:false {exclusion_query} "
+              f"merged:>{since_date}"
+          )
+
+          cmd = [
+              "gh", "search", "prs",
+              query,
+              "--limit", "1000",
+              "--json",
+              "repository,title,url,number,mergedAt,createdAt"
+          ]
+
+          print(f"Using query: {query}")
+
+          raw = subprocess.check_output(cmd, text=True)
+          prs = json.loads(raw)
+
+          grouped = defaultdict(list)
+
+          for pr in prs:
+              repo = pr["repository"]
+              owner = repo["owner"]["login"]
+              name = repo["name"]
+              full_name = f"{owner}/{name}"
+
+              grouped[(owner, name, full_name)].append({
+                  "title": pr["title"],
+                  "url": pr["url"],
+                  "number": pr["number"],
+                  "mergedAt": pr.get("mergedAt") or "",
+                  "createdAt": pr.get("createdAt") or "",
+              })
+
+          total_prs = len(prs)
+          total_repos = len(grouped)
+          generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+          lines = []
+          lines.append("---")
+          lines.append("permalink: /foss/")
+          lines.append('title: "FOSS Contributions"')
+          lines.append("---")
+          lines.append("")
+          lines.append("# FOSS Contributions")
+          lines.append("")
+          lines.append(
+              "This page summarizes merged pull requests I have contributed to "
+              "third-party open-source repositories. It excludes repositories under "
+              "`zbalkan` and `DeltaZulu-OU`."
+          )
+          lines.append("")
+          lines.append(f"Generated: {generated_at}")
+          lines.append("")
+          lines.append(f"Query: `{query}`")
+          lines.append("")
+          lines.append(f"Total merged PRs found: **{total_prs}**")
+          lines.append(f"Repositories with merged PRs: **{total_repos}**")
+          lines.append("")
+          lines.append("## Repository Summary")
+          lines.append("")
+          lines.append("| Organization / Owner | Repository | Merged PRs | Latest merged PR |")
+          lines.append("|---|---|---:|---|")
+
+          for owner, name, full_name in sorted(
+              grouped.keys(),
+              key=lambda x: (x[0].lower(), x[1].lower())
+          ):
+              repo_prs = sorted(
+                  grouped[(owner, name, full_name)],
+                  key=lambda p: p["mergedAt"],
+                  reverse=True
+              )
+
+              latest = repo_prs[0]
+              latest_date = latest["mergedAt"][:10] if latest["mergedAt"] else ""
+              latest_link = f"[#{latest['number']}]({latest['url']})"
+
+              lines.append(
+                  f"| {owner} | [`{name}`](https://github.com/{full_name}) | "
+                  f"{len(repo_prs)} | {latest_link} merged {latest_date} |"
+              )
+
+          lines.append("")
+          lines.append("## Pull Requests by Repository")
+          lines.append("")
+
+          for owner, name, full_name in sorted(
+              grouped.keys(),
+              key=lambda x: (x[0].lower(), x[1].lower())
+          ):
+              repo_url = f"https://github.com/{full_name}"
+              lines.append(f"### [{full_name}]({repo_url})")
+              lines.append("")
+              lines.append("| PR | Title | Merged |")
+              lines.append("|---:|---|---|")
+
+              repo_prs = sorted(
+                  grouped[(owner, name, full_name)],
+                  key=lambda p: p["mergedAt"],
+                  reverse=True
+              )
+
+              for pr in repo_prs:
+                  merged_date = pr["mergedAt"][:10] if pr["mergedAt"] else ""
+                  title = pr["title"].replace("|", "\\|")
+                  lines.append(
+                      f"| [#{pr['number']}]({pr['url']}) | {title} | {merged_date} |"
+                  )
+
+              lines.append("")
+
+          with open(output_file, "w", encoding="utf-8", newline="\n") as f:
+              f.write("\n".join(lines).rstrip() + "\n")
+          PY
+
+      - name: Commit updated page
+        run: |
+          if git diff --quiet -- foss.md; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add foss.md
+          git commit -m "Update FOSS contributions page"
+          git push
