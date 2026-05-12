@@ -11,7 +11,7 @@ tags:
 
 I recently had the chance to give a lecture titled **"Wazuh and Splunk for Detection Engineering"** as part of the University of Iceland course [*TÖL401M Hakkaðu hakkarana: Greining netárása og varnir gegn þeim*](https://ugla.hi.is/kennsluskra/?tab=nam&chapter=namskeid&id=71264820260).
 
-The title mentioned Wazuh and Splunk, but the lecture was really about detection engineering. I used both tools as familiar reference points, briefly touched on newer platforms built around data lakes and security pipelines, and also emphasized why detection as code matters. Different architectures, different trade-offs, but ultimately the same underlying problem.
+The title mentioned [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) and Splunk, but the lecture was really about detection engineering. I used both tools as familiar reference points, briefly touched on newer platforms built around data lakes and security pipelines, and also emphasized why detection as code matters. Different architectures, different trade-offs, but ultimately the same underlying problem.
 
 That was the main point I wanted to make. Tools matter, but they are secondary. The harder part is building detections in a way that is structured, testable, and maintainable. That is also why detection as code is important. Without that discipline, even capable platforms eventually fill up with brittle content nobody fully trusts.
 
