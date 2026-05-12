@@ -8,7 +8,7 @@ tags:
   - ClipboardMonitor
   - Data masking
   - Utility
-  - Community contribution
+  - Community Contribution
   - Open Source
   - PAN
 galleryScreenshot:
@@ -22,6 +22,7 @@ galleryLogs:
     image_path: /assets/clipboard-log-pan.png
   - url: /assets/clipboard-log-amsi.png
     image_path: /assets/clipboard-log-amsi.png
+last_modified_at: 2025-05-12T10:23:00+02:00
 ---
 
 I originally started [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) because I was curious about a fairly narrow question: what actually happens between copying text in a browser and pasting it into privileged Windows surfaces? Clipboard operations tend to be treated as mundane UI plumbing, yet they often sit quietly between untrusted content and sensitive execution paths. That made them interesting to me.

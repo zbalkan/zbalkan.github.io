@@ -140,8 +140,6 @@ jobs:
           lines.append('title: "Contributions"')
           lines.append("---")
           lines.append("")
-          lines.append("## FOSS Contributions")
-          lines.append("")
           lines.append(
               "This page summarizes merged pull requests I have contributed to "
               "third-party open-source repositories. It excludes repositories under "
@@ -156,7 +154,7 @@ jobs:
           lines.append("")
           lines.append(f"Repositories with merged PRs: **{total_repos}**")
           lines.append("")
-          lines.append("### Repository Summary")
+          lines.append("## Repository Summary")
           lines.append("")
           lines.append("| Organization / Owner | Repository | Merged PRs | Latest merged PR |")
           lines.append("|---|---|---:|---|")
@@ -181,7 +179,7 @@ jobs:
               )
 
           lines.append("")
-          lines.append("### Pull Requests by Repository")
+          lines.append("## Pull Requests by Repository")
           lines.append("")
 
           for owner, name, full_name in sorted(
@@ -189,7 +187,7 @@ jobs:
               key=lambda x: (x[0].lower(), x[1].lower())
           ):
               repo_url = f"https://github.com/{full_name}"
-              lines.append(f"#### [{full_name}]({repo_url})")
+              lines.append(f"### [{full_name}]({repo_url})")
               lines.append("")
               lines.append("| PR | Title | Merged |")
               lines.append("|---:|---|---|")
