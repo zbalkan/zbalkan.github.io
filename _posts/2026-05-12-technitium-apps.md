@@ -16,7 +16,7 @@ galleryMispWazuh:
 
 I previously wrote about two Technitium DNS Server apps I built: the [Log Exporter App](https://zaferbalkan.com/technitium/), which exports DNS query logs for SIEM use, and the [MISP Connector App](https://zaferbalkan.com/technitium-misp/), which pulls domain indicators from MISP and uses them for resolver-side blocking.
 
-{% include gallery id="galleryMispWazuh" caption="MISP, TDNS and Wazuh connection" %}
+{% include gallery id="galleryMispWazuh" caption="MISP, TDNS and Wazuh connection: Connection 1 needs LogExporterApp, and connection 2 needs MispConnectorApp." %}
 
 Both started in the main Technitium DNS Server repository. That is no longer where my versions will continue.
 
