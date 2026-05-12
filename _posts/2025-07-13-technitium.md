@@ -24,8 +24,11 @@ gallerySampleLog:
 galleryDashboard:
   - url: /assets/dns-dashboard.png
     image_path: /assets/dns-dashboard.png
-
+last_modified_at: 2026-05-12
 ---
+
+**Update – 12 May 2026:** The newer versions of [LogExporterApp](https://github.com/DeltaZulu-OU/LogExporterApp) is in [a new location](https://github.com/DeltaZulu-OU). [Read the post](https://zaferbalkan.com/technitium-apps/) about the status. The initial version is merged into mainstream already, but the breaking changes with the new version are a blocker and out of tree.
+{: .notice--danger}
 
 In my experience, DNS is one of the most reliable and consistent indicators of intent in a network. It shows up early—before connections form, before payloads move, before anything deeper can hide in encryption. For years, I’ve seen environments try to address malicious traffic at the firewall or proxy level, often relying on IP blocklists or signature matches that act too late. DNS filtering takes a quieter, earlier approach. It’s not complicated. If a domain is known to be malicious, we stop it from resolving. That alone prevents many threats from progressing. It’s not everything, but it’s an important first step—and a good example of what people now call shift-left thinking in security: moving prevention closer to where the problem begins.
 
