@@ -12,7 +12,7 @@ tags:
 galleryMispWazuh:
   - url: /assets/dns-misp-wazuh.png
     image_path: /assets/dns-misp-wazuh.png
-galleryLogs:
+galleryInstall:
   - url: /assets/technitium-install-1.png
     image_path: /assets/technitium-install-1.png
   - url: /assets/technitium-install-2.png
@@ -35,7 +35,7 @@ That was exactly why it should not have been merged as-is into the bundled app. 
 
 The standalone Log Exporter continues the original purpose, but the shape of the app is different now. It captures DNS queries and responses through Technitium's query logger interface, passes them through a two-stage bounded pipeline, optionally enriches them before export, and sends them to console, file, HTTP, or Syslog sinks. It can include EDE data, emit NDJSON over HTTP, derive domain structure through the Public Suffix List, add static tags for routing or tenant identification, report dropped records when the pipeline is full, and drain pending logs during shutdown. Those details matter once DNS telemetry becomes part of an operational workflow. The question stops being whether logs can leave the resolver and becomes whether they leave it predictably, remain useful downstream, and fail in ways you can reason about. ([repository](https://github.com/DeltaZulu-OU/LogExporterApp))
 
-{% include gallery id="galleryMispWazuh" caption="Since these apps are not in the App Store anymore, you need to download the releases from Github and install." %}
+{% include gallery id="galleryInstall" caption="Since these apps are not in the App Store anymore, you need to download the releases from Github and install." %}
 
 The older articles remain useful. The [first one](https://zaferbalkan.com/technitium/) explains why I wanted structured DNS telemetry in the first place and how the original Log Exporter fit into a [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) workflow. The [second one](https://zaferbalkan.com/technitium-misp/) describes the MISP integration and the broader design: intelligence curated upstream, deterministic enforcement at the resolver, and telemetry exported downstream. None of that reasoning has changed. What changed is where these implementations are maintained, and how far my versions have moved from the original upstream apps.
 
