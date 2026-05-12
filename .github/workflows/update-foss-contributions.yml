@@ -161,7 +161,7 @@ jobs:
 
           for owner, name, full_name in sorted(
               grouped.keys(),
-              key=lambda x: (x[0].lower(), x[1].lower())
+              key=lambda x: (-len(grouped[x]), x[0].lower(), x[1].lower())
           ):
               repo_prs = sorted(
                   grouped[(owner, name, full_name)],
