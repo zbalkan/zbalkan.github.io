@@ -3,11 +3,9 @@ permalink: /projects/
 title: "Projects"
 ---
 
-## Personal projects
-
 Below is a curated list of small utilities I have developed. They are either under my [personal](https://github.com/zbalkan/) or [company](https://github.com/DeltaZulu-OU) repository on Github.
 
-### Wazuh-specific utilities
+## Wazuh-specific utilities
 
 | Application | Description | Language |
 | --- | --- | --- |
@@ -18,7 +16,7 @@ Below is a curated list of small utilities I have developed. They are either und
 | [wresult](https://github.com/zbalkan/wresult) | wresult provides the running configuration of a Wazuh agent by reconstructing how it applies ossec.conf and agent.conf. | Python |
 | [sca_guide](https://github.com/zbalkan/sca_guide) | A helper for Wazuh Security Configuration Assessment (SCA) to create a custom SCA based on loosening. | Python |
 
-### Sysadmin tools
+## Sysadmin tools
 
 | Application | Description | Language |
 | --- | --- | --- |
@@ -27,7 +25,7 @@ Below is a curated list of small utilities I have developed. They are either und
 | [eolchecker](https://github.com/zbalkan/eolchecker) | EOL Checker is a simple application which gathers EOL information for software and hardware and allows you to query locally. | Python |
 | [slmgr-ps](https://github.com/zbalkan/slmgr-ps) | A drop in replacement for slmgr script, which manages Windows licenses | PowerShell |
 
-### Security tools
+## Security tools
 
 | Application | Description | Language |
 | --- | --- | --- |
@@ -41,7 +39,7 @@ Below is a curated list of small utilities I have developed. They are either und
 | [vmwarelog](https://github.com/zbalkan/vmwarelog) | vmwarelog is a tool to pull vmware logs based on time and type filters. It is better than collecting syslog with all of the noise. | Python |
 | [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) | ClipboardMonitor is an application running in the background that tracks clipboard usage to detect PAN data. | C# |
 
-### Others
+## Others
 
 | Application | Description | Language |
 | --- | --- | --- |
