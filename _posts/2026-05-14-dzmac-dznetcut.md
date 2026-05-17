@@ -14,6 +14,18 @@ tags:
 header:
   image: https://images.pexels.com/photos/2881227/pexels-photo-2881227.jpeg
   caption: "Photo credit: [Detailed view of a network switch featuring multiple ethernet ports and LED indicators](https://www.pexels.com/photo/close-up-photo-of-network-switch-2881227/) by [Brett Sayles](https://www.pexels.com/@brett-sayles/). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
+galleryDzmac:
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-info.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-info.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-ip.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-ip.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-presets.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-presets.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/cli.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/cli.png
+galleryDznetcut:
+  - url: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/main.png
+    image_path: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/main.png
 ---
 
  I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release and are available under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organization.
@@ -35,6 +47,8 @@ DZMAC started as a replacement for a tool I had used for years: [Technitium MAC 
 TMAC was one of those small Windows utilities that did exactly what many of us needed. It listed adapters, showed useful network information, changed MAC addresses, restored the original address, and supported network configuration profiles. It was simple, practical, and familiar. The problem is that it has not meaningfully moved for a long time.
 
 DZMAC is my attempt to keep that kind of workflow alive on modern Windows. It is not a reverse-engineering project and it is not trying to clone every TMAC feature. It is a focused replacement for the parts I still care about: adapter inspection, MAC address changes, randomization, restore, basic IP context, presets, and CLI support.
+
+{% include gallery id="galleryDzmac" caption="GUI and CLI aspects of dzmac" %}
 
 I do not describe it only as a MAC changer because the address itself is not the whole problem. Windows can already change MAC addresses in many cases. The awkward part is the workflow around it. You have to identify the correct adapter, avoid virtual or irrelevant interfaces, understand what the driver exposes, apply a registry-backed override, restart or re-enable the adapter, and then verify whether the live MAC actually changed. Windows exposes the primitives, but not as a coherent workflow.
 
@@ -73,6 +87,8 @@ Presets are useful in the less glamorous cases: lab work, travel networks, troub
 dznetcut is different. It is a Windows offensive Layer 2 tool, and it should only be used on networks you own or have explicit written authorization to test.
 
 It discovers local hosts and runs targeted ARP disruption sessions. I do not see value in hiding that behind softer language. The technique is ARP poisoning. The tool sends forged ARP replies so a selected target and the gateway receive incorrect IP-to-MAC mappings. The practical result is that traffic between them can be interrupted while the session is active.
+
+{% include gallery id="galleryDznetcut" caption="GUI aspects of dzmac" %}
 
 The tool has two main stages: discovery and cut.
 
