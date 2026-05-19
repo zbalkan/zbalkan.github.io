@@ -10,13 +10,65 @@ Detection is a claim about evidence. It asserts that a pattern in observable dat
 
 The point of stating them explicitly is not to produce a definition. It is to produce an evaluation criterion. A detection without testable fixture coverage is not a reliable control. It is an assumption stored in a repository, waiting to fail silently. A detection without documented false-positive conditions is not a deployed control — it is an unaccounted source of alert fatigue. A detection that produces an alert an analyst cannot act on has served the inference mechanism and failed the response context. Each failure is specific. Each maps to one of four requirements the concept places on the practice. None of that reasoning requires knowing what platform the detection runs on.
 
+This is what the system looks like in practice. Each requirement maps to artifact types; each artifact type finds meaning in the engine that consumes it:
+
+```mermaid
+graph LR
+    A["<b>EVIDENCE<br/>SUBSTRATE</b><br/>What observable<br/>data matters?"] --> B["Event Samples<br/>Schemas<br/>Fixtures"]
+    
+    C["<b>INFERENCE<br/>MECHANISM</b><br/>What pattern is<br/>diagnostic?"] --> D["Backend DSLs<br/>Portable Rules<br/>Executable Code"]
+    
+    E["<b>CONFIDENCE<br/>MODEL</b><br/>What does the rule<br/>miss or misidentify?"] --> F["Metadata<br/>Tuning Records<br/>Review History"]
+    
+    G["<b>RESPONSE<br/>CONTEXT</b><br/>Can an analyst<br/>act on the alert?"] --> H["Alert Output<br/>Enrichment<br/>Routing"]
+    
+    B --> I["Consuming<br/>Engine"]
+    D --> I
+    F --> I
+    H --> I
+    
+    I -.->|"Gives artifact meaning"| J["Platform Semantics"]
+    
+    style A fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style C fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style E fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style G fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style I fill:#f0f0f0,stroke:#333,stroke-width:2px
+    style J fill:#f0f0f0,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5
+```
+
+The diagram is not a taxonomy. It is the system that emerges once the requirements are explicit. Every artifact in a detection repository occupies a position in this model; every obligation is accounted for.
+
 A detection repository is not made of one kind of thing because detection is not made of one kind of requirement. Event samples carry the evidence substrate, and their quality is measured by representativeness — whether they cover the telemetry conditions, including negative cases and edge cases, that determine whether the inference holds. Schemas carry the validation role: they describe the expected shape of other artifacts so that malformed input is caught before it reaches the engine. Rule logic — whether expressed as a backend query, a portable declaration, or executable code — carries the inference mechanism. Metadata can carry parts of the confidence and operating model: false-positive notes, tuning history, review records, and response assumptions. Test fixtures and assertions carry the evidence that the rule behaves as specified. Alert output fields carry the response context.
 
 Format does not decide which requirement an artifact serves. Role does. A JSON document can be an event sample, an IAM policy, an application configuration object, or a JSON Schema. The same syntax; four different obligations. The consuming system decides what the artifact means, what it is allowed to change, and what failure looks like when it is wrong. The separation of role from format is where the conventional detection-as-code discussion breaks down, because the format debates are conducted as if the right answer produces better detections. They produce, at best, better-formatted detections. The conceptual obligation the detection is meant to serve remains unaddressed until someone asks which of the four requirements a given artifact serves, and whether it serves it faithfully.
 
 The artifact variety in a detection repository is not produced by tooling fragmentation or platform accumulation. It is demanded by the concept. A repository that appears to be a heterogeneous pile of formats is, correctly understood, a set of artifacts each serving a distinct obligation. The artifact problem does not disappear when a single format is imposed. It migrates: a repository forced into one language is a repository where some obligations are being served poorly, invisibly, or not at all. The design space makes those migrations of obligation visible.
 
-Sigma rules are designed to express detection intent that can be converted into backends such as Splunk SPL, Microsoft KQL, Elastic EQL, QRadar AQL, and Google Chronicle YARA-L. The portability Sigma provides is real and useful. It is also bounded: field mappings, null handling, string matching semantics, and backend operator behavior do not align uniformly across those targets. A Sigma rule translated into KQL is not the same inference running on a different engine. It is a translated inference, with assumptions carried forward and assumptions left behind. Sigma addresses the inference mechanism requirement across platforms. It does not automatically address the confidence model, because the false-positive behavior of the same rule can differ meaningfully between backends depending on how the underlying data is normalized.
+Sigma rules are designed to express detection intent that can be converted into backends such as Splunk SPL, Microsoft KQL, Elastic EQL, QRadar AQL, and Google Chronicle YARA-L. The portability Sigma provides is real and useful. It is also bounded: field mappings, null handling, string matching semantics, and backend operator behavior do not align uniformly across those targets. A Sigma rule translated into KQL is not the same inference running on a different engine. It is a translated inference, with assumptions carried forward and assumptions left behind.
+
+Consider a simple detection for suspicious process creation. In Sigma:
+
+```yaml
+title: Suspicious Process Creation
+logsource:
+  category: process_creation
+detection:
+  selection:
+    Image: '*\cmd.exe'
+    CommandLine|contains: 'powershell -nop'
+  condition: selection
+```
+
+Converted to Microsoft KQL, the portable intent becomes:
+
+```kql
+DeviceProcessEvents
+| where InitiatingProcessFileName contains 'cmd.exe'
+| where ProcessCommandLine contains 'powershell -nop'
+```
+
+The logic appears equivalent. But the fields diverge from Sigma's abstraction: `Image` becomes `InitiatingProcessFileName`, `CommandLine` becomes `ProcessCommandLine`. If KQL's data pipeline does not consistently populate those fields, or if they resolve to different process names (cmd vs. cmd.exe vs. conhost), the inference changes silently. The rule executes. It produces different results. Sigma addresses the inference mechanism requirement across platforms. It does not automatically address the confidence model, because the false-positive behavior of the same rule can differ meaningfully between backends depending on how the underlying data is normalized.
 
 That is not a criticism of Sigma. It is a description of what portability can and cannot transfer. A practitioner who understands what detection requires knows exactly which obligations a portable rule format handles and which it leaves open. A practitioner reasoning from the tool knows what Sigma does and does not — which is a narrower kind of knowledge, and a more fragile one.
 
@@ -24,7 +76,32 @@ Panther-style Python detections sit at the other end of the design space. Python
 
 Backend query languages — SPL, KQL, EQL — place the inference mechanism close to the query engine. That proximity is powerful and constraining in equal measure. A KQL detection with a valid parse can be operationally wrong if it scans a field that is not consistently populated, assumes a normalization the data pipeline does not enforce, or carries a time-window assumption that the indexer resolves differently than the author expected. A syntactically valid query is not a validated detection. It is a validated string. The engine's interpretation of that string against real telemetry is where the inference lives or fails.
 
-Once the four requirements are established, the validation model for each artifact type follows without memorizing category rules. A schema error in a fixture is a substrate failure — the test evidence no longer reflects the telemetry conditions the inference needs to handle. A field mapping mismatch in a converted Sigma rule is an inference failure — the portable intent has been translated into something that does not preserve the detection logic at the target backend. Missing false-positive conditions or expected false-positive behavior in rule metadata is a confidence model failure — the rule is deployed without the organization knowing what it will misidentify and under what telemetry conditions. An alert context field that surfaces raw event data rather than analyst-relevant enrichment is a response context failure — the detection produces an alert the receiving analyst cannot act on without independent investigation.
+Once the four requirements are established, the validation model for each artifact type follows without memorizing category rules. A schema error in a fixture is a substrate failure — the test evidence no longer reflects the telemetry conditions the inference needs to handle. A field mapping mismatch in a converted Sigma rule is an inference failure — the portable intent has been translated into something that does not preserve the detection logic at the target backend. Missing false-positive conditions or expected false-positive behavior in rule metadata is a confidence model failure — the rule is deployed without the organization knowing what it will misidentify and under what telemetry conditions.
+
+In practice, this failure looks like the difference between a documented detection and an assumption stored in a repository. Here is what confidence model completeness requires:
+
+```yaml
+# INCOMPLETE: No confidence context
+title: Suspicious Process Creation
+description: Detects suspicious process creation
+severity: high
+
+# COMPLETE: Confidence model visible
+title: Suspicious Process Creation
+description: Detects cmd.exe with powershell -nop execution
+severity: high
+false_positive_conditions: |
+  - Legitimate system administration using cmd.exe and PowerShell in the same session
+  - Build automation tools that invoke cmd.exe to launch PowerShell scripts
+expected_false_positive_rate: 15-20 per day in normal operations
+tuning_notes: |
+  Field dependency: ProcessCommandLine must be populated. 
+  If data pipeline uses truncated CommandLine, rule produces false negatives.
+test_coverage: 8 positive fixtures (various --nop forms), 5 negative fixtures
+last_tuned_date: 2024-11-15
+```
+
+The difference is not formatting. It is whether the organization understands what the rule will misidentify, at what frequency, and under what data conditions. An alert context field that surfaces raw event data rather than analyst-relevant enrichment is a response context failure — the detection produces an alert the receiving analyst cannot act on without independent investigation.
 
 None of those failures surface as "the rule is wrong." They surface as operational noise, unexplained triage errors, alert fatigue, and incidents detected but not responded to in time. The concept makes them diagnosable as what they are: a specific requirement, incompletely served, at a specific artifact type.
 
