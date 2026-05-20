@@ -1,4 +1,12 @@
-# The Concept Beneath Detection-as-Code
+---
+title: "The Concept Beneath Detection-as-Code"
+tags:
+  - Detection-as-code
+  - Detection engineering
+  - SIEM
+  - Sigma
+  - KQL
+---
 
 ## A migration reveals the missing concept
 
