@@ -77,11 +77,11 @@ Converted to Microsoft KQL, the portable intent becomes:
 
 ```kql
 DeviceProcessEvents
-| where InitiatingProcessFileName contains 'cmd.exe'
-| where ProcessCommandLine contains 'powershell -nop'
+| where FileName =~ "cmd.exe" or FolderPath endswith @"\cmd.exe"
+| where ProcessCommandLine contains "powershell -nop"
 ```
 
-The logic appears equivalent, but equivalence now depends on the target data model. `Image` becomes `InitiatingProcessFileName`; `CommandLine` becomes `ProcessCommandLine`. If those fields are not populated consistently, normalized differently, truncated, or mapped to different process concepts, the translated rule may no longer test the same inference. The conversion succeeded. The detection assumption still needs validation.
+The logic appears equivalent, but equivalence now depends on the target data model. In Sigma process_creation, Image normally refers to the created process image, while in `DeviceProcessEvents` the created process is represented by fields such as `FileName` and `FolderPath`. `InitiatingProcessFileName` refers to the parent or initiating process. Mapping `Image` to `InitiatingProcessFileName` would therefore change the inference: the rule would no longer ask whether the created process is `cmd.exe`; it would ask whether the parent process is `cmd.exe`. The conversion may still produce valid KQL, but it has not preserved the detection claim.
 
 Sigma addresses the inference mechanism requirement across platforms. It does not automatically address the confidence model, because the false-positive behavior of the same rule can differ meaningfully between backends depending on how the underlying data is normalized.
 
