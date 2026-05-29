@@ -1,6 +1,6 @@
 ---
 
-title: "Locked Shields and the Financial Sector: From Cyber Exercise to Resilience Rehearsal"
+title: "Talk at FS-ISAC: Testing national and financial resilience in Exercise Locked Shields"
 tags:
 
 - Cybersecurity
