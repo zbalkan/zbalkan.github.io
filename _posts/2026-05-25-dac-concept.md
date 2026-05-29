@@ -3,11 +3,11 @@
 title: "The Concept Beneath Detection-as-Code"
 tags:
 
-* Detection-as-code
-* Detection engineering
-* SIEM
-* Sigma
-* KQL
+- Detection-as-code
+- Detection engineering
+- SIEM
+- Sigma
+- KQL
 
 ---
 
