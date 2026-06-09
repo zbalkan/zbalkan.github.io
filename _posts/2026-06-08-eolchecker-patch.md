@@ -30,6 +30,6 @@ Or you can just update:
 pipx upgrade eolchecker
 ```
 
-The source code is available on GitHub, and the package can be installed directly from PyPI.
+The source code is available on [GitHub](https://github.com/zbalkan/eolchecker), and the package can be installed directly from [PyPI](https://pypi.org/project/eolchecker/).
 
-As before, software lifecycle information is obtained from the endoflife.date project, while hardware lifecycle information is collected from publicly available vendor support lifecycle pages.
+As before, software lifecycle information is obtained from the e[endoflife.date](https://endoflife.date) project and hardware information is parsed from [Hardware Wartung website](https://www.hardwarewartung.com/en/).
