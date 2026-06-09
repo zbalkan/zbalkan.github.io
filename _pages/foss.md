@@ -5,7 +5,7 @@ title: "Contributions"
 
 This page summarizes merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
 
-Generated: 2026-06-08 11:27 UTC
+Generated: 2026-06-09 10:10 UTC
 
 Query: `is:closed is:pr author:zbalkan archived:false -org:zbalkan -org:DeltaZulu-OU merged:>2016-01-01`
 
@@ -26,6 +26,7 @@ Repositories with merged PRs: **24**
 | pirxthepilot | [`wtfis`](https://github.com/pirxthepilot/wtfis) | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
 | reactos | [`rapps-db`](https://github.com/reactos/rapps-db) | 2 | [#131](https://github.com/reactos/rapps-db/pull/131) merged 2021-10-08 |
 | apache | [`maven-wrapper`](https://github.com/apache/maven-wrapper) | 1 | [#157](https://github.com/apache/maven-wrapper/pull/157) merged 2024-12-14 |
+| BCUninstaller | [`Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | 1 | [#369](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/369) merged 2022-05-08 |
 | crowdsecurity | [`crowdsec`](https://github.com/crowdsecurity/crowdsec) | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
 | crowdsecurity | [`crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
 | determ1ne | [`Numlock-Indicator`](https://github.com/determ1ne/Numlock-Indicator) | 1 | [#2](https://github.com/determ1ne/Numlock-Indicator/pull/2) merged 2021-11-28 |
@@ -34,7 +35,6 @@ Repositories with merged PRs: **24**
 | duffn | [`dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
 | erdtman | [`simplecloud.info`](https://github.com/erdtman/simplecloud.info) | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | getredash | [`redash`](https://github.com/getredash/redash) | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| Klocman | [`Bulk-Crap-Uninstaller`](https://github.com/Klocman/Bulk-Crap-Uninstaller) | 1 | [#369](https://github.com/Klocman/Bulk-Crap-Uninstaller/pull/369) merged 2022-05-08 |
 | MicrosoftDocs | [`SupportArticles-docs`](https://github.com/MicrosoftDocs/SupportArticles-docs) | 1 | [#652](https://github.com/MicrosoftDocs/SupportArticles-docs/pull/652) merged 2022-07-20 |
 | olafhartong | [`sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
 | themepark-dev | [`theme.park`](https://github.com/themepark-dev/theme.park) | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
@@ -49,6 +49,12 @@ Repositories with merged PRs: **24**
 | PR | Title | Merged |
 |---:|---|---|
 | [#157](https://github.com/apache/maven-wrapper/pull/157) | [MWRAPPER-153] - Fixed only-mvnw.cmd fails when FIPS mode is enabled on Windows hosts | 2024-12-14 |
+
+### [BCUninstaller/Bulk-Crap-Uninstaller](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller)
+
+| PR | Title | Merged |
+|---:|---|---|
+| [#369](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/369) | Implemented list command | 2022-05-08 |
 
 ### [CISOfy/lynis](https://github.com/CISOfy/lynis)
 
@@ -112,12 +118,6 @@ Repositories with merged PRs: **24**
 | [#12](https://github.com/HavenDV/H.Pipes/pull/12) | Moved validation into GenerateSharedKey | 2022-03-07 |
 | [#11](https://github.com/HavenDV/H.Pipes/pull/11) | Encryption | 2021-12-20 |
 | [#10](https://github.com/HavenDV/H.Pipes/pull/10) | Implemented a formatter for MessagePack for performance reasons | 2021-12-20 |
-
-### [Klocman/Bulk-Crap-Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller)
-
-| PR | Title | Merged |
-|---:|---|---|
-| [#369](https://github.com/Klocman/Bulk-Crap-Uninstaller/pull/369) | Implemented list command | 2022-05-08 |
 
 ### [MicrosoftDocs/SupportArticles-docs](https://github.com/MicrosoftDocs/SupportArticles-docs)
 
