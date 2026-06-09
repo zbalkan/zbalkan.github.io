@@ -32,4 +32,4 @@ pipx upgrade eolchecker
 
 The source code is available on [GitHub](https://github.com/zbalkan/eolchecker), and the package can be installed directly from [PyPI](https://pypi.org/project/eolchecker/).
 
-As before, software lifecycle information is obtained from the e[endoflife.date](https://endoflife.date) project and hardware information is parsed from [Hardware Wartung website](https://www.hardwarewartung.com/en/).
+As before, software lifecycle information is obtained from the [endoflife.date](https://endoflife.date) project and hardware information is parsed from [Hardware Wartung website](https://www.hardwarewartung.com/en/).
