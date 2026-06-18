@@ -9,6 +9,18 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-foss-contributions
+  cancel-in-progress: false
+
+env:
+  GITHUB_USER: zbalkan
+  EXCLUDED_USERS: "zbalkan"
+  EXCLUDED_ORGS: "DeltaZulu-OU"
+  SINCE_DATE: "2016-01-01"
+  MIN_STARS: "0"
+  OUTPUT_FILE: "_pages/foss.md"
+
 jobs:
   update-foss-contributions:
     runs-on: ubuntu-latest
@@ -20,24 +32,27 @@ jobs:
       - name: Generate FOSS contributions page
         env:
           GH_TOKEN: ${{ github.token }}
-          GITHUB_USER: zbalkan
-          EXCLUDED_ORGS: "zbalkan DeltaZulu-OU"
-          SINCE_DATE: "2016-01-01"
-          OUTPUT_FILE: "_pages/foss.md"
         run: |
           python3 <<'PY'
           import json
           import os
+          import re
           import subprocess
+          import sys
           from collections import defaultdict
           from datetime import datetime, timezone
 
           github_user = os.environ["GITHUB_USER"]
+          excluded_users = os.environ["EXCLUDED_USERS"].split()
           excluded_orgs = os.environ["EXCLUDED_ORGS"].split()
           since_date = os.environ["SINCE_DATE"]
+          min_stars = int(os.environ.get("MIN_STARS", "0"))
           output_file = os.environ["OUTPUT_FILE"]
 
-          exclusion_query = " ".join(f"-org:{org}" for org in excluded_orgs)
+          exclusion_terms = []
+          exclusion_terms.extend(f"-user:{user}" for user in excluded_users)
+          exclusion_terms.extend(f"-org:{org}" for org in excluded_orgs)
+          exclusion_query = " ".join(exclusion_terms)
 
           search_query = (
               f"is:closed is:pr author:{github_user} "
@@ -65,6 +80,7 @@ jobs:
                   repository {
                     name
                     nameWithOwner
+                    stargazerCount
                     owner {
                       login
                     }
@@ -75,25 +91,54 @@ jobs:
           }
           """
 
-          print(f"Using query: {search_query}")
-
-          prs = []
-          cursor = None
-
-          while True:
+          def run_gh_graphql(query, search_query, cursor=None):
               cmd = [
                   "gh", "api", "graphql",
-                  "-f", f"query={graphql_query}",
+                  "-f", f"query={query}",
                   "-F", f"searchQuery={search_query}",
               ]
 
               if cursor:
                   cmd.extend(["-F", f"cursor={cursor}"])
 
-              raw = subprocess.check_output(cmd, text=True)
-              data = json.loads(raw)
+              result = subprocess.run(
+                  cmd,
+                  text=True,
+                  capture_output=True,
+                  check=False,
+              )
 
+              if result.returncode != 0:
+                  print(result.stdout, file=sys.stdout)
+                  print(result.stderr, file=sys.stderr)
+                  raise SystemExit(result.returncode)
+
+              data = json.loads(result.stdout)
+
+              if data.get("errors"):
+                  print(json.dumps(data["errors"], indent=2), file=sys.stderr)
+                  raise SystemExit(1)
+
+              return data
+
+          def table_cell(value):
+              value = "" if value is None else str(value)
+              value = re.sub(r"\s+", " ", value).strip()
+              return value.replace("|", "\\|")
+
+          print(f"Using query: {search_query}")
+          print(f"Minimum stars for summary table: {min_stars}")
+
+          prs = []
+          cursor = None
+          issue_count = None
+
+          while True:
+              data = run_gh_graphql(graphql_query, search_query, cursor)
               search = data["data"]["search"]
+
+              if issue_count is None:
+                  issue_count = search.get("issueCount")
 
               for node in search["nodes"]:
                   if not node:
@@ -121,8 +166,9 @@ jobs:
               owner = repo["owner"]["login"]
               name = repo["name"]
               full_name = repo["nameWithOwner"]
+              stars = repo.get("stargazerCount") or 0
 
-              grouped[(owner, name, full_name)].append({
+              grouped[(owner, name, full_name, stars)].append({
                   "title": pr["title"],
                   "url": pr["url"],
                   "number": pr["number"],
@@ -132,10 +178,18 @@ jobs:
 
           total_prs = len(prs)
           total_repos = len(grouped)
+
+          summary_repos = [
+              key for key in grouped.keys()
+              if key[3] >= min_stars
+          ]
+
+          summary_repos_count = len(summary_repos)
           generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
           lines = []
           lines.append("---")
+          lines.append("layout: single")
           lines.append("permalink: /foss/")
           lines.append('title: "Contributions"')
           lines.append("---")
@@ -150,21 +204,33 @@ jobs:
           lines.append("")
           lines.append(f"Query: `{search_query}`")
           lines.append("")
+          lines.append(f"Minimum stars for repository summary: **{min_stars}**")
+          lines.append("")
           lines.append(f"Total merged PRs found: **{total_prs}**")
           lines.append("")
           lines.append(f"Repositories with merged PRs: **{total_repos}**")
           lines.append("")
+          lines.append(f"Repositories shown in summary: **{summary_repos_count}**")
+
+          if issue_count is not None and issue_count != total_prs:
+              lines.append("")
+              lines.append(
+                  f"Note: GitHub search reported **{issue_count}** matching items before "
+                  f"post-filtering. The generated list contains **{total_prs}** merged pull requests."
+              )
+
+          lines.append("")
           lines.append("## Repository Summary")
           lines.append("")
-          lines.append("| Organization / Owner | Repository | Merged PRs | Latest merged PR |")
-          lines.append("|---|---|---:|---|")
+          lines.append("| Organization / Owner | Repository | Stars | Merged PRs | Latest merged PR |")
+          lines.append("|---|---|---:|---:|---|")
 
-          for owner, name, full_name in sorted(
-              grouped.keys(),
-              key=lambda x: (-len(grouped[x]), x[0].lower(), x[1].lower())
+          for owner, name, full_name, stars in sorted(
+              summary_repos,
+              key=lambda x: (-x[3], -len(grouped[x]), x[0].lower(), x[1].lower())
           ):
               repo_prs = sorted(
-                  grouped[(owner, name, full_name)],
+                  grouped[(owner, name, full_name, stars)],
                   key=lambda p: p["mergedAt"],
                   reverse=True
               )
@@ -174,15 +240,15 @@ jobs:
               latest_link = f"[#{latest['number']}]({latest['url']})"
 
               lines.append(
-                  f"| {owner} | [`{name}`](https://github.com/{full_name}) | "
-                  f"{len(repo_prs)} | {latest_link} merged {latest_date} |"
+                  f"| {table_cell(owner)} | [`{table_cell(name)}`](https://github.com/{full_name}) | "
+                  f"{stars} | {len(repo_prs)} | {latest_link} merged {latest_date} |"
               )
 
           lines.append("")
           lines.append("## Pull Requests by Repository")
           lines.append("")
 
-          for owner, name, full_name in sorted(
+          for owner, name, full_name, stars in sorted(
               grouped.keys(),
               key=lambda x: (x[0].lower(), x[1].lower())
           ):
@@ -193,19 +259,23 @@ jobs:
               lines.append("|---:|---|---|")
 
               repo_prs = sorted(
-                  grouped[(owner, name, full_name)],
+                  grouped[(owner, name, full_name, stars)],
                   key=lambda p: p["mergedAt"],
                   reverse=True
               )
 
               for pr in repo_prs:
                   merged_date = pr["mergedAt"][:10] if pr["mergedAt"] else ""
-                  title = pr["title"].replace("|", "\\|")
+                  title = table_cell(pr["title"])
                   lines.append(
                       f"| [#{pr['number']}]({pr['url']}) | {title} | {merged_date} |"
                   )
 
               lines.append("")
+
+          output_dir = os.path.dirname(output_file)
+          if output_dir:
+              os.makedirs(output_dir, exist_ok=True)
 
           with open(output_file, "w", encoding="utf-8", newline="\n") as f:
               f.write("\n".join(lines).rstrip() + "\n")
@@ -213,7 +283,7 @@ jobs:
 
       - name: Commit updated page
         run: |
-          if [ -z "$(git status --porcelain)" ]; then
+          if [ -z "$(git status --porcelain -- "$OUTPUT_FILE")" ]; then
             echo "No changes to commit."
             exit 0
           fi
@@ -221,6 +291,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add *
+          git add "$OUTPUT_FILE"
           git commit -m "Update FOSS contributions page"
           git push
