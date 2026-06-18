@@ -5,13 +5,13 @@ title: "Contributions"
 
 This page summarizes merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
 
-Generated: 2026-06-17 11:21 UTC
+Generated: 2026-06-18 10:55 UTC
 
 Query: `is:closed is:pr author:zbalkan archived:false -org:zbalkan -org:DeltaZulu-OU merged:>2016-01-01`
 
-Total merged PRs found: **39**
+Total merged PRs found: **40**
 
-Repositories with merged PRs: **24**
+Repositories with merged PRs: **25**
 
 ## Repository Summary
 
@@ -37,6 +37,7 @@ Repositories with merged PRs: **24**
 | getredash | [`redash`](https://github.com/getredash/redash) | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
 | MicrosoftDocs | [`SupportArticles-docs`](https://github.com/MicrosoftDocs/SupportArticles-docs) | 1 | [#652](https://github.com/MicrosoftDocs/SupportArticles-docs/pull/652) merged 2022-07-20 |
 | olafhartong | [`sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
+| ryanries | [`ADReplStatus`](https://github.com/ryanries/ADReplStatus) | 1 | [#26](https://github.com/ryanries/ADReplStatus/pull/26) merged 2026-06-17 |
 | themepark-dev | [`theme.park`](https://github.com/themepark-dev/theme.park) | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | wazuh | [`wazuh`](https://github.com/wazuh/wazuh) | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
 | wazuh | [`wazuh-agent`](https://github.com/wazuh/wazuh-agent) | 1 | [#180](https://github.com/wazuh/wazuh-agent/pull/180) merged 2024-12-13 |
@@ -153,6 +154,12 @@ Repositories with merged PRs: **24**
 |---:|---|---|
 | [#131](https://github.com/reactos/rapps-db/pull/131) | Add nano-win | 2021-10-08 |
 | [#98](https://github.com/reactos/rapps-db/pull/98) | Added SDelete from Sysinternals Suite | 2020-06-03 |
+
+### [ryanries/ADReplStatus](https://github.com/ryanries/ADReplStatus)
+
+| PR | Title | Merged |
+|---:|---|---|
+| [#26](https://github.com/ryanries/ADReplStatus/pull/26) | Parallelize DC discovery and improve diagnostics and UI reliability | 2026-06-17 |
 
 ### [TechnitiumSoftware/DnsServer](https://github.com/TechnitiumSoftware/DnsServer)
 
