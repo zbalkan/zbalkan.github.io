@@ -18,7 +18,7 @@ env:
   EXCLUDED_USERS: "zbalkan"
   EXCLUDED_ORGS: "DeltaZulu-OU"
   SINCE_DATE: "2016-01-01"
-  MIN_STARS: "0"
+  MIN_STARS: "2"
   OUTPUT_FILE: "_pages/foss.md"
 
 jobs:
@@ -184,6 +184,7 @@ jobs:
               if key[3] >= min_stars
           ]
 
+          summary_prs_count = sum(len(grouped[key]) for key in summary_repos)
           summary_repos_count = len(summary_repos)
           generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
@@ -201,16 +202,6 @@ jobs:
           )
           lines.append("")
           lines.append(f"Generated: {generated_at}")
-          lines.append("")
-          lines.append(f"Query: `{search_query}`")
-          lines.append("")
-          lines.append(f"Minimum stars for repository summary: **{min_stars}**")
-          lines.append("")
-          lines.append(f"Total merged PRs found: **{total_prs}**")
-          lines.append("")
-          lines.append(f"Repositories with merged PRs: **{total_repos}**")
-          lines.append("")
-          lines.append(f"Repositories shown in summary: **{summary_repos_count}**")
 
           if issue_count is not None and issue_count != total_prs:
               lines.append("")
@@ -244,6 +235,12 @@ jobs:
                   f"**{stars}** | {len(repo_prs)} | {latest_link} merged {latest_date} |"
               )
 
+          lines.append(
+              f"| **Total shown** |  | **{summary_prs_count}** | "
+              f"**{summary_repos_count} repositories shown / {total_repos} total repositories, "
+              f"{total_prs} total merged PRs found** |"
+          )
+
           lines.append("")
           lines.append("## Pull Requests by Repository")
           lines.append("")
@@ -272,6 +269,11 @@ jobs:
                   )
 
               lines.append("")
+
+          lines.append("")
+          lines.append(f"Query: `{search_query}`")
+          lines.append("{: .notice}")
+          lines.append("")
 
           output_dir = os.path.dirname(output_file)
           if output_dir:
