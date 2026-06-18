@@ -6,17 +6,7 @@ title: "Contributions"
 
 This page summarizes merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
 
-Generated: 2026-06-18 20:08 UTC
-
-Query: `is:closed is:pr author:zbalkan archived:false -user:zbalkan -org:DeltaZulu-OU merged:>2016-01-01`
-
-Minimum stars for repository summary: **0**
-
-Total merged PRs found: **40**
-
-Repositories with merged PRs: **25**
-
-Repositories shown in summary: **25**
+Generated: 2026-06-18 20:28 UTC
 
 ## Repository Summary
 
@@ -25,7 +15,7 @@ Repositories shown in summary: **25**
 | [`getredash/redash`](https://github.com/getredash/redash) | **28646** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
 | [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **19760** | 1 | [#369](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/369) merged 2022-05-08 |
 | [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **15902** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **15791** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **15792** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
 | [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **13948** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
 | [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **8899** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
 | [`dotnet/docs`](https://github.com/dotnet/docs) | **4707** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
@@ -46,7 +36,7 @@ Repositories shown in summary: **25**
 | [`wazuh/wazuh-agent`](https://github.com/wazuh/wazuh-agent) | **108** | 1 | [#180](https://github.com/wazuh/wazuh-agent/pull/180) merged 2024-12-13 |
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **60** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **48** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
-| [`determ1ne/Numlock-Indicator`](https://github.com/determ1ne/Numlock-Indicator) | **1** | 1 | [#2](https://github.com/determ1ne/Numlock-Indicator/pull/2) merged 2021-11-28 |
+| **Total shown** |  | **39** | **24 repositories shown / 25 total repositories, 40 total merged PRs found** |
 
 ## Pull Requests by Repository
 
@@ -214,3 +204,7 @@ Repositories shown in summary: **25**
 | [#1775](https://github.com/wazuh/wazuh-packages/pull/1775) | Prevent cluster failure to remove Wazuh installation | 2022-09-23 |
 | [#1834](https://github.com/wazuh/wazuh-packages/pull/1834) | Reload services on rollback | 2022-09-06 |
 | [#1824](https://github.com/wazuh/wazuh-packages/pull/1824) | Added daemon-reload at the end of rollback | 2022-09-05 |
+
+
+Query: `is:closed is:pr author:zbalkan archived:false -user:zbalkan -org:DeltaZulu-OU merged:>2016-01-01`
+{: .notice}
