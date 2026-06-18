@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Wait for Deployment
         run: |
-          echo "Waiting 120 seconds for zaferbalkan.com to finish deploying..."
-          sleep 120
+          echo "Waiting 5 mins seconds for zaferbalkan.com to finish deploying..."
+          sleep 300
 
       - name: Request Wayback Machine Archive
         run: |
