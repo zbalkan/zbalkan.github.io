@@ -222,12 +222,12 @@ jobs:
           lines.append("")
           lines.append("## Repository Summary")
           lines.append("")
-          lines.append("| Organization / Owner | Repository | Stars | Merged PRs | Latest merged PR |")
-          lines.append("|---|---|---:|---:|---|")
+          lines.append("| Repository | Stars ★ | Merged PRs | Latest merged PR |")
+          lines.append("|---|---:|---:|---|")
 
           for owner, name, full_name, stars in sorted(
               summary_repos,
-              key=lambda x: (-x[3], -len(grouped[x]), x[0].lower(), x[1].lower())
+              key=lambda x: (-x[3], -len(grouped[x]), x[2].lower())
           ):
               repo_prs = sorted(
                   grouped[(owner, name, full_name, stars)],
@@ -240,8 +240,8 @@ jobs:
               latest_link = f"[#{latest['number']}]({latest['url']})"
 
               lines.append(
-                  f"| {table_cell(owner)} | [`{table_cell(name)}`](https://github.com/{full_name}) | "
-                  f"{stars} | {len(repo_prs)} | {latest_link} merged {latest_date} |"
+                  f"| [`{table_cell(full_name)}`](https://github.com/{full_name}) | "
+                  f"**{stars}** | {len(repo_prs)} | {latest_link} merged {latest_date} |"
               )
 
           lines.append("")
