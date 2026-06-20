@@ -90,7 +90,7 @@ plugins:
 
 author:
   name   : "Zafer Balkan"
-  avatar : "/assets/avatar.webp"
+  avatar : "/assets/images/avatar.webp"
   bio    : "I blog about IT, security and compliance."
   location : "Tallinn, Estonia"
   links:

@@ -44,13 +44,13 @@ Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 po
 3. **Analyze the Output:** The tool processes the log in three phases
 
   Phase 1: Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp.
-<img src="/assets/logtest-phase1.png" width="800" alt="Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp">
+<img src="/assets/images/logtest-phase1.png" width="800" alt="Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp">
 
   Phase 2: Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser).
-<img src="/assets/logtest-phase2.png" width="800" alt="Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser)">
+<img src="/assets/images/logtest-phase2.png" width="800" alt="Decoding—Matches decoders and extracts specific fields (e.g., srcip, srcuser)">
 
   Phase 3: Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.
-<img src="/assets/logtest-phase3.png" width="800" alt="Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.">
+<img src="/assets/images/logtest-phase3.png" width="800" alt="Filtering—Applies Wazuh rules, displaying matched rule IDs, descriptions, and metadata.">
 
 This process makes `wazuh-logtest` invaluable for testing and debugging custom rules—except when dealing with Windows event logs.
 
@@ -215,24 +215,24 @@ As mentioned in the introduction, I built this to complement the log testing cap
 
 Let's give it a shot with the amazing [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) repository by [Samir Bousseaden](https://x.com/sbousseaden). I will use the same steps above but with a more fitting input for the purpose.
 
-<img src="/assets/attack-samples.png" width="800" alt="Screenshot of the Github repository">
+<img src="/assets/images/attack-samples.png" width="800" alt="Screenshot of the Github repository">
 
 In the same repo, I downloaded the `UACME_59_Sysmon.evtx`, a small sample of events indicating the logs generated when the [Windows User Account Control (UAC)](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/user-account-control/) bypass tool [UACME](https://github.com/hfiref0x/UACME) for privilege escalation.
 
 Check [MITRE resources](https://attack.mitre.org/software/S0116/) for more information about the tool. The Elastic blog has a [great article](https://www.elastic.co/security-labs/exploring-windows-uac-bypasses-techniques-and-detection-strategies) on UAC bypass written by no one other than the repository owner [Samir Bousseaden](https://x.com/sbousseaden).
 {: .notice}
 
-<img src="/assets/uacme.png" width="800" alt="Screenshot of the file from Github repository">
+<img src="/assets/images/uacme.png" width="800" alt="Screenshot of the file from Github repository">
 
 The methodology I am going to use below includes a comparison of the event log displayed on Event Viewer against Wazuh logtest results. I am using the default ruleset so that it is possible to see what Wazuh base ruleset is capable of, and if there are any opportunities to write custom detections.
 
-<img src="/assets/uacme-sysmon.png" width="800" alt="Screenshot of the event logs">
+<img src="/assets/images/uacme-sysmon.png" width="800" alt="Screenshot of the event logs">
 
 You can see that there are 7 events in the sample, therefore I will include 7 subsections here.
 
 #### Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)
 
-<img src="/assets/uacme-log1.PNG" width="800" alt="Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)">
+<img src="/assets/images/uacme-log1.PNG" width="800" alt="Log 1 (20:43:58.350 UTC): Initial Execution of UACMe (Akagi_64.exe)">
 
 * The attacker executed Akagi_64.exe from the UACMe toolset, a known User Account Control (UAC) bypass utility. The process was located in the user's Downloads folder.
 * Akagi_64.exe accessed the cmd.exe process in C:\Windows\System32 with access rights (`0x1410`) that allowed process manipulation.
@@ -306,7 +306,7 @@ Wazuh finds initiating `cmd.exe` not so interesting. You will not even see this 
 
 #### Log 2 (20:43:58.389 UTC): svchost.exe Accesses explorer.exe
 
-<img src="/assets/uacme-log3.PNG" width="800" alt="Log 2 (20:43:58.389 UTC): svchost.exe Accesses explorer.exe">
+<img src="/assets/images/uacme-log3.PNG" width="800" alt="Log 2 (20:43:58.389 UTC): svchost.exe Accesses explorer.exe">
 
 * After launching the bypass tool, the system process svchost.exe accessed explorer.exe (Windows shell) with access rights (`0x1014C0`).
 * This interaction likely aimed to manipulate the user interface environment or elevate privileges further within the current session.
@@ -385,7 +385,7 @@ While this process has more privileges, we cannot rely solely on access rights a
 
 #### Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe
 
-<img src="/assets/uacme-log3.PNG" width="800" alt="Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe">
+<img src="/assets/images/uacme-log3.PNG" width="800" alt="Log 3 (20:43:58.393 UTC): Repeated Access of explorer.exe by svchost.exe">
 
 * svchost.exe once again accessed explorer.exe, repeating the interaction from the previous event. This redundancy could indicate efforts to maintain control over the shell environment or validate escalated privileges.
 * The granted access rights were the same (`0x1014C0`), confirming an ongoing manipulation attempt.
@@ -453,7 +453,7 @@ The same call, so a second alert will be triggered.
 
 #### Log 4 (20:43:58.449 UTC): Execution of Windows Task Manager
 
-<img src="/assets/uacme-log4.PNG" width="800" alt="Log 4 (20:43:58.449 UTC): Execution of Windows Task Managere">
+<img src="/assets/images/uacme-log4.PNG" width="800" alt="Log 4 (20:43:58.449 UTC): Execution of Windows Task Managere">
 
 * The bypass tool Akagi_64.exe launched the Windows Task Manager (Taskmgr.exe) from C:\Windows\System32.
 * If you check the command line, you can see the command `Akagi_64.exe  59 cmd.exe` and parameters.
@@ -561,7 +561,7 @@ However, there is no rule to detect Task Manager creation so, the rule chain end
 
 #### Log 5 (20:43:58.449 UTC): svchost.exe Accesses Taskmgr.exe
 
-<img src="/assets/uacme-log5.PNG" width="800" alt="Log 5 (20:43:58.449 UTC): svchost.exe Accesses Taskmgr.exe">
+<img src="/assets/images/uacme-log5.PNG" width="800" alt="Log 5 (20:43:58.449 UTC): svchost.exe Accesses Taskmgr.exe">
 
 * Immediately after Task Manager was created, svchost.exe accessed the new process (Taskmgr.exe) with maximum access rights (`0x1FFFFF`) aka `PROCESS_ALL_ACCESS`.
 * This suggests that svchost.exe was being manipulated as part of the attacker’s workflow, maintaining control over the newly spawned administrative process.
@@ -635,7 +635,7 @@ But this is not enough. It is still nothing but noise. In order to make this ale
 
 #### Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe
 
-<img src="/assets/uacme-log6.PNG" width="800" alt="Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe">
+<img src="/assets/images/uacme-log6.PNG" width="800" alt="Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe">
 
 * Following svchost.exe, the explorer.exe process accessed Taskmgr.exe. The granted access rights (0x12367B) suggest this was a standard interaction initiated by the desktop shell for process visibility or integration with the Task Manager GUI.
 * This interaction likely reflects normal system behavior rather than malicious intent.
@@ -698,7 +698,7 @@ Wazuh does not create an alert as it is expected for `explorer.exe` to access `t
 
 #### Log 7 (20:43:58.450 UTC): Creation of Command Prompt (cmd.exe)
 
-<img src="/assets/uacme-log7.PNG" width="800" alt="Log 7 (20:43:58.450 UTC): Creation of Command Prompt (cmd.exe)">
+<img src="/assets/images/uacme-log7.PNG" width="800" alt="Log 7 (20:43:58.450 UTC): Creation of Command Prompt (cmd.exe)">
 
 * Task Manager (Taskmgr.exe) launched a Command Prompt process (cmd.exe) in high integrity mode, signifying that the attacker now had an elevated command-line interface.
 * With administrative-level privileges, the attacker could execute further commands, deploy payloads, or modify system configurations for persistence or data exfiltration.
@@ -833,7 +833,7 @@ Get the Tool: [wazuhevtx GitHub Repository](https://github.com/zbalkan/wazuhevtx
 
 This tool requires manual interaction with the `wazuh-logtest` tool as the tool resides on the Wazuh manager nodes of your -hopefully- test environment. Also, you need a workaround mentioned in Step 2 above to test that you may not want in your production environment. You may need to automate this in the long run. I have another tool that I have been developing for creating a development environment on your workstation. It will be another article's topic.
 
-<img src="/assets/testenv.jpeg" width="400" alt="Test environment meme">
+<img src="/assets/images/testenv.jpeg" width="400" alt="Test environment meme">
 
 ### Postscriptum 2
 

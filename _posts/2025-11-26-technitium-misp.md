@@ -11,28 +11,28 @@ tags:
   - Community Contribution
 galleryGraph:
   - url: https://technitium.com/dns/
-    image_path: /assets/dns-graph.png
+    image_path: /assets/images/dns-graph.png
 galleryMispFeeds:
-  - url: /assets/dns-misp-feeds.png
-    image_path: /assets/dns-misp-feeds.png
+  - url: /assets/images/dns-misp-feeds.png
+    image_path: /assets/images/dns-misp-feeds.png
 galleryMispDiagram:
-  - url: /assets/dns-misp-diagram.png
-    image_path: /assets/dns-misp-diagram.png
+  - url: /assets/images/dns-misp-diagram.png
+    image_path: /assets/images/dns-misp-diagram.png
 galleryMispDashboard:
-  - url: /assets/dns-misp-dashboard.png
-    image_path: /assets/dns-misp-dashboard.png
+  - url: /assets/images/dns-misp-dashboard.png
+    image_path: /assets/images/dns-misp-dashboard.png
 galleryMispWazuh:
-  - url: /assets/dns-misp-wazuh.png
-    image_path: /assets/dns-misp-wazuh.png
+  - url: /assets/images/dns-misp-wazuh.png
+    image_path: /assets/images/dns-misp-wazuh.png
 galleryDig:
-  - url: /assets/dns-dig.png
-    image_path: /assets/dns-dig.png
+  - url: /assets/images/dns-dig.png
+    image_path: /assets/images/dns-dig.png
 galleryPyramidOfPain:
-  - url: /assets/dns-pyramidofpain.png
-    image_path: /assets/dns-pyramidofpain.png
+  - url: /assets/images/dns-pyramidofpain.png
+    image_path: /assets/images/dns-pyramidofpain.png
 galleryDnsClient:
-  - url: /assets/dns-client.png
-    image_path: /assets/dns-client.png
+  - url: /assets/images/dns-client.png
+    image_path: /assets/images/dns-client.png
 last_modified_at: 2026-05-12
 ---
 

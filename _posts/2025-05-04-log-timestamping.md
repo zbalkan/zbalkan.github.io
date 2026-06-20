@@ -7,8 +7,8 @@ tags:
   - Logging
   - RFC 3161
 gallery:
-  - url: /assets/timestamping-dashboard.png
-    image_path: /assets/timestamping-dashboard.png
+  - url: /assets/images/timestamping-dashboard.png
+    image_path: /assets/images/timestamping-dashboard.png
     alt: "Sample Dashboard"
 ---
 
@@ -54,7 +54,7 @@ Well, you can see that it is possible to use a Merkle tree out of the chained ch
 By incorporating a trusted timestamp into code or an electronic signature, a digital assurance of data integrity is provided, along with a reliable date and time for when the transaction occurred. Recipients of documents and code that include a trusted timestamp can confirm when the document or code was digitally or electronically signed, as well as ascertain that it has not been modified since the time the timestamp is confirmed.
 
 If you are a visual thinker, this graph may help you better than any description I can write out[^2]:
-<img src="../assets/trusted_timestamping.svg" alt="FileTrusted timestamping">
+<img src="../assets/images/trusted_timestamping.svg" alt="FileTrusted timestamping">
 
 We use the Time-Stamp Protocol (TSP) defined in [RFC 3161](https://www.ietf.org/rfc/rfc3161.txt), which allows a client to:
 

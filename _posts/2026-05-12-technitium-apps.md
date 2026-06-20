@@ -10,13 +10,13 @@ tags:
   - Open Source
   - Community Contribution
 galleryMispWazuh:
-  - url: /assets/dns-misp-wazuh.png
-    image_path: /assets/dns-misp-wazuh.png
+  - url: /assets/images/dns-misp-wazuh.png
+    image_path: /assets/images/dns-misp-wazuh.png
 galleryInstall:
-  - url: /assets/technitium-install-1.png
-    image_path: /assets/technitium-install-1.png
-  - url: /assets/technitium-install-2.png
-    image_path: /assets/technitium-install-2.png
+  - url: /assets/images/technitium-install-1.png
+    image_path: /assets/images/technitium-install-1.png
+  - url: /assets/images/technitium-install-2.png
+    image_path: /assets/images/technitium-install-2.png
 ---
 
 I previously wrote about two Technitium DNS Server apps I built: the [Log Exporter App](https://zaferbalkan.com/technitium/), which exports DNS query logs for SIEM use, and the [MISP Connector App](https://zaferbalkan.com/technitium-misp/), which pulls domain indicators from MISP and uses them for resolver-side blocking.

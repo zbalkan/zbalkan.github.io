@@ -12,16 +12,16 @@ tags:
   - Open Source
   - PAN
 galleryScreenshot:
-  - url: /assets/clipboard-screenshot.png
-    image_path: /assets/clipboard-screenshot.png
+  - url: /assets/images/clipboard-screenshot.png
+    image_path: /assets/images/clipboard-screenshot.png
 galleryScreenshotRisk:
-  - url: /assets/clipboard-screenshot-risk.png
-    image_path: /assets/clipboard-screenshot-risk.png
+  - url: /assets/images/clipboard-screenshot-risk.png
+    image_path: /assets/images/clipboard-screenshot-risk.png
 galleryLogs:
-  - url: /assets/clipboard-log-pan.png
-    image_path: /assets/clipboard-log-pan.png
-  - url: /assets/clipboard-log-amsi.png
-    image_path: /assets/clipboard-log-amsi.png
+  - url: /assets/images/clipboard-log-pan.png
+    image_path: /assets/images/clipboard-log-pan.png
+  - url: /assets/images/clipboard-log-amsi.png
+    image_path: /assets/images/clipboard-log-amsi.png
 last_modified_at: 2025-05-12T10:23:00+02:00
 ---
 
