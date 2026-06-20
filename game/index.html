@@ -186,6 +186,55 @@
             display: none
         }
 
+        /* Locked feature state — visible but greyed out with requirement label */
+        .locked {
+            opacity: 0.35;
+            pointer-events: none;
+            position: relative;
+            filter: grayscale(0.6);
+        }
+
+        .locked .lock-req {
+            display: block;
+            font-size: 9px;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 2px;
+            opacity: 1;
+        }
+
+        .lock-req {
+            display: none
+        }
+
+        /* Tooltip styles for educational content */
+        [data-tip] {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted var(--muted);
+        }
+
+        [data-tip]:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: var(--text);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 400;
+            font-style: normal;
+            line-height: 1.4;
+            white-space: normal;
+            width: max-content;
+            max-width: 280px;
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+        }
+
         .card-t {
             font-size: 11px;
             font-weight: 700;
@@ -892,7 +941,8 @@
                 display: flex
             }
 
-            .app {
+            .app,
+            .modal-overlay {
                 display: none !important
             }
         }
@@ -902,7 +952,8 @@
                 display: flex
             }
 
-            .app {
+            .app,
+            .modal-overlay {
                 display: none !important
             }
         }
@@ -928,9 +979,9 @@
         }
 
         .triage-card button {
-          padding: 8px 12px;
-          font-size: 12px;
-          font-weight: 700;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -1017,11 +1068,19 @@
         </div>
         <div class="sla-bar ok" id="slaBar">
             <span class="sla-label">SLA</span>
-            <span class="sla-item">MTTD Crit <span class="sla-val" id="slaMTTDc">—</span>/15m</span>
-            <span class="sla-item">MTTD Std <span class="sla-val" id="slaMTTDs">—</span>/30m</span>
-            <span class="sla-item">MTTR <span class="sla-val" id="slaMTTR">—</span>/60m</span>
-            <span class="sla-item">Violations <span class="sla-val" id="slaViol">0</span>/5</span>
-            <span class="sla-item">Consecutive <span class="sla-val" id="slaCons">0</span>/3</span>
+            <span class="sla-item"
+                title="Mean Time to Detect for critical incidents (severity ≥3). Target: under 15 minutes">MTTD Crit
+                <span class="sla-val" id="slaMTTDc">—</span>/15m</span>
+            <span class="sla-item"
+                title="Mean Time to Detect for standard incidents (severity 1-2). Target: under 30 minutes">MTTD Std
+                <span class="sla-val" id="slaMTTDs">—</span>/30m</span>
+            <span class="sla-item"
+                title="Mean Time to Respond across all detected incidents. Target: under 60 minutes. SOAR and seniors reduce response time">MTTR
+                <span class="sla-val" id="slaMTTR">—</span>/60m</span>
+            <span class="sla-item" title="Total SLA violations this game. 5 violations = game over">Violations <span
+                    class="sla-val" id="slaViol">0</span>/5</span>
+            <span class="sla-item" title="Consecutive monthly SLA violations. 3 in a row = game over">Consecutive <span
+                    class="sla-val" id="slaCons">0</span>/3</span>
         </div>
         <div class="progress-strip" id="progressStrip">
             <div class="progress-top"><span class="progress-title" id="progressTitle">—</span><span
@@ -1037,32 +1096,43 @@
                 <div class="dash-group-title">SOC Workload</div>
                 <div class="dash-card state-neutral" id="cardAD">
                     <div class="dash-card-metric" id="dashAD">0</div>
-                    <div class="dash-card-label">Alerts/Day</div>
+                    <div class="dash-card-label"
+                        title="Average alerts generated per day from enabled sources and detection rules">Alerts/Day
+                    </div>
                     <div class="dash-card-sub" id="dashADSub"></div>
                 </div>
                 <div class="dash-card state-neutral" id="cardQueue">
                     <div class="dash-card-metric" id="dashQueue">0</div>
-                    <div class="dash-card-label">Queue</div>
+                    <div class="dash-card-label"
+                        title="Alerts waiting to be triaged. High queue increases analyst fatigue">Queue</div>
                     <div class="dash-card-sub" id="dashQueueSub"></div>
                 </div>
                 <div class="dash-card state-neutral" id="cardTD">
                     <div class="dash-card-metric" id="dashTD">0</div>
-                    <div class="dash-card-label">Capacity/Day</div>
+                    <div class="dash-card-label"
+                        title="How many alerts your team can triage per day (juniors×12 + seniors×40, modified by SOAR and fatigue)">
+                        Capacity/Day</div>
                     <div class="dash-card-sub" id="dashTDSub"></div>
                 </div>
                 <div class="dash-card state-neutral" id="cardMT">
                     <div class="dash-card-metric" id="dashMT">—</div>
-                    <div class="dash-card-label">Triage Time</div>
+                    <div class="dash-card-label"
+                        title="Average minutes per triaged alert. Lower is better. Affected by staffing, SOAR, and context enrichment">
+                        Triage Time</div>
                     <div class="dash-card-sub" id="dashMTSub"></div>
                 </div>
                 <div class="dash-card state-neutral" id="cardFP">
                     <div class="dash-card-metric" id="dashFP">—</div>
-                    <div class="dash-card-label">FP Share</div>
+                    <div class="dash-card-label"
+                        title="Fraction of triaged alerts that are false positives. Fatigue increases effective FP rate beyond the base">
+                        FP Share</div>
                     <div class="dash-card-sub" id="dashFPSub"></div>
                 </div>
                 <div class="dash-card state-neutral" id="cardSNR">
                     <div class="dash-card-metric" id="dashSNR">—</div>
-                    <div class="dash-card-label">SNR</div>
+                    <div class="dash-card-label"
+                        title="Signal-to-Noise Ratio: true positives ÷ total triaged. Below 0.20 = noise-processing facility">
+                        SNR</div>
                     <div class="dash-card-sub" id="dashSNRSub"></div>
                 </div>
                 <div class="dash-card state-neutral dash-card-wide" id="cardFat">
@@ -1070,7 +1140,9 @@
                         <div class="dash-card-metric" id="dashFat">0</div><span style="font-size:14px"
                             id="dashFatTrend">→</span>
                     </div>
-                    <div class="dash-card-label">Fatigue</div>
+                    <div class="dash-card-label"
+                        title="Composite analyst pressure score (0-100). Driven by queue, FP rate, low SNR, orphaned rules, parser decay, noise backlog">
+                        Fatigue</div>
                     <div class="meter" style="margin-top:4px">
                         <div class="meter-f" id="dashFatBar" style="width:0%;background:var(--red)"></div>
                     </div>
@@ -1081,37 +1153,48 @@
                 <div class="dash-group-title">Telemetry &amp; Storage</div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashConfigEPS">0</div>
-                    <div class="dash-card-label">Baseline EPS</div>
+                    <div class="dash-card-label"
+                        title="Configured events/sec from enabled sources. Planning value — actual EPS varies with diurnal rhythm and bursts">
+                        Baseline EPS</div>
                     <div class="dash-card-sub" id="dashConfigEPSSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashEPS">0</div>
-                    <div class="dash-card-label">Live EPS</div>
+                    <div class="dash-card-label"
+                        title="Real-time sampled events/sec. Fluctuates ±15% with Gaussian jitter, diurnal rhythm, and rare burst events">
+                        Live EPS</div>
                     <div class="dash-card-sub" id="dashEPSSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashSrcN">0</div>
-                    <div class="dash-card-label">Sources</div>
+                    <div class="dash-card-label" title="Number of enabled Sigma log source categories feeding the SIEM">
+                        Sources</div>
                     <div class="dash-card-sub" id="dashSrcNSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashGB">0</div>
-                    <div class="dash-card-label">GB/Day</div>
+                    <div class="dash-card-label" title="Total gigabytes ingested per day from all enabled sources">
+                        GB/Day</div>
                     <div class="dash-card-sub" id="dashGBSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashParse">—</div>
-                    <div class="dash-card-label">Parse Success</div>
+                    <div class="dash-card-label"
+                        title="Volume-weighted fraction of ingested data usable by detection rules. Below 85% = silent detection failures">
+                        Parse Success</div>
                     <div class="dash-card-sub" id="dashParseSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashStoredGB">0</div>
-                    <div class="dash-card-label">Storage</div>
+                    <div class="dash-card-label"
+                        title="Total data retained within the retention window. Oldest data is cleaned up probabilistically after retention period">
+                        Storage</div>
                     <div class="dash-card-sub" id="dashStorageSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashStoreCost">ƒ0</div>
-                    <div class="dash-card-label">Storage ƒ/mo</div>
+                    <div class="dash-card-label" title="Monthly cost of retained storage at ƒ0.12 per GB">Storage ƒ/mo
+                    </div>
                     <div class="dash-card-sub" id="dashStoreCostSub"></div>
                 </div>
             </div>
@@ -1119,22 +1202,29 @@
                 <div class="dash-group-title">Outcomes</div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="vTot">0</div>
-                    <div class="dash-card-label">Triaged</div>
+                    <div class="dash-card-label"
+                        title="Total alerts processed by analysts. Includes both true and false positives">Triaged</div>
                     <div class="dash-card-sub" id="dashTotSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashDet">0</div>
-                    <div class="dash-card-label">Detected</div>
+                    <div class="dash-card-label"
+                        title="Incidents successfully detected. Requires matching sources, rules, parse health, and analyst attention">
+                        Detected</div>
                     <div class="dash-card-sub" id="dashDetSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashMis">0</div>
-                    <div class="dash-card-label">Missed</div>
+                    <div class="dash-card-label"
+                        title="Incidents that occurred but were not detected. Each miss costs reputation; some lead to breaches">
+                        Missed</div>
                     <div class="dash-card-sub" id="dashMisSub"></div>
                 </div>
                 <div class="dash-card state-neutral">
                     <div class="dash-card-metric" id="dashBr">0</div>
-                    <div class="dash-card-label">Breaches</div>
+                    <div class="dash-card-label"
+                        title="Missed incidents that caused financial and reputational damage. Cost follows a log-normal distribution">
+                        Breaches</div>
                     <div class="dash-card-sub" id="dashBrSub"></div>
                 </div>
             </div>
@@ -1145,32 +1235,36 @@
             <div class="col col-l">
                 <div class="card triage-card">
                     <div class="card-t">Triage</div>
-                    <button class="primary" id="btnTri" onclick="G.manualTriage()" style="width:100%">Triage Alert</button>
+                    <button class="primary" id="btnTri" onclick="G.manualTriage()" style="width:100%">Triage
+                        Alert</button>
                     <div class="btn-hint">Process one queued alert manually.</div>
                 </div>
-            
+
                 <div class="card">
                     <div class="card-t">Staff</div>
                     <div class="row"><span class="l">Junior Analysts</span><span class="v" id="vJr">0</span></div>
                     <button id="btnJr" onclick="G.hire('jr')">Hire Junior ƒ800</button>
                     <div class="btn-hint">~12/day · ƒ250/mo</div>
-                    <div id="wSr" class="hidden">
+                    <div id="wSr" class="locked">
                         <hr>
                         <div class="row"><span class="l">Senior Analysts</span><span class="v" id="vSr">0</span></div>
-                        <button id="btnSr" onclick="G.hire('sr')">Hire Senior ƒ2,200</button>
+                        <button id="btnSr" onclick="G.hire('sr')" disabled>Hire Senior ƒ2,200</button>
                         <div class="btn-hint">~40/day, FP↓ · ƒ650/mo</div>
+                        <span class="lock-req">Requires research: Senior Analyst Roles</span>
                     </div>
-                    <div id="wHu" class="hidden">
+                    <div id="wHu" class="locked">
                         <hr>
                         <div class="row"><span class="l">Threat Hunters</span><span class="v" id="vHu">0</span></div>
-                        <button id="btnHu" onclick="G.hire('hunter')">Hire Hunter ƒ3,500</button>
+                        <button id="btnHu" onclick="G.hire('hunter')" disabled>Hire Hunter ƒ3,500</button>
                         <div class="btn-hint">Hypotheses · ƒ900/mo</div>
+                        <span class="lock-req">Requires research: Threat Hunting</span>
                     </div>
-                    <div id="wEn" class="hidden">
+                    <div id="wEn" class="locked">
                         <hr>
                         <div class="row"><span class="l">Det. Engineers</span><span class="v" id="vEn">0</span></div>
-                        <button id="btnEn" onclick="G.hire('eng')">Hire Engineer ƒ3,000</button>
+                        <button id="btnEn" onclick="G.hire('eng')" disabled>Hire Engineer ƒ3,000</button>
                         <div class="btn-hint">Auto-rules, parsers · ƒ800/mo</div>
+                        <span class="lock-req">Requires research: Det. Engineer Staffing</span>
                     </div>
                 </div>
                 <div class="card">
@@ -1187,18 +1281,35 @@
                             Cost</span><span style="width:36px"></span></div>
                     <div id="srcList"></div>
                 </div>
-                <div class="card hidden" id="cDetEng">
+                <div class="card locked" id="cDetEng">
                     <div class="card-t">Detection Engineering</div>
-                    <div class="row"><span class="l">Rules</span><span class="v" id="vRules">0</span></div>
-                    <div class="row"><span class="l">Attachment</span><span class="v" id="vDA">0%</span></div>
-                    <div class="row"><span class="l">Quality</span><span class="v" id="vRQ">50</span></div>
-                    <div class="row"><span class="l">Parser health</span><span class="v" id="vPH">100%</span></div>
-                    <div class="row"><span class="l">Orphaned rules</span><span class="v" id="vOrph">0</span></div>
-                    <div class="row"><span class="l">Uncovered sources</span><span class="v" id="vUncov">0</span></div>
-                    <div class="row"><span class="l">Noise backlog</span><span class="v" id="vNBL">0</span></div>
+                    <span class="lock-req">Requires research: Detection Engineering</span>
+                    <div class="row"><span class="l"
+                            data-tip="Number of active detection rules. Rules multiply telemetry into alert candidates">Rules</span><span
+                            class="v" id="vRules">0</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Ratio of rules to sources. Low attachment = sources producing zero detection value">Attachment</span><span
+                            class="v" id="vDA">0%</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Detection rule quality (0-100). Higher quality = fewer false positives, faster detection time">Quality</span><span
+                            class="v" id="vRQ">50</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Health of log parsers (15-100%). Decays monthly from source complexity. Engineers repair at 8 points each">Parser
+                            health</span><span class="v" id="vPH">100%</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Rules whose primary source has been disabled. Produce phantom alerts from stale/missing schema">Orphaned
+                            rules</span><span class="v" id="vOrph">0</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Enabled sources with no detection rules referencing them. You pay for ingestion but get no alerts">Uncovered
+                            sources</span><span class="v" id="vUncov">0</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Accumulated noisy patterns not yet suppressed. Follows Ornstein-Uhlenbeck mean-reverting process">Noise
+                            backlog</span><span class="v" id="vNBL">0</span></div>
                     <hr><button id="btnRule" onclick="G.writeRule()">Write Rule ƒ200</button>
-                    <button id="btnTune" onclick="G.tuneRules()" class="hidden">Tune ƒ120</button>
-                    <button id="btnSupp" onclick="G.addSuppression()" class="hidden">Suppress ƒ80</button>
+                    <button id="btnTune" onclick="G.tuneRules()" class="locked" disabled
+                        title="Requires research: Tuning Framework">Tune ƒ120</button>
+                    <button id="btnSupp" onclick="G.addSuppression()" class="locked" disabled
+                        title="Requires research: Tuning Framework">Suppress ƒ80</button>
                 </div>
                 <div class="card hidden" id="cHunt">
                     <div class="card-t">Threat Hunting</div>
@@ -1230,12 +1341,22 @@
                 </div>
                 <div class="card hidden" id="cDecision">
                     <div class="card-t">Decision Economics</div>
-                    <div class="row"><span class="l">Noise tax</span><span class="v" id="vNT">—</span></div>
-                    <div class="row"><span class="l">Blindness cost</span><span class="v" id="vBC">—</span></div>
-                    <div class="row"><span class="l">Coverage/cost</span><span class="v" id="vCC">—</span></div>
-                    <div class="row"><span class="l">Decision utility</span><span class="v" id="vDU">—</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Fraction of triage work wasted on false positives. Higher = more analyst time burned on noise">Noise
+                            tax</span><span class="v" id="vNT">—</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Detection and hunting utility lost from disabled sources. Grows with number and quality of missing sources">Blindness
+                            cost</span><span class="v" id="vBC">—</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Total source utility per unit of source cost. Higher = more security value per budget spent">Coverage/cost</span><span
+                            class="v" id="vCC">—</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Detection rate: detected incidents ÷ total incidents. The fraction of threats you actually caught">Decision
+                            utility</span><span class="v" id="vDU">—</span></div>
                     <hr>
-                    <div class="row"><span class="l" style="color:var(--blue);font-weight:600">Op. Margin
+                    <div class="row"><span class="l" style="color:var(--blue);font-weight:600"
+                            data-tip="Utility-Adjusted Operating Margin: (detection × containment × coverage/cost) minus (noise + blindness + maintenance + fatigue). Positive = SIEM producing more value than burden">Op.
+                            Margin
                             (UOM)</span><span class="v" id="vUOM" style="font-weight:700">—</span></div>
                 </div>
                 <div class="card hidden" id="cComply">
@@ -1246,11 +1367,21 @@
                 </div>
                 <div class="card">
                     <div class="card-t">Budget</div>
-                    <div class="row"><span class="l">Funds</span><span class="v" id="vBud">ƒ5,000</span></div>
-                    <div class="row"><span class="l">Income/month</span><span class="v" id="vInc">ƒ1,200</span></div>
-                    <div class="row"><span class="l">Spend/month</span><span class="v" id="vSpd">ƒ0</span></div>
-                    <div class="row"><span class="l">Runway</span><span class="v" id="vRun">OK</span></div>
-                    <div class="row"><span class="l">Reputation</span><span class="v" id="vRep">75</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Current available budget. Sources, salaries, storage, and SLA fines deduct monthly">Funds</span><span
+                            class="v" id="vBud">ƒ5,000</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Monthly funding from the organisation. Can be increased by spending 80 reputation">Income/month</span><span
+                            class="v" id="vInc">ƒ1,200</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Total monthly costs: source fees + salaries + storage retention">Spend/month</span><span
+                            class="v" id="vSpd">ƒ0</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Months until budget runs out at current burn rate. OK if income exceeds spend">Runway</span><span
+                            class="v" id="vRun">OK</span></div>
+                    <div class="row"><span class="l"
+                            data-tip="Board confidence (0-200). Detections earn +4×severity. Misses cost −3×severity. Breaches cost −18×severity. SLA violations cost −15">Reputation</span><span
+                            class="v" id="vRep">75</span></div>
                     <div class="row hidden" id="rNextCut"><span class="l">Next budget cut</span><span class="v b"
                             id="vNextCut">—</span></div>
                     <button id="btnBud" onclick="G.requestBudget()" disabled>Request Funding (80 rep)</button>
@@ -1484,7 +1615,7 @@
         function nS() { return s.on.size }
         function has(id) { return s.on.has(id) }
         function src(id) { return SRC.find(x => x.id === id) }
-        function show(id) { const e = document.getElementById(id); if (e) e.classList.remove('hidden') }
+        function show(id) { const e = document.getElementById(id); if (e) { e.classList.remove('hidden'); e.classList.remove('locked') } }
         function $(id) { return document.getElementById(id) }
         function F(n) { n = Number.isFinite(n) ? n : 0; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e4) return (n / 1e3).toFixed(1) + 'K'; return Math.floor(n).toLocaleString() }
         function S(n) { n = Number.isFinite(n) ? n : 0; return (n < 0 ? '-' : '') + F(Math.abs(Math.round(n))) }
@@ -1624,6 +1755,14 @@
         //   4 sources (130 EPS), 10 rules: ratio ≈ 0.016           → ~170-210 alerts/day
         //   10 sources (300 EPS), 20 rules: ratio ≈ 0.020          → ~480-600 alerts/day
         //   18 sources (500 EPS), 30 rules: ratio ≈ 0.028          → ~1000-1400 alerts/day
+        // Relief from suppression and context reduces ratio by up to 0.010.
+        // Overdispersion (negBinomialMean, k=14) adds daily burstiness on top of the mean.
+        // Alert-to-EPS ratio calibration.
+        // Target band: 1-4% of raw EPS becomes alert candidates.
+        //   4 sources (130 EPS), 0 rules:  ratio ~ 0.012 + noise  -> ~100-140 alerts/day
+        //   4 sources (130 EPS), 10 rules: ratio ~ 0.016           -> ~170-210 alerts/day
+        //   10 sources (300 EPS), 20 rules: ratio ~ 0.020          -> ~480-600 alerts/day
+        //   18 sources (500 EPS), 30 rules: ratio ~ 0.028          -> ~1000-1400 alerts/day
         // Relief from suppression and context reduces ratio by up to 0.010.
         // Overdispersion (negBinomialMean, k=14) adds daily burstiness on top of the mean.
         function alertRatioTarget() {
@@ -1900,7 +2039,14 @@
         }
 
         // --- LEDGER ---
-        const LP = [{ k: 'col', l: 'Collection', c: '#2563eb' }, { k: 'lab', l: 'Labour', c: '#10b981' }, { k: 'mnt', l: 'Maintenance', c: '#f59e0b' }, { k: 'noi', l: 'Noise', c: '#ef4444' }, { k: 'cov', l: 'Coverage', c: '#8b5cf6' }, { k: 'ret', l: 'Retention', c: '#06b6d4' }];
+        const LP = [
+            { k: 'col', l: 'Collection', c: '#2563eb', tip: 'Source ingestion cost vs detection utility. Above 0 = sources producing value' },
+            { k: 'lab', l: 'Labour', c: '#10b981', tip: 'Salary cost vs useful triage output. Above 0 = analysts producing net value' },
+            { k: 'mnt', l: 'Maintenance', c: '#f59e0b', tip: 'Parser decay + orphaned rules vs parse success × rule quality. Below 0 = infrastructure rotting' },
+            { k: 'noi', l: 'Noise', c: '#ef4444', tip: 'FP labour + backlog + fatigue cost vs suppression + context relief. Below 0 = drowning in noise' },
+            { k: 'cov', l: 'Coverage', c: '#8b5cf6', tip: 'Blindness cost vs detection attachment + hunt surface. Below 0 = paying for gaps' },
+            { k: 'ret', l: 'Retention', c: '#06b6d4', tip: 'Storage cost vs forensic capability + evidence. Below 0 = storing data with no investigative value' }
+        ];
         function compLedger() {
             const n = nS(), sc = mSrc(), sl = mSal(), rc = mRet(), tc = sc + sl + rc || 1;
             return { col: (n > 0 ? (aU('d') / 5) * dAtt() : 0) - sc / tc, lab: (s.jr + s.sr > 0 ? Math.min(1, (s.eTD / Math.max(1, s.eAD)) * (1 - s.fp)) : 0) - sl / tc, mnt: Math.max(-1, Math.min(1, (s.pH / 100) * (s.rq / 100) - (((100 - s.pH) / 100) * .5 + orphR() * .05))), noi: Math.max(-1, Math.min(1, s.suR * s.suQ * .05 + s.cl * .3 - s.fp * .4 - s.nbl * .03 - s.fat / 200)), cov: Math.max(-1, Math.min(1, dAtt() * .5 + (n > 0 ? aU('h') / 10 : 0) - Math.min(1, (n > 0 ? SRC.filter(x => !s.on.has(x.id) && x.ph <= phase).reduce((a, x) => a + (x.d + x.h) * x.eps * .001, 0) : 0) / 20))), ret: Math.max(-1, Math.min(1, (s.foU ? (fScore() / 100) * .8 : Math.min(.2, s.retD / 150)) - rc / tc)) };
@@ -2131,7 +2277,9 @@
         function buildSrcHTML() {
             let h = ''; SRC.forEach(x => {
                 if (x.ph > phase) return; const on = s.on.has(x.id), can = s.bud >= x.c;
-                h += `<div class="src-row"><div class="src-dot ${on ? 'on' : 'off'}"></div><div class="src-info"><div class="src-name">${x.n}</div><div class="src-meta">${x.sigma} · ${x.gb}GB ${C}${x.c}</div></div><button onclick="G.toggleSource('${x.id}')" ${!on && !can ? 'disabled' : ''}>${on ? 'Disable' : 'Enable'}</button></div>`;
+                const nzLabel = x.nz === 'High' ? 'noisy' : x.nz === 'Low' ? 'quiet' : 'moderate noise';
+                const tip = `Det: ${x.d}/5 · Hunt: ${x.h}/5 · Ctx: ${x.x}/5 · For: ${x.f}/5 · Comp: ${x.co}/5 | ${nzLabel} · parse difficulty: ${(x.pd * 100).toFixed(0)}% · decay: ${x.md}/mo`;
+                h += `<div class="src-row" title="${tip}"><div class="src-dot ${on ? 'on' : 'off'}"></div><div class="src-info"><div class="src-name">${x.n}</div><div class="src-meta">${x.sigma} · ${x.gb}GB ${C}${x.c}</div></div><button onclick="G.toggleSource('${x.id}')" ${!on && !can ? 'disabled' : ''}>${on ? 'Disable' : 'Enable'}</button></div>`;
             }); return h;
         }
 
@@ -2189,9 +2337,17 @@
             }
         }
         function renderUtil() {
-            const dims = [{ k: 'd', l: 'Detection', c: 'var(--blue)' }, { k: 'h', l: 'Hunting', c: 'var(--purple)' }, { k: 'x', l: 'Context', c: 'var(--cyan)' }, { k: 'f', l: 'Forensic', c: 'var(--pink)' }, { k: 'co', l: 'Compliance', c: 'var(--amber)' }, { k: 'o', l: 'Operational', c: 'var(--green)' }, { k: 'de', l: 'Decision', c: '#e11d48' }];
+            const dims = [
+                { k: 'd', l: 'Detection', c: 'var(--blue)', tip: 'Ability to detect threats. Depends on rules, quality, parse health, and detection evidence' },
+                { k: 'h', l: 'Hunting', c: 'var(--purple)', tip: 'Proactive threat discovery capability. Requires hunters, hypotheses, and queryable data' },
+                { k: 'x', l: 'Context', c: 'var(--cyan)', tip: 'Enrichment depth available to analysts. Reduces per-alert cognitive load and detection time' },
+                { k: 'f', l: 'Forensic', c: 'var(--pink)', tip: 'Post-incident investigation capability. Depends on retention, source depth, and parser health' },
+                { k: 'co', l: 'Compliance', c: 'var(--amber)', tip: 'Regulatory and audit readiness. Requires authentication, cloud sources, and sufficient retention' },
+                { k: 'o', l: 'Operational', c: 'var(--green)', tip: 'Day-to-day SOC health. Capacity vs workload, queue health, fatigue, noise, parser health' },
+                { k: 'de', l: 'Decision', c: '#e11d48', tip: 'Ability to make data-driven security decisions. Requires detection evidence and operational maturity' }
+            ];
             const scores = utilityScores(); let h = '';
-            dims.forEach(d => { const v = scores[d.k], p = (v / 5) * 100; h += '<div class="row"><span class="l">' + d.l + '</span><span class="v ' + cc(p, 50, 75) + '">' + v.toFixed(1) + '</span></div>' });
+            dims.forEach(d => { const v = scores[d.k], p = (v / 5) * 100; h += '<div class="row"><span class="l" title="' + d.tip + '">' + d.l + '</span><span class="v ' + cc(p, 50, 75) + '">' + v.toFixed(1) + '</span></div>' });
             setH('utilRows', h);
         }
         function renderRat() {
@@ -2253,7 +2409,7 @@
                     const x = pad.l + (xi / Math.max(1, totalTicks - 1)) * cW; ctx.fillText('D' + (s.day - daySpan + d), x, pad.t + cH + 3)
                 }
             }
-            if (data.length < 2) { setH('ledgerLeg', LP.map(p => `<span><i style="background:${p.c}"></i>${p.l} —</span>`).join('')); return }
+            if (data.length < 2) { setH('ledgerLeg', LP.map(p => `<span title="${p.tip}"><i style="background:${p.c}"></i>${p.l} —</span>`).join('')); return }
             const xS = cW / (data.length - 1);
             // Draw lines
             LP.forEach(p => {
@@ -2265,7 +2421,7 @@
             });
             // Legend with current values
             const cur = data[data.length - 1];
-            setH('ledgerLeg', LP.map(p => { const v = cur[p.k]; const sign = v >= 0 ? '+' : ''; return `<span><i style="background:${p.c}"></i>${p.l} <b style="color:${p.c}">${sign}${v.toFixed(2)}</b></span>` }).join(''));
+            setH('ledgerLeg', LP.map(p => { const v = cur[p.k]; const sign = v >= 0 ? '+' : ''; return `<span title="${p.tip}"><i style="background:${p.c}"></i>${p.l} <b style="color:${p.c}">${sign}${v.toFixed(2)}</b></span>` }).join(''));
         }
         function renderProj() {
             let h = '', av = 0; PROJ.forEach(p => {
