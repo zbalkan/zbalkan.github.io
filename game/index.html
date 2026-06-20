@@ -1,4 +1,39 @@
-<!DOCTYPE html>
+<style>
+  html {
+    visibility: hidden;
+  }
+</style>
+<script>
+(function () {
+  const maxAgeMs = 10 * 60 * 1000;
+  const params = new URLSearchParams(window.location.search);
+  const queryUnlocked = params.get("fatigueUnlocked") === "1";
+  const queryUnlockedAt = Number(params.get("fatigueUnlockedAt") || "0");
+
+  if (queryUnlocked && queryUnlockedAt && Date.now() - queryUnlockedAt <= maxAgeMs) {
+    sessionStorage.setItem("fatigueUnlocked", "1");
+    sessionStorage.setItem("fatigueUnlockedAt", String(queryUnlockedAt));
+    window.history.replaceState(null, "", window.location.pathname);
+  }
+
+  const unlocked = sessionStorage.getItem("fatigueUnlocked") === "1";
+  const unlockedAt = Number(sessionStorage.getItem("fatigueUnlockedAt") || "0");
+
+  const allowed =
+    unlocked &&
+    unlockedAt &&
+    Date.now() - unlockedAt <= maxAgeMs;
+
+  if (!allowed) {
+    sessionStorage.removeItem("fatigueUnlocked");
+    sessionStorage.removeItem("fatigueUnlockedAt");
+    window.location.replace("/404.html");
+    return;
+  }
+
+  document.documentElement.style.visibility = "visible";
+})();
+</script><!DOCTYPE html>
 <html lang="en">
 <head>
 <style>
