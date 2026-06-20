@@ -1287,9 +1287,11 @@ function gameTick(){
   // Marginal source
   if(tk%(TPD*2)===0&&nS()>0){const cand=SRC.filter(x=>x.ph<=phase&&!s.on.has(x.id));if(cand.length){const b=cand.reduce((a,c)=>(c.d+c.h)>(a.d+a.h)?c:a);s.msnr=(b.d/5)*.05-(b.nz==='High'?.15:b.nz==='Med'?.05:.01)}else s.msnr=0}
   // Triage: staff accumulates fractional capacity; completed capacity consumes queued alerts.
-  // PACE accelerates analyst throughput, so higher speeds lower alert triage time instead of only moving the clock faster.
+  // UI speed is applied by runPacedTicks(), which executes more simulation ticks per
+  // wall-clock pulse. Keep analyst capacity defined per simulated day so 4x speed
+  // advances time faster without making analysts 16x stronger in wall-clock terms.  const fatP=1-s.fat/200;
   const fatP=1-s.fat/200;
-  const bTD=(s.jr*JUNIOR_TRIAGE_PER_DAY+s.sr*SENIOR_TRIAGE_PER_DAY)*s.soM*activePace(),lTD=bTD*(1+s.cl)*fatP,tPT=lTD/TPD;
+  const bTD=(s.jr*JUNIOR_TRIAGE_PER_DAY+s.sr*SENIOR_TRIAGE_PER_DAY)*s.soM,lTD=bTD*(1+s.cl)*fatP,tPT=lTD/TPD;
   const autoBefore=s.autoToday;
   s.tA+=tPT;while(s.tA>=1&&s.q>=1){s.tA--;triageAlert('auto')}
   if(s.q<1)s.tA=0;
