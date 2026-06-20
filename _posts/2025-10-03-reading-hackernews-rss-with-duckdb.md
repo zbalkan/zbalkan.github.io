@@ -6,14 +6,14 @@ tags:
   - RSS
   - Tips & Tricks
 galleryPure:
-  - url: /assets/hackernews-python.png
-    image_path: /assets/hackernews-python.png
+  - url: /assets/images/hackernews-python.png
+    image_path: /assets/images/hackernews-python.png
 galleryUdf:
-  - url: /assets/hackernews-udf.png
-    image_path: /assets/hackernews-udf.png
+  - url: /assets/images/hackernews-udf.png
+    image_path: /assets/images/hackernews-udf.png
 gallerySQL:
-  - url: /assets/hackernews-duckdb.png
-    image_path: /assets/hackernews-duckdb.png
+  - url: /assets/images/hackernews-duckdb.png
+    image_path: /assets/images/hackernews-duckdb.png
 ---
 
 I saw a post on [Hacker News](https://news.ycombinator.com/), [In Praise of RSS and Controlled Feeds of Information](https://blog.burkert.me/posts/in_praise_of_syndication/). As a master procrastinator, I postponed my actual task and decided to try something smaller but more attractive: reading RSS feeds with [DuckDB](https://duckdb.org/).

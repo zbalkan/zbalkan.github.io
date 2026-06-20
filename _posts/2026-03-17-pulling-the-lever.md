@@ -10,7 +10,7 @@ tags:
   - SDLC
   - Shadow IT
 header:
-  image: /assets/slot-machines.jpg
+  image: /assets/images/slot-machines.jpg
   caption: "Photo credit: [**Ays Be**](https://unsplash.com/@aysha_be?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/photos/black-and-white-game-machine-BD4pN-2zw7s?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)"
 
 ---

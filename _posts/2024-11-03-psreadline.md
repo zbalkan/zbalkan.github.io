@@ -19,15 +19,15 @@ Since I work in payments sector, PAN is the most commonly used [TLA](https://en.
 
 This information is the means to the end: profit. For merchants, it is one way of getting paid, and for payment processors[^1] it is THE way of getting paid. So for some people, working with thousands of PAN daily is just business as usual. They can be working in fraud, charge back, or customer services, and it is their part of job to use these numbers. Of course, it is better not to keep this data at all so that you cannot leak. that's smart, right?
 
-<img src="/assets/smart.png" width="400" alt="Right?">
+<img src="/assets/images/smart.png" width="400" alt="Right?">
 
 But since this data must be kept somewhere for transactions, processed and transmitted, some people have to touch this risky data. It should be contained, isolated, and processed securely. A leak may be a huge issue. Not only the contactual clauses would hurt, but also PCI DSS issues, GDPR fines, and much more are expected. So PAN should be handled properly.
 
-<img src="/assets/simpsons.gif" width="400" alt="PAN is similar to Uranium pieces in Homer Simpson's hands">
+<img src="/assets/images/simpsons.gif" width="400" alt="PAN is similar to Uranium pieces in Homer Simpson's hands">
 
 As a law-abiding citizen, I am also obeying the [Law of the instrument](https://en.wikipedia.org/wiki/Law_of_the_instrument), and I see PAN everywhere. It is possible to detect with DLP but DLP covers specific fields, not everywhere. I try to find scenarios where there is a likelihood of leaking the data acidentally. command line history *may* be one of those. I hope not but this is life and weird thinds happen. The PAN can end up in history, event logs, in SIEM and log archive while you are trying to secure the databases.
 
-<img src="/assets/everywhere.jpg" width="400" alt="PANs everywhere">
+<img src="/assets/images/everywhere.jpg" width="400" alt="PANs everywhere">
 
 ## Back to PSReadLine
 
@@ -110,7 +110,7 @@ Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 
 As you guessed correctly, we check every single line, and if there is a PAN, we mask it when you hit Enter, so that it will not arrive to any logs, history and such. This is is one way you can use `PsReadLine` handlers. It is not very creative, but it is an example to show what you can do.
 
-<img src="/assets/Animation-masking.gif" width="800" alt="Masking works as expected">
+<img src="/assets/images/Animation-masking.gif" width="800" alt="Masking works as expected">
 
 ## Wait a minute
 
@@ -162,7 +162,7 @@ Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 
 Well, we know that [PowerShell Profile modification](https://attack.mitre.org/techniques/T1546/013/) is yet another mechanism for persistence. It is easy to detect but when the session is run with higher privileges, then it would be very useful. This is just another way of using the same technique;  similar to creating subscriptions, but instead of [WMI Event Subscription](https://attack.mitre.org/techniques/T1546/003/) technique, you can utilize this simple, but shiny PowerShell module that comes by default in Windows 10 and PowerShell 6+. The important points to discuss are below:
 
-1. **Detection:** You can query WMI subscriptions for detection. To detect the `PsReadLine` changes, you need to compare the `Get-PSReadLineKeyHandler` results, which is possible not a feasible option. You can see that `AcceptLine` is replaced with `ValidateandAcceptLine`, that shows you have some things changed. In the end, this is only `T1546.013`, and you **must** monitor `$PROFILE` paths. <br><img src="/assets/Animation-persistence.gif" width="800" alt="No changes.">
+1. **Detection:** You can query WMI subscriptions for detection. To detect the `PsReadLine` changes, you need to compare the `Get-PSReadLineKeyHandler` results, which is possible not a feasible option. You can see that `AcceptLine` is replaced with `ValidateandAcceptLine`, that shows you have some things changed. In the end, this is only `T1546.013`, and you **must** monitor `$PROFILE` paths. <br><img src="/assets/images/Animation-persistence.gif" width="800" alt="No changes.">
 2. **No external persistence mechanism:** We are back into `T1546.013`-only because PSReadLine is stateless, and the parameters must be provided within the `$PROFILE`. So it is less powerful than the combination of `T1546.013` and `T1546.003`.
 3. **Runs on every command:** Instead of running once when a new session starts, this handler runs on every time you hit enter and if the line was not empty. So, it is not good for one time tasks. But may be good for exfil. Who knows? I am just playing with it, and haven't thought about it that much.
 
@@ -170,15 +170,15 @@ Well, we know that [PowerShell Profile modification](https://attack.mitre.org/te
 
 In sum, it is not a new trick. It is the same old `T1546.013` and even `PsReadLine` isn't new for [security ecosystem](https://github.com/search?q=repo%3ASigmaHQ%2Fsigma%20psreadline&type=code). There are some prerequisites for success as well. First, the attacker needs to update the `$PROFILE`, as expected. So you probably have detections for it. Right?
 
-<img src="/assets/right.jpg" width="400" alt="Right?">
+<img src="/assets/images/right.jpg" width="400" alt="Right?">
 
 Second, the user must be using PSReadLine. Luckily most sysadmins stick to PowerShell 5.x instead of 6+, due to internal changes of PowerShell cmdlets, such as `Get-WmiObject` vs `Get-CimInstance`[^2]. Therefore, the risk is even lower.
 
-<img src="/assets/doesnt work.png" width="600" alt="Sometimes it just does not work, I guess">
+<img src="/assets/images/doesnt work.png" width="600" alt="Sometimes it just does not work, I guess">
 
 This is a very weak mechanism for persistence. The difference from other methods is the triggering mechanism, so nothing to think too much about it. However, this can escape the logging mechanisms, it is hard to detect if `$PROFILE` tampering detections are not in place. So, review to you FIM and/or Sysmon configuration and SIEM rules/queries to ensure you are getting alerted on `$PROFILE` modifications.
 
 On the other hand, you can use this method for your daily use as well. You can improve your command line experience as it is designed for. Please see [the docs](https://learn.microsoft.com/en-us/powershell/module/psreadline/set-psreadlineoption?view=powershell-7.4) for better examples, better than mine.
 
 [^1]: The payment processor may be a bank, or a third party that banks outsource the payment processing job. That's why I did not say banks. Banks as both issuers and acquirers have their position but let's not get into this part.
-[^2]: While Github repositories do not reflect the dumpster of powershell script directories sysadmins piled up year by year, successor is getting closer for the open source/source available resources. <img src="/assets/getwmiobject.png" width="400" alt="Get-WmiObject search results in Github"> <img src="/assets/getciministance.png" width="400" alt="Get-CimInstance search results in Github">
+[^2]: While Github repositories do not reflect the dumpster of powershell script directories sysadmins piled up year by year, successor is getting closer for the open source/source available resources. <img src="/assets/images/getwmiobject.png" width="400" alt="Get-WmiObject search results in Github"> <img src="/assets/images/getciministance.png" width="400" alt="Get-CimInstance search results in Github">

@@ -15,13 +15,13 @@ redirect_from: /2024/12/01/rmm-detection.html
 
 Since the amazing [LOLBAS](https://lolbas-project.github.io/) project, many [similar projects](https://lolol.farm/) have appeared -though I don't think some of them are *Living Off the Land* by definition. However, there are useful ones. The [LOLRMM](https://lolrmm.io/) is one of the useful *LOL\** projects, and it allows defenders to write prevention and detection controls for Remote Monitoring and Management (RMM) tools. RMM tools have become a persistence method used by the attackers [as of 2023](https://blog.nviso.eu/2024/07/18/hunting-for-remote-management-tools/), if not earlier. These tools are necessary and legitimate, especially for MSPs, while they are frequently used as backdoors by attackers. This makes LOLRMM a great resource for security teams; a handcrafted list of RMMs with their detection methods, so you don't have to.
 
-<a href="https://lolrmm.io/" target="_blank"><img src="/assets/lolrmm.png" width="200" alt="LOLRMM.io"></a>
+<a href="https://lolrmm.io/" target="_blank"><img src="/assets/images/lolrmm.png" width="200" alt="LOLRMM.io"></a>
 
 <!--more-->
 
 I'd like to note that, please use WDAC and/or Applocker first, then write your detections. Second, having all of the alerts would cause nothing but a torrent of false positives. It means you need to fine-tune for your environment.
 
-<img src="/assets/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
+<img src="/assets/images/wdac-wizard.png" width="600" alt="WDAC Wizard is your friend!">
 
 ## Understanding Sigma and Wazuh
 
@@ -356,6 +356,6 @@ To implement the converted rules in Wazuh:
 
 Out of 457 Sigma rules analyzed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. Therefore, you can write your detections based on the generated rules.
 
-<img src="/assets/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
+<img src="/assets/images/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
 
 LOLRMM is a great resource. However, importing bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
