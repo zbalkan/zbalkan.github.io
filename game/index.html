@@ -33,7 +33,8 @@
 
   document.documentElement.style.visibility = "visible";
 })();
-</script><!DOCTYPE html>
+</script>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <style>
@@ -277,6 +278,7 @@ canvas.radar{max-width:220px;max-height:220px}
   <span class="obj-text" id="objText">Enable log sources and hire your first analyst.</span>
   <div class="stat-pills">
     <span>Day <b id="tDay">0</b></span>
+    <span>Hour <b id="tHour">00.00.00</b></span>
     <span>Month <b id="tMo">0</b></span>
     <span>ƒ<b id="tBud">8,000</b></span>
     <span>Rep <b id="tRep">50</b></span>
@@ -527,12 +529,18 @@ canvas.radar{max-width:220px;max-height:220px}
 // ================================================================
 // FATIGUE v5.2
 // ================================================================
-const TICK=250,TPD=288,TPM=8640,RET$=0.12,C='ƒ';
+const TICK=125,TPD=288,TPM=8640,RET$=0.12,C='ƒ';
 const SIM_SECONDS_PER_TICK=86400/TPD;
 
 // Baseline source EPS values are intentionally small design numbers.
 // LOG_EPS_SCALE converts them into dashboard-scale EPS while preserving source ratios.
 const LOG_EPS_SCALE=20;
+
+// PACE controls how many simulation ticks run per timer pulse.
+// At PACE=1 the game still uses a fast 125ms pulse; higher UI speeds process
+// more simulated time, alerts, logs, staffing work, finance, events, and storage
+// per wall-clock second without changing per-simulated-day incident probabilities.
+const TIME_RELATED_COUNT_MULTIPLIER=.5;
 
 // Runtime Live EPS is stochastic. Baseline EPS is the planning value; Live EPS is sampled.
 // Gaussian jitter models ordinary workload variation; the diurnal multiplier adds daily rhythm;
@@ -560,12 +568,12 @@ const VALIDATION_MAX_DELAY_TICKS=Math.floor(TPD*1.5);
 // Each Operations Pulse touches a model variable: queue, parser health,
 // budget, coverage, fatigue, or detection confidence.
 const OPS_EVENT_FIRST_DAY=2;
-const OPS_EVENT_INTERVAL_MIN=2;
-const OPS_EVENT_INTERVAL_MAX=4;
+const OPS_EVENT_INTERVAL_MIN=4;
+const OPS_EVENT_INTERVAL_MAX=8;
 const FAST_FORWARD_MAX_TICKS=TPD*5;
 const DETECTION_BONUS_BASE=180;
 const DETECTION_BONUS_PER_SEVERITY=90;
-let gameSpeed=1,tickInterval=null,gameRunning=false,gameOver=false;
+let PACE=1,tickInterval=null,gameRunning=false,gameOver=false;
 
 // --- Randomness and distributions ---
 // Add ?seed=<value> to the URL for reproducible balancing/playtest runs.
@@ -595,6 +603,11 @@ function sourceNoiseWeight(x){return x.nz==='High'?1.45:x.nz==='Med'?1:.55}
 function effectiveEPS(x){return nonNeg(x.eps)*LOG_EPS_SCALE}
 function alertNoiseScore(x){return x.nz==='High'?1:x.nz==='Med'?.6:.25}
 
+function simulatedClock(){
+  const totalSeconds=Math.floor(((tk%TPD)/TPD)*86400)%86400;
+  const h=Math.floor(totalSeconds/3600),m=Math.floor((totalSeconds%3600)/60),sec=totalSeconds%60;
+  return [h,m,sec].map(v=>String(v).padStart(2,'0')).join('.');
+}
 function simulatedHour(){return ((tk%TPD)/TPD)*24}
 function diurnalLoadFactor(){
   // Peak is late business day; trough is overnight. Clamped to avoid extreme low/high telemetry.
@@ -765,7 +778,7 @@ function P(n){return(n*100).toFixed(0)+'%'}
 function cc(v,lo,hi){return v>=hi?'g':v>=lo?'w':'b'}
 function cr(v,lo,hi){return v<=lo?'g':v<=hi?'w':'b'}
 function ea(){return[...s.on].map(id=>src(id)).filter(Boolean)}
-function tGB(){return ea().reduce((a,x)=>a+x.gb,0)}
+function tGB(){return ea().reduce((a,x)=>a+x.gb*TIME_RELATED_COUNT_MULTIPLIER,0)}
 function tEPS(){return ea().reduce((a,x)=>a+effectiveEPS(x),0)}
 function mSrc(){return ea().reduce((a,x)=>a+x.c,0)}
 function mSal(){return s.jr*250+s.sr*650+s.hu*900+s.en*800}
@@ -903,7 +916,7 @@ function alertRatioTarget(){
 }
 function expectedAlertsPerDay(){
   const eps=tEPS();if(eps<=0)return 0;
-  return clamp(eps*alertRatioTarget(),0,1200);
+  return clamp(eps*alertRatioTarget()*TIME_RELATED_COUNT_MULTIPLIER,0,1200);
 }
 function sampledAlertsPerDay(){return negBinomialMean(expectedAlertsPerDay(),14)}
 
@@ -917,7 +930,7 @@ function validateStaticData(){
   if(projectSet.size!==projectIds.length)throw new Error('Project IDs must be unique');
 }
 function validateDom(){
-  const required=['introModal','gameApp','gameoverOverlay','goReason','goStats','log','phaseBadge','objText','tDay','tMo','tBud','tRep','tMTTD','tMTTR','btnTri','btnTri10','sp8','sp16','spDay','srcList','projL','radarCanvas','ledgerCanvas','ledgerLeg','slaBar','progressTitle','progressValue','progressFill','progressHint','cOpsEvent','eventTag','eventTitle','eventBody','eventChoices','vTot','dashAD','dashSrcN','dashConfigEPS','dashEPS','dashGB','dashParse','dashQueue','dashTD','dashMT','dashFP','dashSNR','dashFat','dashFatTrend','dashFatBar','dashStoredGB','dashStoreCost','dashDet','dashMis','dashBr'];
+  const required=['introModal','gameApp','gameoverOverlay','goReason','goStats','log','phaseBadge','objText','tDay','tHour','tMo','tBud','tRep','tMTTD','tMTTR','btnTri','btnTri10','sp8','sp16','spDay','srcList','projL','radarCanvas','ledgerCanvas','ledgerLeg','slaBar','progressTitle','progressValue','progressFill','progressHint','cOpsEvent','eventTag','eventTitle','eventBody','eventChoices','vTot','dashAD','dashSrcN','dashConfigEPS','dashEPS','dashGB','dashParse','dashQueue','dashTD','dashMT','dashFP','dashSNR','dashFat','dashFatTrend','dashFatBar','dashStoredGB','dashStoreCost','dashDet','dashMis','dashBr'];
   required.forEach(id=>{if(!$(id))throw new Error('Missing required element: #'+id)});
 }
 function failSoft(err,ctx){
@@ -935,23 +948,28 @@ function setCardState(id,state){const el=$(id);if(!el)return;el.classList.remove
 // --- SPEED / START ---
 function setSpeed(sp){
   sp=Number(sp);if(![0,1,2,4,8,16].includes(sp))sp=1;
-  gameSpeed=sp;['sp0','sp1','sp2','sp4','sp8','sp16'].forEach(id=>$(id).classList.remove('active'));
+  PACE=sp;['sp0','sp1','sp2','sp4','sp8','sp16'].forEach(id=>$(id).classList.remove('active'));
   $('sp'+sp).classList.add('active');
   if(tickInterval){clearInterval(tickInterval);tickInterval=null}
-  if(sp>0&&gameRunning&&!gameOver)tickInterval=setInterval(safeGameTick,Math.max(16,TICK/sp));
+  if(sp>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
   updateUI();
+}
+function activePace(){return Math.max(1,Math.floor(PACE)||1)}
+function runPacedTicks(){
+  const ticks=activePace();
+  for(let i=0;i<ticks&&!gameOver;i++)safeGameTick();
 }
 function fastForwardDay(){
   if(!gameRunning||gameOver)return;
-  const target=s.day+1,was=gameSpeed;
+  const target=s.day+1,was=PACE;
   if(tickInterval){clearInterval(tickInterval);tickInterval=null}
   for(let guard=0;guard<TPD+10&&s.day<target&&!gameOver;guard++)safeGameTick();
   updateUI();
-  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(safeGameTick,Math.max(16,TICK/was));
+  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
 }
 function fastForwardEvent(){
   if(!gameRunning||gameOver)return;
-  const was=gameSpeed,startDet=s.det,startMis=s.mis,startBr=s.br,startSeq=s.eventSeq,startDay=s.day;
+  const was=PACE,startDet=s.det,startMis=s.mis,startBr=s.br,startSeq=s.eventSeq,startDay=s.day;
   if(tickInterval){clearInterval(tickInterval);tickInterval=null}
   for(let guard=0;guard<FAST_FORWARD_MAX_TICKS&&!gameOver;guard++){
     safeGameTick();
@@ -960,7 +978,7 @@ function fastForwardEvent(){
     if(s.day>=startDay+5)break;
   }
   updateUI();
-  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(safeGameTick,Math.max(16,TICK/was));
+  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
 }
 function isBlockedMobile(){
   return window.matchMedia('(max-width: 900px)').matches ||
@@ -994,7 +1012,7 @@ function startGame(){
   gameRunning=true;
   lg('FATIGUE — a SIEM economics simulator','p');
   lg('Enable sources, hire analysts, and use Operations Pulse decisions to keep the SOC moving.','i');
-  setSpeed(gameSpeed);
+  setSpeed(PACE);
 }
 
 function effectiveFpRate(){return Math.min(.95,s.fp+s.fat*.002)}
@@ -1201,10 +1219,10 @@ function gameTick(){
   tk++;
 
   // The tick loop is the simulation engine. Each tick advances five simulated minutes.
-  // Game speed changes how often ticks are executed, not how much simulated time each tick represents.
+  // PACE controls how many five-minute simulation ticks execute per timer pulse.
   // Per-tick storage accumulation: logs = liveEPS * seconds_per_tick
   const liveEPS=Math.max(0,ea().reduce((a,x)=>a+sampledEPS(x),0));
-  const logsThisTick=Math.max(0,Math.round(liveEPS*SIM_SECONDS_PER_TICK));
+  const logsThisTick=Math.max(0,Math.round(liveEPS*SIM_SECONDS_PER_TICK*TIME_RELATED_COUNT_MULTIPLIER));
   s.logsToday+=logsThisTick;s.logsTotal+=logsThisTick;
   s.liveEPS=liveEPS;
   // Daily
@@ -1269,8 +1287,9 @@ function gameTick(){
   // Marginal source
   if(tk%(TPD*2)===0&&nS()>0){const cand=SRC.filter(x=>x.ph<=phase&&!s.on.has(x.id));if(cand.length){const b=cand.reduce((a,c)=>(c.d+c.h)>(a.d+a.h)?c:a);s.msnr=(b.d/5)*.05-(b.nz==='High'?.15:b.nz==='Med'?.05:.01)}else s.msnr=0}
   // Triage: staff accumulates fractional capacity; completed capacity consumes queued alerts.
+  // PACE accelerates analyst throughput, so higher speeds lower alert triage time instead of only moving the clock faster.
   const fatP=1-s.fat/200;
-  const bTD=(s.jr*JUNIOR_TRIAGE_PER_DAY+s.sr*SENIOR_TRIAGE_PER_DAY)*s.soM,lTD=bTD*(1+s.cl)*fatP,tPT=lTD/TPD;
+  const bTD=(s.jr*JUNIOR_TRIAGE_PER_DAY+s.sr*SENIOR_TRIAGE_PER_DAY)*s.soM*activePace(),lTD=bTD*(1+s.cl)*fatP,tPT=lTD/TPD;
   const autoBefore=s.autoToday;
   s.tA+=tPT;while(s.tA>=1&&s.q>=1){s.tA--;triageAlert('auto')}
   if(s.q<1)s.tA=0;
@@ -1519,7 +1538,7 @@ function updateUI(){
   $('phaseBadge').textContent='Phase '+phase;$('objText').textContent=getObjective();
   updateProgress();
   renderOpsEvent();
-  $('tDay').textContent=s.day;$('tMo').textContent=s.mo;
+  $('tDay').textContent=s.day;$('tHour').textContent=simulatedClock();$('tMo').textContent=s.mo;
   $('tBud').textContent=S(s.bud);$('tBud').style.color=s.bud<0?'var(--red)':s.bud<1000?'var(--amber)':'';
   $('tRep').textContent=s.rep;
   $('tMTTD').textContent=s.mttd>0?s.mttd.toFixed(0)+'m':'—';$('tMTTD').style.color=s.mttd>30?'var(--red)':s.mttd>15?'var(--amber)':'';
@@ -1749,7 +1768,7 @@ function renderProj(){
     h+='<div class="'+cls+'"><div class="pn">'+(d?'&#10003; ':'')+p.n+'</div><div class="pd">'+p.d+'</div><div class="pm"><span class="pc">'+C+F(p.c)+'</span>'+(d?'<span class="ps">Done</span>':'<button onclick="G.buyProject(\''+p.id+'\')" '+(a&&c?'':'disabled')+' style="'+(a&&c?'':'filter:grayscale(1)')+'">'+( a&&c?'Go':'—')+'</button>')+'</div></div>';
   });setH('projL',h);$('projCount').textContent=av>0?av+' available':'';
 }
-window.Fatigue={state:()=>s,startGame,setSpeed,gameTick:safeGameTick,actions:G,expectedAlertsPerDay,alertRatioTarget};
+window.Fatigue={state:()=>s,pace:()=>PACE,startGame,setSpeed,gameTick:safeGameTick,actions:G,expectedAlertsPerDay,alertRatioTarget};
 window.G=G;window.startGame=startGame;window.setSpeed=setSpeed;
 </script>
 </body>
