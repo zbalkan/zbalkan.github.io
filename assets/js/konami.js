@@ -1,4 +1,8 @@
 (function () {
+  if (window.location.pathname === "/game/" || window.location.pathname === "/game/index.html") {
+    return;
+  }
+
   const sequence = [
     "arrowup",
     "arrowup",
