@@ -926,6 +926,12 @@
                 width: 260px
             }
         }
+
+        .triage-card button {
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 700;
+        }
     </style>
 </head>
 
@@ -1131,16 +1137,18 @@
                     <div class="dash-card-label">Breaches</div>
                     <div class="dash-card-sub" id="dashBrSub"></div>
                 </div>
-                <div class="dash-card state-neutral dash-card-wide">
-                    <button class="primary" id="btnTri" onclick="G.manualTriage()" style="width:100%">Triage
-                        Alert</button>
-                </div>
             </div>
         </div>
 
         <div class="cols">
             <!-- LEFT -->
             <div class="col col-l">
+                <div class="card triage-card">
+                    <div class="card-t">Triage</div>
+                    <button class="primary" id="btnTri" onclick="G.manualTriage()" style="width:100%">Triage Alert</button>
+                    <div class="btn-hint">Process one queued alert manually.</div>
+                </div>
+            
                 <div class="card">
                     <div class="card-t">Staff</div>
                     <div class="row"><span class="l">Junior Analysts</span><span class="v" id="vJr">0</span></div>
