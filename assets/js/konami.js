@@ -46,7 +46,9 @@
 
       if (index === sequence.length) {
         resetSequence();
-        window.location.assign("/game/");
+        sessionStorage.setItem("fatigueUnlocked", "1");
+        sessionStorage.setItem("fatigueUnlockedAt", String(Date.now()));
+        window.location.href = "/game/";
         return;
       }
 
