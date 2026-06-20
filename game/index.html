@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style>
+  html {
+    visibility: hidden;
+  }
+</style>
+<script>
+(function () {
+  const unlocked = sessionStorage.getItem("fatigueUnlocked") === "1";
+  const unlockedAt = Number(sessionStorage.getItem("fatigueUnlockedAt") || "0");
+  const maxAgeMs = 10 * 60 * 1000;
+
+  const allowed =
+    unlocked &&
+    unlockedAt &&
+    Date.now() - unlockedAt <= maxAgeMs;
+
+  if (!allowed) {
+    sessionStorage.removeItem("fatigueUnlocked");
+    sessionStorage.removeItem("fatigueUnlockedAt");
+    window.location.replace("/404.html");
+    return;
+  }
+
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fatigue</title>
@@ -1578,4 +1604,118 @@ function buildSrcHTML(){
   let h='';SRC.forEach(x=>{if(x.ph>phase)return;const on=s.on.has(x.id),can=s.bud>=x.c,covered=countCoveredRules(x.id);
     const cov=s.deU?(on?(covered>0?' · covered by '+covered+' rule'+(covered!==1?'s':''):' · no active rule coverage'):' · not enabled'):' · rules locked';
     const warn=on&&s.deU&&covered===0?' style="color:#b45309"':'';
-    const nzLabel=x.nz==='High'?'noisy':x.nz==='Low'?'quiet
+    const nzLabel=x.nz==='High'?'noisy':x.nz==='Low'?'quiet':'moderate noise';
+    const tip='Det: '+x.d+'/5 · Hunt: '+x.h+'/5 · Ctx: '+x.x+'/5 · For: '+x.f+'/5 · Comp: '+x.co+'/5 | '+nzLabel+' · parse difficulty: '+(x.pd*100).toFixed(0)+'% · decay: '+x.md+'/mo';
+    h+='<div class="src-row" title="'+tip+'"><div class="src-dot '+(on?'on':'off')+'"></div><div class="src-info"><div class="src-name"'+warn+'>'+x.n+'</div><div class="src-meta">'+x.sigma+' · '+x.gb+'GB '+C+x.c+cov+'</div></div><button onclick="G.toggleSource(\''+x.id+'\')" '+((!on&&!can)?'disabled':'')+'>'+( on?'Disable':'Enable')+'</button></div>';
+  });return h;
+}
+function sourcePotential(k){return nS()>0?clamp(aU(k)/5,0,1):0}
+function utilityScores(){
+  const parse=nS()>0?pSucc():0,sourceBreadth=clamp(nS()/6,0,1),ruleCoverage=dAtt(),ruleDepth=clamp(s.rul/12,0,1),ruleQuality=clamp(s.rq/100,0,1);
+  const detEvidence=clamp(s.det/10,0,1),missPenalty=1-clamp((s.mis+s.br*2)/10,0,.75),capRatio=s.eAD>0?clamp(s.eTD/s.eAD,0,1):0;
+  const queueHealth=1-clamp(s.q/180,0,1),fatigueHealth=1-clamp(s.fat/100,0,1);
+  const fpObserved=s.tot>10?s.fpc/s.tot:s.fp,noiseHealth=1-clamp(fpObserved,0,1);
+  const retention=clamp(s.retD/180,0,1),contextLift=clamp(s.cl,0,1),ledger=clamp(s.ledger.length/60,0,1);
+  const auth=has('authentication')||has('windows_security')?1:0;
+  const cloud=has('cloudtrail')||has('azure_signin')||has('azure_activity')||has('m365_audit')||has('gcp_audit')?1:0;
+  const detMaturity=.05+.35*ruleCoverage+.20*ruleDepth+.15*ruleQuality+.15*parse+.10*detEvidence;
+  const huntMaturity=.03+.12*sourceBreadth+.20*(s.huU?1:0)+.20*clamp(s.hu/2,0,1)+.25*clamp(s.hf/5,0,1)+.10*clamp(s.hyp/10,0,1)+.10*contextLift;
+  const ctxMaturity=.08+.18*sourceBreadth+.20*parse+.22*contextLift+.17*(s.raU?1:0)+.15*ruleCoverage;
+  const forMaturity=.04+.35*(s.foU?1:0)+.25*clamp(fScore()/100,0,1)+.10*sourceBreadth+.10*parse+.16*retention;
+  const compMaturity=.03+.45*(s.coU?1:0)+.15*auth+.10*cloud+.12*retention+.10*parse+.05*(s.pH/100);
+  const opsMaturity=.30*capRatio+.20*queueHealth+.20*fatigueHealth+.15*noiseHealth+.15*parse;
+  const decMaturity=.03+.20*(s.raU?1:0)+.35*(s.dcU?1:0)+.15*ledger+.15*(bestNextSpend()?1:0)+.12*ruleCoverage;
+  return{d:clamp(5*sourcePotential('d')*detMaturity*missPenalty,0,5),h:clamp(5*sourcePotential('h')*huntMaturity,0,5),x:clamp(5*sourcePotential('x')*ctxMaturity,0,5),f:clamp(5*sourcePotential('f')*forMaturity,0,5),co:clamp(5*sourcePotential('co')*compMaturity,0,5),o:clamp(5*opsMaturity,0,5),de:clamp(5*sourcePotential('de')*decMaturity,0,5)};
+}
+function drawRadar(){
+  const cv=$('radarCanvas');if(!cv)return;const ctx=cv.getContext('2d'),scores=utilityScores();
+  const dpr=window.devicePixelRatio||1,sz=220;cv.width=sz*dpr;cv.height=sz*dpr;cv.style.width=sz+'px';cv.style.height=sz+'px';ctx.scale(dpr,dpr);
+  const dims=[{k:'d',l:'Det'},{k:'h',l:'Hunt'},{k:'x',l:'Ctx'},{k:'f',l:'For'},{k:'co',l:'Comp'},{k:'o',l:'Ops'},{k:'de',l:'Dec'}];
+  const n=dims.length,cx=sz/2,cy=sz/2,r=80,sa=-Math.PI/2,st=Math.PI*2/n;
+  ctx.clearRect(0,0,sz,sz);
+  [.25,.5,.75,1].forEach(sc=>{ctx.beginPath();for(let i=0;i<=n;i++){const a=sa+i*st,x=cx+Math.cos(a)*r*sc,y=cy+Math.sin(a)*r*sc;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.strokeStyle='#e5e7eb';ctx.lineWidth=.5;ctx.stroke()});
+  for(let i=0;i<n;i++){const a=sa+i*st;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.strokeStyle='#e5e7eb';ctx.lineWidth=.5;ctx.stroke()}
+  ctx.beginPath();for(let i=0;i<=n;i++){const idx=i%n,a=sa+idx*st,v=scores[dims[idx].k]/5;ctx.lineTo(cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v)}ctx.fillStyle='rgba(37,99,235,.1)';ctx.fill();ctx.strokeStyle='#2563eb';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='10px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<n;i++){const a=sa+i*st,v=scores[dims[i].k]/5;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v,3,0,Math.PI*2);ctx.fillStyle='#2563eb';ctx.fill();ctx.fillStyle='#6b7280';ctx.fillText(dims[i].l,cx+Math.cos(a)*(r+16),cy+Math.sin(a)*(r+16))}
+}
+function renderUtil(){
+  const dims=[{k:'d',l:'Detection',c:'var(--blue)',tip:'Ability to detect threats. Depends on rules, quality, parse health, and detection evidence'},{k:'h',l:'Hunting',c:'var(--purple)',tip:'Proactive threat discovery capability. Requires hunters, hypotheses, and queryable data'},{k:'x',l:'Context',c:'var(--cyan)',tip:'Enrichment depth available to analysts. Reduces per-alert cognitive load and detection time'},{k:'f',l:'Forensic',c:'var(--pink)',tip:'Post-incident investigation capability. Depends on retention, source depth, and parser health'},{k:'co',l:'Compliance',c:'var(--amber)',tip:'Regulatory and audit readiness. Requires authentication, cloud sources, and sufficient retention'},{k:'o',l:'Operational',c:'var(--green)',tip:'Day-to-day SOC health. Capacity vs workload, queue health, fatigue, noise, parser health'},{k:'de',l:'Decision',c:'#e11d48',tip:'Ability to make data-driven security decisions. Requires detection evidence and operational maturity'}];
+  const scores=utilityScores();let h='';
+  dims.forEach(d=>{const v=scores[d.k],p=(v/5)*100;h+='<div class="row"><span class="l" title="'+d.tip+'">'+d.l+'</span><span class="v '+cc(p,50,75)+'">'+v.toFixed(1)+'</span></div>'});
+  setH('utilRows',h);
+}
+function renderRat(){
+  const w=[];
+  if(tGB()>40&&aU('d')<2.5)w.push({c:'crit',t:'Data landfill — '+tGB().toFixed(0)+'GB/d, det '+aU('d').toFixed(1)});
+  if(aU('d')>3&&aU('x')<2.5)w.push({c:'amb',t:'Rules w/o context'});
+  if(ea().filter(x=>x.nz==='High').length>=3)w.push({c:'crit',t:'Noise factory'});
+  if(s.q>200)w.push({c:'crit',t:'Backlog crisis — '+F(s.q)});else if(s.q>50)w.push({c:'amb',t:'Backlog — '+F(s.q)});
+  if(s.fp>.55)w.push({c:'amb',t:'Severity inflation — FP '+(s.fp*100).toFixed(0)+'%'});
+  if(s.pH<50)w.push({c:'crit',t:'Parser decay — '+s.pH.toFixed(0)+'%'});
+  if(orphR()>2)w.push({c:'crit',t:'Orphaned rules — '+orphR()});
+  if(uncS()>2)w.push({c:'amb',t:'Uncovered sources — '+uncS()+' paying '+C+wasteS()});
+  if(s.fatAcc>50&&s.fat>40)w.push({c:'crit',t:'Death spiral — fatigue accelerating'});
+  if(s.fat>70)w.push({c:'crit',t:'Critical fatigue — '+s.fat.toFixed(0)+'%'});else if(s.fat>45)w.push({c:'amb',t:'Rising fatigue — '+s.fat.toFixed(0)+'%'});
+  if(s.snr<.2&&s.tot>50)w.push({c:'crit',t:'SNR collapse — '+s.snr.toFixed(2)});
+  const chronic=SRC.filter(x=>x.ph<=phase&&(s.blindDays[x.id]||0)>21);
+  chronic.slice(0,3).forEach(x=>w.push({c:'amb',t:'Chronic blind spot — '+x.n+' ('+Math.floor(s.blindDays[x.id])+'d)'}));
+  if(s.msnr<-.05&&nS()>=4)w.push({c:'amb',t:'Source saturation — more sources may hurt SNR'});
+  if(mSpend()>s.inc*1.3)w.push({c:'crit',t:'Unsustainable spend'});
+  const bns=bestNextSpend();if(bns)w.push({c:'info',t:'Best invest: '+bns});
+  setH('ratioL',w.length?w.map(x=>'<div class="warn '+x.c+'"><span class="warn-icon">'+(x.c==='crit'?'●':x.c==='info'?'→':'◐')+'</span>'+x.t+'</div>').join(''):'<div style="color:var(--green);font-size:11px">No issues.</div>');
+}
+function renderDec(){
+  const ti=s.det+s.mis,du=ti>0?s.det/ti:0,cr_=cRate();
+  const cc_=nS()>0?(sU('d')+sU('h')+sU('x'))/(mSrc()||1)*100:0;
+  const nt=s.tot>0?s.fpc/s.tot:0;
+  const bc=nS()>0?SRC.filter(x=>!s.on.has(x.id)&&x.ph<=phase).reduce((a,x)=>a+(x.d+x.h)*x.eps*.001,0):0;
+  const mb=(100-s.pH)/100;
+  $('vNT').textContent=P(nt);$('vNT').className='v '+cr(nt,.25,.5);
+  $('vBC').textContent=bc.toFixed(1);$('vBC').className='v '+cr(bc,5,15);
+  $('vCC').textContent=cc_.toFixed(1);$('vCC').className='v '+cc(cc_,50,120);
+  $('vDU').textContent=P(du);$('vDU').className='v '+cc(du,.4,.7);
+  const uom=(du*cr_*(cc_/200))-(nt+bc/20+mb+s.fat/200);
+  $('vUOM').textContent=uom.toFixed(3);$('vUOM').className='v '+(uom>.1?'g':uom>0?'w':'b');
+}
+function renderLedger(){
+  const cv=$('ledgerCanvas');if(!cv)return;
+  const dpr=window.devicePixelRatio||1,rect=cv.getBoundingClientRect();
+  cv.width=rect.width*dpr;cv.height=rect.height*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,data=s.ledger;
+  const pad={l:32,r:8,t:8,b:18},cW=W-pad.l-pad.r,cH=H-pad.t-pad.b,midY=pad.t+cH/2;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#9ca3af';ctx.font='9px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText('+1',pad.l-4,pad.t+2);ctx.fillText('0',pad.l-4,midY);ctx.fillText('-1',pad.l-4,pad.t+cH-2);
+  ctx.strokeStyle='#e5e7eb';ctx.lineWidth=.5;ctx.setLineDash([3,3]);
+  [0,.25,.5,.75,1].forEach(f=>{const y=pad.t+cH*f;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke()});
+  ctx.setLineDash([]);
+  if(data.length>1){
+    ctx.fillStyle='#9ca3af';ctx.font='8px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+    const totalTicks=data.length,daySpan=Math.ceil(totalTicks/72);
+    for(let d=0;d<=daySpan;d++){const xi=Math.floor(d*totalTicks/Math.max(1,daySpan));if(xi>=totalTicks)continue;const x=pad.l+(xi/Math.max(1,totalTicks-1))*cW;ctx.fillText('D'+(s.day-daySpan+d),x,pad.t+cH+3)}
+  }
+  if(data.length<2){setH('ledgerLeg',LP.map(p=>'<span title="'+p.tip+'"><i style="background:'+p.c+'"></i>'+p.l+' —</span>').join(''));return}
+  const xS=cW/(data.length-1);
+  LP.forEach(p=>{
+    ctx.beginPath();ctx.strokeStyle=p.c;ctx.lineWidth=1.8;ctx.lineJoin='round';
+    for(let i=0;i<data.length;i++){const x=pad.l+i*xS,y=midY-data[i][p.k]*cH/2*.9;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+    const lastV=data[data.length-1][p.k],ex=pad.l+(data.length-1)*xS,ey=midY-lastV*cH/2*.9;
+    ctx.beginPath();ctx.arc(ex,ey,3,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()
+  });
+  const cur=data[data.length-1];
+  setH('ledgerLeg',LP.map(p=>{const v=cur[p.k],sign=v>=0?'+':'';return'<span title="'+p.tip+'"><i style="background:'+p.c+'"></i>'+p.l+' <b style="color:'+p.c+'">'+sign+v.toFixed(2)+'</b></span>'}).join(''));
+}
+function renderProj(){
+  let h='',av=0;PROJ.forEach(p=>{
+    if(p.ph>phase)return;const d=s.done.has(p.id),a=!d&&p.r(),c=s.bud>=p.c;if(a&&c)av++;
+    const cls=d?'proj done':'proj';
+    h+='<div class="'+cls+'"><div class="pn">'+(d?'&#10003; ':'')+p.n+'</div><div class="pd">'+p.d+'</div><div class="pm"><span class="pc">'+C+F(p.c)+'</span>'+(d?'<span class="ps">Done</span>':'<button onclick="G.buyProject(\''+p.id+'\')" '+(a&&c?'':'disabled')+' style="'+(a&&c?'':'filter:grayscale(1)')+'">'+( a&&c?'Go':'—')+'</button>')+'</div></div>';
+  });setH('projL',h);$('projCount').textContent=av>0?av+' available':'';
+}
+window.Fatigue={state:()=>s,startGame,setSpeed,gameTick:safeGameTick,actions:G,expectedAlertsPerDay,alertRatioTarget};
+window.G=G;window.startGame=startGame;window.setSpeed=setSpeed;
+</script>
+</body>
+</html>
