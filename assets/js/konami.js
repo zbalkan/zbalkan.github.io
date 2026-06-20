@@ -48,7 +48,7 @@
         resetSequence();
         sessionStorage.setItem("fatigueUnlocked", "1");
         sessionStorage.setItem("fatigueUnlockedAt", String(Date.now()));
-        window.location.href = "/game/";
+        window.location.href = `/game/?fatigueUnlocked=1&fatigueUnlockedAt=${encodeURIComponent(unlockedAt)}`;
         return;
       }
 
