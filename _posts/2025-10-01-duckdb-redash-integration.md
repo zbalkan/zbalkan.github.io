@@ -8,27 +8,27 @@ tags:
   - Open Source
   - Community Contribution
 galleryFeatures:
-  - url: /assets/redash-duckdb-connect.png
-    image_path: /assets/redash-duckdb-connect.png
-  - url: /assets/redash-duckdb-query.png
-    image_path: /assets/redash-duckdb-query.png
-  - url: /assets/redash-duckdb-struct.png
-    image_path: /assets/redash-duckdb-struct.png
-  - url: /assets/redash-duckdb-nested-struct.png
-    image_path: /assets/redash-duckdb-nested-struct.png
+  - url: /assets/images/redash-duckdb-connect.png
+    image_path: /assets/images/redash-duckdb-connect.png
+  - url: /assets/images/redash-duckdb-query.png
+    image_path: /assets/images/redash-duckdb-query.png
+  - url: /assets/images/redash-duckdb-struct.png
+    image_path: /assets/images/redash-duckdb-struct.png
+  - url: /assets/images/redash-duckdb-nested-struct.png
+    image_path: /assets/images/redash-duckdb-nested-struct.png
 galleryFunctions:
-  - url: /assets/redash-duckdb-functions.png
-    image_path: /assets/redash-duckdb-functions.png
+  - url: /assets/images/redash-duckdb-functions.png
+    image_path: /assets/images/redash-duckdb-functions.png
 galleryAnimation:
-  - url: /assets/redash-anim.gif
-    image_path: /assets/redash-anim.gif
+  - url: /assets/images/redash-anim.gif
+    image_path: /assets/images/redash-anim.gif
 ---
 
 Most of what I write is about cybersecurity. My background is in system administration and security engineering, and now I work as a cybersecurity and compliance manager. Over the years I have had to deal with many different systems, each with their own quirks, gaps, and integration challenges. Out of necessity, I often developed small tools and simple solutions to glue those systems together. They were never intended to be large or polished, but rather to bridge one gap and make my daily work a little easier. I see this DuckDB–Redash runner in the same spirit. It is not a product, but a piece of glue that connects two projects I like and use, and I recently contributed it as a pull request to the Redash repository: [PR #7548](https://github.com/getredash/redash/pull/7548).
 
 [DuckDB](https://duckdb.org/) has become a favorite of mine for lightweight analytical workloads because it combines OLAP features with the simplicity of an embedded database. It sits comfortably between the command-line exploration of Parquet files and the scale of full warehouse deployments. Redash, on the other hand, is an open source SQL analytics and dashboarding platform designed around querying and visualizing data with minimal friction. Until now, the two did not intersect. With this integration, which is now merged into the main Redash repository, DuckDB queries can be run directly in Redash, with schema exploration and dashboards layered on top.
 
-<img src="/assets/redash-duckdb-selector.png" width="400" alt="Redash data source selection with DuckDB visible">
+<img src="/assets/images/redash-duckdb-selector.png" width="400" alt="Redash data source selection with DuckDB visible">
 
 [Redash](https://redash.io/) is worth a short introduction for those who have not seen it before. It is not as feature-rich or polished as commercial BI platforms such as Tableau, but it has a certain strength in being open source, SQL-centric, and light to deploy. You point it at a data source, write queries with a browser-based editor, and turn the results into charts or dashboards that can be shared with others. Teams often use it as a common query layer, replacing one-off SQL scripts or notebook queries with something reproducible. For analysts and engineers who prefer direct access through SQL rather than abstracted layers, it strikes a useful balance. It is around 10 years old, and mature enough.
 

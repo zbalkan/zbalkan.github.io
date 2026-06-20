@@ -15,17 +15,17 @@ header:
   image: https://images.pexels.com/photos/2881227/pexels-photo-2881227.jpeg
   caption: "Photo credit: [Detailed view of a network switch featuring multiple ethernet ports and LED indicators](https://www.pexels.com/photo/close-up-photo-of-network-switch-2881227/) by [Brett Sayles](https://www.pexels.com/@brett-sayles/). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
 galleryDzmac:
-  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-info.png
-    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-info.png
-  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-ip.png
-    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-ip.png
-  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-presets.png
-    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/main-presets.png
-  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/cli.png
-    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/cli.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-info.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-info.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-ip.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-ip.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-presets.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/main-presets.png
+  - url: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/cli.png
+    image_path: https://github.com/DeltaZulu-OU/dzmac/raw/master/assets/images/cli.png
 galleryDznetcut:
-  - url: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/main.png
-    image_path: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/main.png
+  - url: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/images/main.png
+    image_path: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/images/main.png
 ---
 
  I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release and are available under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organization.

@@ -7,36 +7,36 @@ tags:
   - DuckDB
   - Threat Hunting
 gallery7:
-  - url: /assets/duckdb-query1.png
-    image_path: /assets/duckdb-query1.png
+  - url: /assets/images/duckdb-query1.png
+    image_path: /assets/images/duckdb-query1.png
 gallery6:
-  - url: /assets/duckdb-query2.png
-    image_path: /assets/duckdb-query2.png
+  - url: /assets/images/duckdb-query2.png
+    image_path: /assets/images/duckdb-query2.png
 gallery7:
-  - url: /assets/duckdb-query3.png
-    image_path: /assets/duckdb-query3.png
+  - url: /assets/images/duckdb-query3.png
+    image_path: /assets/images/duckdb-query3.png
 gallery8:
-  - url: /assets/duckdb-query4.png
-    image_path: /assets/duckdb-query4.png
+  - url: /assets/images/duckdb-query4.png
+    image_path: /assets/images/duckdb-query4.png
 gallery9:
-  - url: /assets/duckdb-query5.png
-    image_path: /assets/duckdb-query5.png
+  - url: /assets/images/duckdb-query5.png
+    image_path: /assets/images/duckdb-query5.png
 gallery10:
-  - url: /assets/duckdb-query6.png
-    image_path: /assets/duckdb-query6.png
+  - url: /assets/images/duckdb-query6.png
+    image_path: /assets/images/duckdb-query6.png
 gallery11:
-  - url: /assets/duckdb-query7.png
-    image_path: /assets/duckdb-query7.png
+  - url: /assets/images/duckdb-query7.png
+    image_path: /assets/images/duckdb-query7.png
 gallery12:
-  - url: /assets/duckdb-ui.png
-    image_path: /assets/duckdb-ui.png
+  - url: /assets/images/duckdb-ui.png
+    image_path: /assets/images/duckdb-ui.png
     alt: "Screenshot of the DuckDB UI"
 last_modified_at: 2025-06-02T22:15:00+03:00
 ---
 
 Threat hunting and incident response require timely, flexible access to logs - especially in environments where detection coverage or infrastructure maturity is still developing. In a mature detection engineering program, logs typically flow through a structured pipeline with three distinct outputs:
 
-<img src="/assets/duckdb-pipeline.png" width="800" alt="A sample diagram for 3 targets of logs">
+<img src="/assets/images/duckdb-pipeline.png" width="800" alt="A sample diagram for 3 targets of logs">
 
 1. **Raw Logs to Cheap Storage**: Logs are written as-is to a low-cost location: NFS, SMB share, or object storage (e.g., S3). This supports long-term retention and full-fidelity replay.
 2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
@@ -61,7 +61,7 @@ That's fine if you only care about ticking boxes. But what if you need to dig in
 
 ## Wazuh Context: Where Logs Come From
 
-<img src="/assets/duckdb-arch.png" width="600" alt="Archive and alert logs">
+<img src="/assets/images/duckdb-arch.png" width="600" alt="Archive and alert logs">
 
 In Wazuh, all events are processed by the `wazuh-analysisd` daemon, which acts like a tee command - it splits output to multiple files:
 
@@ -99,7 +99,7 @@ As a side note, JSON log files are more verbose. It is expected to require 60-80
 
 ## A Middle Ground: DuckDB as a Structured Search Layer
 
-<img src="/assets/duckdb-wazuh.png" width="400" alt="Wazuh and DuckDB logos">
+<img src="/assets/images/duckdb-wazuh.png" width="400" alt="Wazuh and DuckDB logos">
 
 To improve the investigation experience without the overhead of a data lake or OpenSearch, we use **DuckDB**, a lightweight analytical SQL engine that:
 
@@ -163,7 +163,7 @@ Lists all defined views and their SQL definitions for traceability. This helps a
 This section is not a **Threat hunting 101** class. The following section demonstrates DuckDB capabilities to query Wazuh archive logs with a simple use case. The rest depends on your investigation, regex and SQL skills.
 {: .notice--info}
 
-<img src="/assets/duckdb-lab.png" width="600" alt="Lab design">
+<img src="/assets/images/duckdb-lab.png" width="600" alt="Lab design">
 
 For the sake of a common understanding, let's assume that `SI-801` is initiated by a high severity alert on Wazuh: a Sysmon Event ID 1 Process Create record appears in real-time Windows Event logs showing `parentImage = C:\Windows\System32\mshta.exe` spawning `calc.exe` on `WIN-LAB01`. Since mshta is a known [LOLBIN](https://lolbas-project.github.io/) (Living Off The Land Binary and Script) commonly abused for fileless payloads, the custom alert flags this as suspicious. This assumes that the device may have been compromised, and analyst wants to ensure if this is a false positive or worth an investigation before initiate response actions. The analyst used the scripts above to extract the logs in the timeframe needed. The analyst decides the timeframe of the investigation, probably starting with an arbitrary date and ending at the time of investigation.
 

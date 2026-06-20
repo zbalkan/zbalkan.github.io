@@ -8,18 +8,18 @@ tags:
   - Testing
   - Detection-as-Code
 galleryRules:
-  - url: /assets/rulevis-graph-wazuh-rules.png
-    image_path: /assets/rulevis-graph-wazuh-rules.png
+  - url: /assets/images/rulevis-graph-wazuh-rules.png
+    image_path: /assets/images/rulevis-graph-wazuh-rules.png
 galleryTheory:
-  - url: /assets/rulevis-graph-theory.png
-    image_path: /assets/rulevis-graph-theory.png
+  - url: /assets/images/rulevis-graph-theory.png
+    image_path: /assets/images/rulevis-graph-theory.png
 galleryAnimations:
-  - url: /assets/rulevis-general-view.gif
-    image_path: /assets/rulevis-general-view.gif
-  - url: /assets/rulevis-stats-panel.gif
-    image_path: /assets/rulevis-stats-panel.gif
-  - url: /assets/rulevis-heatmap-view.gif
-    image_path: /assets/rulevis-heatmap-view.gif
+  - url: /assets/images/rulevis-general-view.gif
+    image_path: /assets/images/rulevis-general-view.gif
+  - url: /assets/images/rulevis-stats-panel.gif
+    image_path: /assets/images/rulevis-stats-panel.gif
+  - url: /assets/images/rulevis-heatmap-view.gif
+    image_path: /assets/images/rulevis-heatmap-view.gif
 ---
 
 Detection logic can be expressed in many ways, from portable detection languages such as Sigma or YARA to queries in SPL or KQL. Some formats behave like translators across platforms, others like frameworks for complex event sequences, and still others are query languages tied directly to a backend. Each balances portability, expressiveness, and testability differently. In this article, the focus is on the [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) rule language, a pseudo-XML syntax. Unlike others, Wazuh rules are chained hierarchically, with relationships defined *explicitly* by the user.
