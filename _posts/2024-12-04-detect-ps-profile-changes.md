@@ -21,10 +21,10 @@ In your PowerShell console, you can use the `$PROFILE` variable to display your 
 
 Editing `$PROFILE.CurrentUserCurrentHost` and `$PROFILE.CurrentUserAllHosts` does not require any additional privileges beyond those of the logged-in user. However, modifying `$PROFILE.AllUsersCurrentHost` and `$PROFILE.AllUsersAllHosts` typically requires higher privileges because these profiles affect all users on the system. Below are the Access Control Lists (ACLs) I created in the lab for comparison. These profile files do not exist by default; you need to create them intentionally.
 
-<img src="/assets/PS5_currentUser.PNG" width="600" alt="PowerShell 5.1 Current User, Current Host and All Hosts scopes">
-<img src="/assets/PS5_allUsers.PNG" width="600" alt="PowerShell 5.1 All Users, Current Host and All Hosts scopes">
-<img src="/assets/PS7_currentUser.PNG" width="600" alt="PowerShell 7 Current User, Current Host and All Hosts scopes">
-<img src="/assets/PS7_allUsers.PNG" width="600" alt="PowerShell 7 All Users, Current Host and All Hosts scopes">
+<img src="/assets/images/PS5_currentUser.PNG" width="600" alt="PowerShell 5.1 Current User, Current Host and All Hosts scopes">
+<img src="/assets/images/PS5_allUsers.PNG" width="600" alt="PowerShell 5.1 All Users, Current Host and All Hosts scopes">
+<img src="/assets/images/PS7_currentUser.PNG" width="600" alt="PowerShell 7 Current User, Current Host and All Hosts scopes">
+<img src="/assets/images/PS7_allUsers.PNG" width="600" alt="PowerShell 7 All Users, Current Host and All Hosts scopes">
 
 While invaluable for personalization and automation, these profiles are equally susceptible to exploitation. PowerShell profile modification is a persistence mechanism (see [MITRE ATT&CK T1546.013](https://attack.mitre.org/techniques/T1546/013/)) that attackers use to execute code every time a PowerShell session is opened. By adding malicious code to a PowerShell profile, attackers can repeatedly run commands without re-establishing access, establishing a persistent foothold in the system. I briefly mentioned this in my [previous post](https://zaferbalkan.com/psreadline.html) very briefly, and here I provide a detailed example.
 
@@ -165,6 +165,6 @@ Once the rules are configured and the system is monitoring changes, Wazuh will b
 - Alerts may indicate a modification to `$PROFILE` within the defined scopes.
 - Registry changes to Sysmon's configuration parameters will also trigger alerts, aiding in the detection of potential tampering with logging mechanisms.
 
-<img src="/assets/wazuh-fim-profile.png" width="600" alt="Voila!">
+<img src="/assets/images/wazuh-fim-profile.png" width="600" alt="Voila!">
 
 Next, refine these rules and create more tailored detections specific to your environment. Investigate detected changes promptly and document legitimate updates to minimize false positives.

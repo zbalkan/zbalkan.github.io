@@ -7,27 +7,27 @@ tags:
   - Opinion piece  
 
 galleryMutual:
-  - url: /assets/critical-mutual.png
-    image_path: /assets/critical-mutual.png
+  - url: /assets/images/critical-mutual.png
+    image_path: /assets/images/critical-mutual.png
 galleryDimensional:
-  - url: /assets/critical-dimensional.png
-    image_path: /assets/critical-dimensional.png
+  - url: /assets/images/critical-dimensional.png
+    image_path: /assets/images/critical-dimensional.png
 galleryAlternativeList:
-  - url: /assets/critical-alternative.png
-    image_path: /assets/critical-alternative.png
+  - url: /assets/images/critical-alternative.png
+    image_path: /assets/images/critical-alternative.png
 galleryMatrix:
-  - url: /assets/critical-matrix.png
-    image_path: /assets/critical-matrix.png
+  - url: /assets/images/critical-matrix.png
+    image_path: /assets/images/critical-matrix.png
 gallerySpectrum:
-  - url: /assets/critical-spectrum.png
-    image_path: /assets/critical-spectrum.png
+  - url: /assets/images/critical-spectrum.png
+    image_path: /assets/images/critical-spectrum.png
 galleryGraphs:
-  - url: /assets/critical-vt.png
-    image_path: /assets/critical-vt.png
-  - url: /assets/critical-bloodhound.jpg
-    image_path: /assets/critical-bloodhound.jpg
-  - url: /assets/critical-cmdb.jpg
-    image_path: /assets/critical-cmdb.jpg
+  - url: /assets/images/critical-vt.png
+    image_path: /assets/images/critical-vt.png
+  - url: /assets/images/critical-bloodhound.jpg
+    image_path: /assets/images/critical-bloodhound.jpg
+  - url: /assets/images/critical-cmdb.jpg
+    image_path: /assets/images/critical-cmdb.jpg
 ---
 
 ## Introduction

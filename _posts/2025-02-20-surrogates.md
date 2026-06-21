@@ -14,15 +14,15 @@ This time I am going to write about some odd behavior by Windows. The behavior i
 
 You checked the Task Manager and saw these. Many executables are relatively small, with a square in the name. What is your initial assumption?
 
-<img src="/assets/what.png" width="800" alt="square.exe">
+<img src="/assets/images/what.png" width="800" alt="square.exe">
 
 You would assume that it is not directly malicious but still suspicious. You checked the event logs for Event ID 4688.
 
-<img src="/assets/what-event1.png" width="800" alt="Event 4688 General">
+<img src="/assets/images/what-event1.png" width="800" alt="Event 4688 General">
 
 It's not very helpful. You see another substitute character. You assume it is a possible encoding issue. Could the executable name use a non-Latin alphabet? Probably. Let's check the Details tab.
 
-<img src="/assets/what-event2.png" width="800" alt="Event 4688 Details- Friendly">
+<img src="/assets/images/what-event2.png" width="800" alt="Event 4688 Details- Friendly">
 
 This executable name is so broken that it manages to break the Details view in both Friendly and XML views.
 
@@ -30,11 +30,11 @@ This executable name is so broken that it manages to break the Details view in b
 
 At least we know the location of the executable. We have a broken name and a substitute character. We know it is not a huge issue until now. We can find the path and see what is under that folder.
 
-<img src="/assets/what-folder.png" width="800" alt="Folder">
+<img src="/assets/images/what-folder.png" width="800" alt="Folder">
 
 It is weirder. It is not one but many executables. They look the same, but no; they are definitely not. NTFS cannot allow files with the same name in the same directory. So, all of these have different names, but they are substituted. Let's check how many files we have in this form.
 
-<img src="/assets/what-folder-count.png" width="450" alt="Folder count: 2048 files">
+<img src="/assets/images/what-folder-count.png" width="450" alt="Folder count: 2048 files">
 
 There are many of them. Now we know that the processes we see may not be the same executable, which was created multiple times. They can be any subset of these 2048 executables and then be created multiple times. You may not identify the executable with existing information.
 
@@ -42,7 +42,7 @@ There are many of them. Now we know that the processes we see may not be the sam
 
 The executables are not as mysterious as expected. These are just small `hello world` applications. Or rather, a modified version of [Davide Pisanò](https://github.com/davide99)'s **[the smallest Windows application](https://davidesnotes.com/articles/1/?page=5)** that I used as an example.
 
-<img src="/assets/what-hello.png" width="400" alt="Folder">
+<img src="/assets/images/what-hello.png" width="400" alt="Folder">
 
 There is nothing suspicious about the executable. It is just the weird decoding issue. The question, then, becomes what characters are these    that we cannot render? Can we install some language packs to view them?
 
@@ -126,25 +126,25 @@ I wanted to add another section about comparison with Linux. Even though I menti
 
 Let's check the existing file on WSL, to see how Ubuntu will render it. When we check the locale, we see that our WSL instance is set to use UTF-8:
 
-<img src="/assets/what-wsl-locale.png" width="600" alt="locale command result on WSL">
+<img src="/assets/images/what-wsl-locale.png" width="600" alt="locale command result on WSL">
 
 And when we use `ll` command, we see that the shell does not play well with these characters.
 
-<img src="/assets/what-wsl-ll1.png" width="600" alt="ll command result on WSL:">
-<img src="/assets/what-wsl-ll2.png" width="600" alt="ll command result on WSL">
-<img src="/assets/what-wsl-ll3.png" width="600" alt="ll command result on WSL">
+<img src="/assets/images/what-wsl-ll1.png" width="600" alt="ll command result on WSL:">
+<img src="/assets/images/what-wsl-ll2.png" width="600" alt="ll command result on WSL">
+<img src="/assets/images/what-wsl-ll3.png" width="600" alt="ll command result on WSL">
 
 WSL not only fails to render the files but also fails to query the file metadata. I assume it is because it tries to get them as UTF-8 text and queries with their version, causing Win32 API to return nothing because of invalid parameters. But at least the file count is correct.
 
 A fairer comparison would be using UTF-16 on Linux but unfortunately it is not possible. **You cannot set UTF-16 as locale on Linux**. But we can run our script on Linux-in my case within WSL- so we do not make use of NTFS.
 
-<img src="/assets/what-wsl-lin1.png" width="600" alt="run the script on WSL with UTF-8 locale">
-<img src="/assets/what-wsl-lin2.png" width="600" alt="run the script on WSL with UTF-8 locale">
+<img src="/assets/images/what-wsl-lin1.png" width="600" alt="run the script on WSL with UTF-8 locale">
+<img src="/assets/images/what-wsl-lin2.png" width="600" alt="run the script on WSL with UTF-8 locale">
 
 While the script result tells us that all the write operations succeeded, `ls` shows only 2 files! Since Linux here drops of the second part, it overrides the same file. This is not what I have expected. For a better understanding, I used `unset LANG` and `export LC_ALL=POSIX` to fall back to POSIX instead of UTF-8. I am not sure if it would make any difference, so this is me learning by trial and error.
 
-<img src="/assets/what-wsl-lin3.png" width="600" alt="Changed the locale to POSIX">
-<img src="/assets/what-wsl-lin4.png" width="600" alt="Changed the locale to POSIX">
+<img src="/assets/images/what-wsl-lin3.png" width="600" alt="Changed the locale to POSIX">
+<img src="/assets/images/what-wsl-lin4.png" width="600" alt="Changed the locale to POSIX">
 
 Script gets completed as expected. But this time there are only one file generated instead of 2! At this point I am not sure what has happened. I am assuming this is due to the fact that UTF-8 supports more characters so that it allowed one more valid file name than POSIX did. Let me know if you have more information on the behavioral difference here. You can find the code I used on Linux here. Beware that I do not use `surrogatepass` as we do not decode bytes to string in Linux. We can just use bytes as file names.
 

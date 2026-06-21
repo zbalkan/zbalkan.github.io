@@ -14,7 +14,7 @@ tags:
 - Community contribution
 galleryLS26:
   - url: https://www.youtube.com/watch?v=SiqHAuJGXaY
-    image_path: /assets/lockedshields.png
+    image_path: /assets/images/lockedshields.png
 
 ---
 

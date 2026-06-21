@@ -11,19 +11,19 @@ tags:
   - Community Contribution
 galleryGraph:
   - url: https://technitium.com/dns/
-    image_path: /assets/dns-graph.png
+    image_path: /assets/images/dns-graph.png
 galleryBlocklist:
-  - url: /assets/dns-blocklist.png
-    image_path: /assets/dns-blocklist.png
+  - url: /assets/images/dns-blocklist.png
+    image_path: /assets/images/dns-blocklist.png
 gallerySampleConf:
-  - url: /assets/dns-conf.png
-    image_path: /assets/dns-conf.png
+  - url: /assets/images/dns-conf.png
+    image_path: /assets/images/dns-conf.png
 gallerySampleLog:
-  - url: /assets/dns-sample.png
-    image_path: /assets/dns-sample.png
+  - url: /assets/images/dns-sample.png
+    image_path: /assets/images/dns-sample.png
 galleryDashboard:
-  - url: /assets/dns-dashboard.png
-    image_path: /assets/dns-dashboard.png
+  - url: /assets/images/dns-dashboard.png
+    image_path: /assets/images/dns-dashboard.png
 last_modified_at: 2026-05-12
 ---
 

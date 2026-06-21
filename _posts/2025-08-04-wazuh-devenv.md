@@ -8,17 +8,17 @@ tags:
   - Testing
   - Detection-as-Code
 galleryGraph:
-  - url: /assets/devenv-dac.png
-    image_path: /assets/devenv-dac.png
+  - url: /assets/images/devenv-dac.png
+    image_path: /assets/images/devenv-dac.png
 galleryTree:
-  - url: /assets/devenv-tree.png
-    image_path: /assets/devenv-tree.png
+  - url: /assets/images/devenv-tree.png
+    image_path: /assets/images/devenv-tree.png
 galleryLogtest:
-  - url: /assets/devenv-logtest.png
-    image_path: /assets/devenv-logtest.png
+  - url: /assets/images/devenv-logtest.png
+    image_path: /assets/images/devenv-logtest.png
 galleryDebmm:
-  - url: /assets/devenv-debmm.png
-    image_path: /assets/devenv-debmm.png
+  - url: /assets/images/devenv-debmm.png
+    image_path: /assets/images/devenv-debmm.png
 
 last_modified_at: 2025-08-15T14:20:00+03:00
 ---
