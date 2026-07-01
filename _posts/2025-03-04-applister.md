@@ -41,21 +41,21 @@ The data does not persist in a database or on the file system. It is kept in mem
   Get-CimInstance -ClassName "ZB_App"
   ```
 
-   This spits out everything the service finds, giving you insights. Initial scan may take up to **30 seconds**. You can check Windows Event Logs: <img src="/assets/applister4.png" width="800" alt="Windows Event log">
+   This spits out everything the service finds, giving you insights. Initial scan may take up to **30 seconds**. You can check Windows Event Logs: <img src="/assets/images/applister4.png" width="800" alt="Windows Event log">
 
 - **Integrate**: From there, tie it into any WMI-capable tool or script—quick GPO checks, automated patch management, you name it.
 
 You can query Windows updates.
 
-<img src="/assets/applister1.png" width="800" alt="Query Windows updates">
+<img src="/assets/images/applister1.png" width="800" alt="Query Windows updates">
 
 Or just a single app you want:
 
-<img src="/assets/applister2.png" width="800" alt="Query Mozilla Firefox">
+<img src="/assets/images/applister2.png" width="800" alt="Query Mozilla Firefox">
 
 Or just Windows Store apps:
 
-<img src="/assets/applister3.png" width="800" alt="Query Windows Store Apps">
+<img src="/assets/images/applister3.png" width="800" alt="Query Windows Store Apps">
 
 ---
 

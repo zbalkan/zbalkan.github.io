@@ -8,41 +8,41 @@ tags:
   - Testing
   - Detection-as-Code
 galleryWslInstall:
-  - url: /assets/replay-wsl-install.png
-    image_path: /assets/replay-wsl-install.png
+  - url: /assets/images/replay-wsl-install.png
+    image_path: /assets/images/replay-wsl-install.png
 galleryGitLs:
-  - url: /assets/replay-git-ls.png
-    image_path: /assets/replay-git-ls.png
+  - url: /assets/images/replay-git-ls.png
+    image_path: /assets/images/replay-git-ls.png
 galleryVscode:
-  - url: /assets/replay-vscode.png
-    image_path: /assets/replay-vscode.png
+  - url: /assets/images/replay-vscode.png
+    image_path: /assets/images/replay-vscode.png
 galleryVscodePrompt:
-  - url: /assets/replay-vscode-prompt.png
-    image_path: /assets/replay-vscode-prompt.png
+  - url: /assets/images/replay-vscode-prompt.png
+    image_path: /assets/images/replay-vscode-prompt.png
 galleryExplorer:
-  - url: /assets/replay-explorer.png
-    image_path: /assets/replay-explorer.png
+  - url: /assets/images/replay-explorer.png
+    image_path: /assets/images/replay-explorer.png
 galleryTree:
-  - url: /assets/replay-4688.png
-    image_path: /assets/replay-4688.png
+  - url: /assets/images/replay-4688.png
+    image_path: /assets/images/replay-4688.png
 galleryLogRepo:
-  - url: /assets/replay-log-repo.png
-    image_path: /assets/replay-log-repo.png
+  - url: /assets/images/replay-log-repo.png
+    image_path: /assets/images/replay-log-repo.png
 galleryWazuhevtx:
-  - url: /assets/replay-wazuhevtx.png
-    image_path: /assets/replay-wazuhevtx.png
+  - url: /assets/images/replay-wazuhevtx.png
+    image_path: /assets/images/replay-wazuhevtx.png
 galleryTscon:
-  - url: /assets/replay-tscon.png
-    image_path: /assets/replay-tscon.png
+  - url: /assets/images/replay-tscon.png
+    image_path: /assets/images/replay-tscon.png
 galleryRed:
-  - url: /assets/replay-red.png
-    image_path: /assets/replay-red.png
+  - url: /assets/images/replay-red.png
+    image_path: /assets/images/replay-red.png
 galleryGreen:
-  - url: /assets/replay-green.png
-    image_path: /assets/replay-green.png
+  - url: /assets/images/replay-green.png
+    image_path: /assets/images/replay-green.png
 galleryRegression:
-  - url: /assets/replay-regression.png
-    image_path: /assets/replay-regression.png
+  - url: /assets/images/replay-regression.png
+    image_path: /assets/images/replay-regression.png
 ---
 
 After my previous [blog article](https://zaferbalkan.com/wazuh-devenv/), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program). In this article, we will walk through the steps one by one to install and set up the development environment on WSL[^1] and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.

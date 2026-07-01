@@ -1,0 +1,1736 @@
+<style>
+  html {
+    visibility: hidden;
+  }
+</style>
+<script>
+(function () {
+  const maxAgeMs = 10 * 60 * 1000;
+  const params = new URLSearchParams(window.location.search);
+  const queryUnlocked = params.get("fatigueUnlocked") === "1";
+  const queryUnlockedAt = Number(params.get("fatigueUnlockedAt") || "0");
+
+  if (queryUnlocked && queryUnlockedAt && Date.now() - queryUnlockedAt <= maxAgeMs) {
+    sessionStorage.setItem("fatigueUnlocked", "1");
+    sessionStorage.setItem("fatigueUnlockedAt", String(queryUnlockedAt));
+    window.history.replaceState(null, "", window.location.pathname);
+  }
+
+  const unlocked = sessionStorage.getItem("fatigueUnlocked") === "1";
+  const unlockedAt = Number(sessionStorage.getItem("fatigueUnlockedAt") || "0");
+
+  const allowed =
+    unlocked &&
+    unlockedAt &&
+    Date.now() - unlockedAt <= maxAgeMs;
+
+  if (!allowed) {
+    sessionStorage.removeItem("fatigueUnlocked");
+    sessionStorage.removeItem("fatigueUnlockedAt");
+    window.location.replace("/404.html");
+    return;
+  }
+
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+  html {
+    visibility: hidden;
+  }
+</style>
+<script>
+(function () {
+  const unlocked = sessionStorage.getItem("fatigueUnlocked") === "1";
+  const unlockedAt = Number(sessionStorage.getItem("fatigueUnlockedAt") || "0");
+  const maxAgeMs = 10 * 60 * 1000;
+
+  const allowed =
+    unlocked &&
+    unlockedAt &&
+    Date.now() - unlockedAt <= maxAgeMs;
+
+  if (!allowed) {
+    sessionStorage.removeItem("fatigueUnlocked");
+    sessionStorage.removeItem("fatigueUnlockedAt");
+    window.location.replace("/404.html");
+    return;
+  }
+
+  document.documentElement.style.visibility = "visible";
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fatigue</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--surface:#f8f9fb;--border:#e5e7eb;--border-lt:#f0f1f3;
+  --text:#1a1f36;--dim:#6b7280;--muted:#9ca3af;
+  --blue:#2563eb;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--cyan:#06b6d4;--pink:#ec4899;
+  --sans:system-ui,-apple-system,'Segoe UI',sans-serif;
+  --radius:8px;--radius-sm:4px;
+}
+html{font-size:13px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.45;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+/* Layout */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.obj-bar{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.obj-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--blue)}
+.obj-text{font-size:12.5px;color:var(--text);flex:1}
+.speed-controls{display:flex;gap:4px;align-items:center;margin-left:auto}
+.speed-controls button{font-family:var(--sans);font-size:11px;font-weight:600;padding:3px 10px;border:1px solid var(--border);background:var(--bg);color:var(--dim);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s}
+.speed-controls button:hover{border-color:var(--blue);color:var(--blue)}
+.speed-controls button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.phase-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--blue);color:#fff;white-space:nowrap}
+.stat-pills{display:flex;gap:10px;font-size:11px;color:var(--dim);flex-wrap:wrap}
+.stat-pills b{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.cols{display:flex;flex:1;overflow:hidden}
+.col{overflow-y:auto;padding:12px}
+.col-l{width:280px;flex-shrink:0;border-right:1px solid var(--border)}
+.col-m{flex:1;min-width:240px;border-right:1px solid var(--border)}
+.col-r{width:300px;flex-shrink:0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px}
+.card.hidden{display:none}
+.locked{opacity:0.35;pointer-events:none;position:relative;filter:grayscale(0.6)}
+.locked .lock-req{display:block;font-size:9px;color:var(--muted);font-style:italic;margin-top:2px}
+.lock-req{display:none}
+[data-tip]{position:relative;cursor:help;border-bottom:1px dotted var(--muted)}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:0;background:var(--text);color:#fff;padding:6px 10px;border-radius:4px;font-size:11px;font-weight:400;font-style:normal;line-height:1.4;white-space:normal;width:max-content;max-width:280px;z-index:100;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.card-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:12px}
+.row .l{color:var(--dim)}.row .v{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.v.g{color:var(--green)}.v.w{color:var(--amber)}.v.b{color:var(--red)}
+hr{border:none;border-top:1px solid var(--border-lt);margin:6px 0}
+button{font-family:var(--sans);font-size:11.5px;font-weight:500;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .12s;margin:2px 0}
+button:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+button:disabled{opacity:.35;cursor:default}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+button.primary:hover:not(:disabled){background:#1d4ed8}
+button.primary:disabled{background:var(--border);border-color:var(--border);color:var(--muted)}
+.btn-hint{font-size:10px;color:var(--muted);margin-top:1px}
+.event-title{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.event-body{font-size:11px;color:var(--dim);line-height:1.45;margin:6px 0 8px}
+.event-choices{display:flex;flex-direction:column;gap:4px}
+.event-choices button{text-align:left;width:100%;font-size:11px}
+.event-tag{font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.4px}
+
+.hero-num{font-size:28px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.hero-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--dim)}
+.meter{height:4px;background:var(--border-lt);border-radius:2px;margin:3px 0;overflow:hidden}
+.meter-f{height:100%;border-radius:2px;transition:width .4s}
+.src-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border-lt);font-size:11.5px}
+.src-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.src-dot.on{background:var(--green)}.src-dot.off{background:var(--border)}
+.src-info{flex:1;overflow:hidden}
+.src-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src-meta{font-size:10px;color:var(--muted)}
+.src-row button{font-size:10px;padding:2px 8px;min-width:36px}
+.src-header{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.src-header span:first-child{flex:1}
+.warn{font-size:11px;padding:6px 8px;margin:4px 0;border-radius:var(--radius-sm);display:flex;align-items:flex-start;gap:6px;line-height:1.35}
+.warn-icon{flex-shrink:0;font-size:12px}
+.warn.crit{background:#fef2f2;color:var(--red);border:1px solid #fecaca}
+.warn.amb{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.warn.info{background:#eff6ff;color:var(--blue);border:1px solid #bfdbfe}
+.proj{border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin:4px 0;background:var(--bg);transition:border-color .15s}
+.proj:hover:not(.done){border-color:var(--blue)}
+.proj .pn{font-weight:600;font-size:11.5px}.proj .pd{font-size:10.5px;color:var(--dim);margin:2px 0}
+.proj .pm{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.proj .pc{font-size:11px;font-weight:600;color:var(--amber)}.proj .ps{font-size:10px;color:var(--muted)}
+.proj.done{opacity:.35;pointer-events:none;background:var(--surface)}
+.radar-wrap{display:flex;justify-content:center;padding:8px 0}
+canvas.radar{max-width:220px;max-height:220px}
+.bottom{border-top:1px solid var(--border);display:flex;flex-shrink:0;max-height:180px;min-height:120px}
+.bottom-log{flex:1;overflow-y:auto;padding:6px 12px;font-size:10.5px;border-right:1px solid var(--border);background:#1e1e2e;color:#a0a0b0}
+.bottom-log .log-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b7290;margin-bottom:4px}
+.bottom-log div{padding:1px 0;color:#9ca3b8}
+.bottom-log .lg{color:#34d399}.bottom-log .lb{color:#f87171}.bottom-log .lw{color:#fbbf24}.bottom-log .li{color:#60a5fa}.bottom-log .lp{color:#c084fc;font-weight:600}
+.bottom-graph{width:50%;padding:6px 12px;display:flex;flex-direction:column}
+.bottom-graph .log-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:4px}
+#diagWrap{overflow-y:auto}
+
+/* Top dashboard cards */
+.dashboard{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.dash-group{min-width:0;background:var(--bg);border:1px solid var(--border-lt);border-radius:var(--radius);padding:8px}
+.dash-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 6px 2px}
+.dash-group-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px}
+.dash-card{min-width:0;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s,background-color .15s;color:var(--text)}
+.dash-card.state-good{border-color:#a7f3d0;background:#ecfdf5}
+.dash-card.state-warn{border-color:#fde68a;background:#fffbeb}
+.dash-card.state-bad{border-color:#fecaca;background:#fef2f2}
+.dash-card.state-neutral{border-color:var(--border);background:var(--surface)}
+.dash-card-metric{font-size:19px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;text-align:center}
+.dash-card-label{font-size:10.5px;color:var(--dim);margin-top:4px;text-align:center}
+.dash-card-sub{font-size:9.5px;color:var(--muted);margin-top:4px;text-align:center;min-height:1.2em}
+.dash-card.state-good .dash-card-metric{color:var(--green)}
+.dash-card.state-warn .dash-card-metric{color:#b45309}
+.dash-card.state-bad .dash-card-metric{color:var(--red)}
+.dash-card-wide{grid-column:span 2}
+.dash-meter{height:4px;background:var(--border-lt);border-radius:2px;margin-top:8px;overflow:hidden}
+.dash-meter-fill{height:100%;width:0%;border-radius:2px;background:var(--red);transition:width .25s}
+@media(max-width:1300px){.dashboard{grid-template-columns:1fr}.dash-card-wide{grid-column:span 1}}
+@media(max-width:900px){.dash-group-cards{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
+
+/* Block overlay — mobile and intro modal */
+.block-overlay{display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+.block-overlay .bo-title{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.block-overlay .bo-msg{font-size:13px;color:var(--dim);max-width:320px;line-height:1.6}
+
+/* Modal */
+.modal-overlay{display:flex;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg);border-radius:var(--radius);max-width:520px;width:100%;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal h1{font-size:28px;font-weight:700;color:var(--text);margin-bottom:6px}
+.modal h2{font-size:14px;font-weight:600;color:var(--blue);margin:12px 0 4px}
+.modal p{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:8px}
+.modal button.primary{width:100%;margin-top:12px;padding:10px;font-size:14px;font-weight:600}
+
+/* SLA bar */
+.sla-bar{display:flex;gap:12px;padding:4px 16px;background:#fef2f2;border-bottom:1px solid #fecaca;font-size:11px;color:var(--red);flex-shrink:0;align-items:center}
+.sla-bar.ok{background:#ecfdf5;border-color:#a7f3d0;color:var(--green)}
+.sla-bar .sla-label{font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.sla-bar .sla-item{display:flex;gap:4px;align-items:center}
+.sla-bar .sla-val{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Gameplay progress guidance */
+.progress-strip{padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.progress-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;margin-bottom:5px}
+.progress-title{font-weight:700;color:var(--text)}
+.progress-value{font-variant-numeric:tabular-nums;color:var(--dim);font-weight:600}
+.progress-track{height:8px;background:var(--border-lt);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:999px;transition:width .25s ease}
+.progress-hint{font-size:10.5px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){.progress-hint{white-space:normal}}
+
+/* Game over */
+.gameover{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center}
+.gameover.hidden{display:none}
+.gameover-card{background:var(--bg);border-radius:var(--radius);padding:2rem;max-width:420px;text-align:center}
+.gameover-card h1{font-size:24px;color:var(--red);margin-bottom:8px}
+.gameover-card p{font-size:13px;color:var(--dim);line-height:1.5;margin-bottom:12px}
+.gameover-card .stat{font-size:15px;font-weight:600;color:var(--text);margin:4px 0}
+
+/* Block mobile entirely via touch detection + narrow.
+   Requirement: phones/tablets must show ONLY the mobile-block message.
+   The intro modal has a higher z-index than the mobile block, so it must be hidden explicitly. */
+@media(max-width:900px){
+  .block-overlay.mobile-block{display:flex!important}
+  .app,.modal-overlay,.gameover{display:none!important}
+}
+@media(hover:none) and (pointer:coarse){
+  .block-overlay.mobile-block{display:flex!important}
+  .app,.modal-overlay,.gameover{display:none!important}
+}
+
+/* Responsive tablet */
+@media(max-width:1100px) and (min-width:901px){.col-l{width:240px}.col-r{width:260px}}
+</style>
+</head>
+<body>
+
+<!-- Mobile block -->
+<div class="block-overlay mobile-block" id="mobileBlock">
+  <div class="bo-title">FATIGUE</div>
+  <div class="bo-msg">This simulation requires a desktop browser with a keyboard and mouse. Please open it on a laptop or desktop computer.</div>
+</div>
+
+<!-- Intro modal -->
+<div class="modal-overlay" id="introModal">
+  <div class="modal">
+    <h1>Fatigue</h1>
+    <p>A SIEM economics simulator</p>
+    <h2>The scenario</h2>
+    <p>You are the newly appointed Security Manager. Your organisation has no visibility, no detection capability, and no analysts. Threats are already probing your environment. Build a Security Operations Centre that can detect, triage, and respond — before the board loses confidence.</p>
+    <h2>How to play</h2>
+    <p>Enable log sources to collect telemetry. Hire analysts to triage the alert queue. Research detection engineering to write rules. Manage your budget, reputation, and analyst fatigue. Meet your SLA targets for detection and response time — or face termination.</p>
+    <h2>SLA targets</h2>
+    <p>Mean Time to Detect for critical services must stay below 15 minutes. Standard services must stay below 30 minutes. Mean Time to Respond must stay below 60 minutes. Three consecutive SLA breaches or five total breaches will end the game. Weekly SLA fines use ƒ200 + ƒ100 per existing violation + random ƒ0–ƒ300 jitter.</p>
+    <button class="primary" onclick="startGame()">Start Game</button>
+  </div>
+</div>
+
+<!-- Game over overlay -->
+<div class="gameover hidden" id="gameoverOverlay">
+  <div class="gameover-card">
+    <h1>Game Over</h1>
+    <p id="goReason"></p>
+    <div class="stat" id="goStats"></div>
+    <button class="primary" onclick="location.reload()">Try Again</button>
+  </div>
+</div>
+
+<div class="app" style="display:none" id="gameApp">
+
+<div class="obj-bar">
+  <span class="phase-badge" id="phaseBadge">Phase 1</span>
+  <span class="obj-label">Current target</span>
+  <span class="obj-text" id="objText">Enable log sources and hire your first analyst.</span>
+  <div class="stat-pills">
+    <span>Day <b id="tDay">0</b></span>
+    <span>Hour <b id="tHour">00.00.00</b></span>
+    <span>Month <b id="tMo">0</b></span>
+    <span>ƒ<b id="tBud">8,000</b></span>
+    <span>Rep <b id="tRep">50</b></span>
+    <span>MTTD <b id="tMTTD">—</b></span>
+    <span>MTTR <b id="tMTTR">—</b></span>
+  </div>
+  <div class="speed-controls">
+    <button onclick="setSpeed(0)" id="sp0">⏸</button>
+    <button onclick="setSpeed(1)" id="sp1" class="active">1×</button>
+    <button onclick="setSpeed(2)" id="sp2">2×</button>
+    <button onclick="setSpeed(4)" id="sp4">4×</button>
+    <button onclick="setSpeed(8)" id="sp8">8×</button>
+    <button onclick="setSpeed(16)" id="sp16">16×</button>
+    <button onclick="fastForwardEvent()" id="spEvent" title="Advance until the next decision, incident, or validation event">Next event</button>
+    <button onclick="fastForwardDay()" id="spDay" title="Advance one simulated day without changing the model">Next day</button>
+  </div>
+</div>
+
+<!-- SLA bar -->
+<div class="sla-bar ok" id="slaBar">
+  <span class="sla-label">SLA</span>
+  <span class="sla-item" title="Mean Time to Detect for critical incidents (severity ≥3). Target: under 15 minutes">MTTD Crit <span class="sla-val" id="slaMTTDc">—</span>/15m</span>
+  <span class="sla-item" title="Mean Time to Detect for standard incidents (severity 1-2). Target: under 30 minutes">MTTD Std <span class="sla-val" id="slaMTTDs">—</span>/30m</span>
+  <span class="sla-item" title="Mean Time to Respond across all detected incidents. Target: under 60 minutes">MTTR <span class="sla-val" id="slaMTTR">—</span>/60m</span>
+  <span class="sla-item" title="Total SLA violations this game. 5 violations = game over">Violations <span class="sla-val" id="slaViol">0</span>/5</span>
+  <span class="sla-item" title="Consecutive monthly SLA violations. 3 in a row = game over">Consecutive <span class="sla-val" id="slaCons">0</span>/3</span>
+</div>
+
+<!-- Gameplay progress strip -->
+<div class="progress-strip" id="progressStrip">
+  <div class="progress-head">
+    <span class="progress-title" id="progressTitle">Recommended next move</span>
+    <span class="progress-value" id="progressValue">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-hint" id="progressHint">Advisory path only — choose telemetry, staffing, or engineering based on pressure.</div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+  <section class="dash-group" aria-label="SOC workload">
+    <div class="dash-group-title">SOC Workload</div>
+    <div class="dash-group-cards">
+      <div class="dash-card state-neutral" id="cardTot">
+        <div class="dash-card-metric" id="vTot">0</div>
+        <div class="dash-card-label" title="Total alerts processed by analysts, including true and false positives">Alerts Triaged</div>
+        <div class="dash-card-sub" id="dashTotSub">Overall analyst throughput</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardAD">
+        <div class="dash-card-metric" id="dashAD">0</div>
+        <div class="dash-card-label" title="Average alerts generated per day from enabled sources and detection rules">Alerts/Day</div>
+        <div class="dash-card-sub" id="dashADSub">Current incoming workload</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardQueue">
+        <div class="dash-card-metric" id="dashQueue">0</div>
+        <div class="dash-card-label" title="Alerts waiting to be triaged. High queue increases analyst fatigue and degrades detection">Queue</div>
+        <div class="dash-card-sub" id="dashQueueSub">Queued alerts</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardTD">
+        <div class="dash-card-metric" id="dashTD">0</div>
+        <div class="dash-card-label" title="How many alerts your team can triage per day (juniors×12 + seniors×45, modified by SOAR and fatigue)">Triage Capacity/Day</div>
+        <div class="dash-card-sub" id="dashTDSub">Analyst capacity</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardMT">
+        <div class="dash-card-metric" id="dashMT">—</div>
+        <div class="dash-card-label" title="Average minutes per triaged alert. Lower is better. Affected by staffing, SOAR, and context enrichment">Avg Triage Time</div>
+        <div class="dash-card-sub" id="dashMTSub">Queue delay estimate</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardFP">
+        <div class="dash-card-metric" id="dashFP">—</div>
+        <div class="dash-card-label" title="Fraction of triaged alerts that are false positives. Fatigue increases the effective FP rate beyond the base">False-Positive Share</div>
+        <div class="dash-card-sub" id="dashFPSub">Noise pressure</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardSNR">
+        <div class="dash-card-metric" id="dashSNR">—</div>
+        <div class="dash-card-label" title="True positives ÷ total triaged. Below 0.20 means your SOC is a noise-processing facility">Signal-to-Noise</div>
+        <div class="dash-card-sub" id="dashSNRSub">Useful analyst yield</div>
+      </div>
+      <div class="dash-card dash-card-wide state-neutral" id="cardFat">
+        <div class="dash-card-metric"><span id="dashFat">0</span> <span id="dashFatTrend">→</span></div>
+        <div class="dash-card-label" title="Composite pressure score (0-100). Queue, FP rate, low SNR, orphaned rules, parser decay, noise backlog all contribute">Analyst Fatigue</div>
+        <div class="dash-card-sub" id="dashFatSub">Sustainable pace</div>
+        <div class="dash-meter"><div class="dash-meter-fill" id="dashFatBar"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dash-group" aria-label="Telemetry and storage">
+    <div class="dash-group-title">Telemetry & Storage</div>
+    <div class="dash-group-cards">
+      <div class="dash-card state-neutral" id="cardSrcN">
+        <div class="dash-card-metric" id="dashSrcN">0</div>
+        <div class="dash-card-label" title="Number of enabled Sigma log source categories feeding the SIEM">Sources</div>
+        <div class="dash-card-sub" id="dashSrcNSub">Active telemetry sources</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardConfigEPS">
+        <div class="dash-card-metric" id="dashConfigEPS">0</div>
+        <div class="dash-card-label" title="Configured events/sec from enabled sources. Planning value — actual varies with diurnal rhythm and bursts">Baseline EPS</div>
+        <div class="dash-card-sub" id="dashConfigEPSSub">Static planning rate</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardEPS">
+        <div class="dash-card-metric" id="dashEPS">0</div>
+        <div class="dash-card-label" title="Real-time sampled events/sec. Fluctuates ±15% with Gaussian jitter, diurnal rhythm, and rare bursts">Live EPS</div>
+        <div class="dash-card-sub" id="dashEPSSub">Observed telemetry flow</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardGB">
+        <div class="dash-card-metric" id="dashGB">0</div>
+        <div class="dash-card-label" title="Total gigabytes ingested per day from all enabled sources">GB/day</div>
+        <div class="dash-card-sub" id="dashGBSub">Daily log volume</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardParse">
+        <div class="dash-card-metric" id="dashParse">—</div>
+        <div class="dash-card-label" title="Volume-weighted fraction of ingested data usable by detection rules. Below 85% = silent detection failures">Parse Success</div>
+        <div class="dash-card-sub" id="dashParseSub">Parser health</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardStorage">
+        <div class="dash-card-metric" id="dashStoredGB">0 GB</div>
+        <div class="dash-card-label" title="Total data retained within the 90-day retention window. Oldest data cleaned up probabilistically">Storage Used</div>
+        <div class="dash-card-sub" id="dashStorageSub">Retained telemetry</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardStoreCost">
+        <div class="dash-card-metric" id="dashStoreCost">ƒ0</div>
+        <div class="dash-card-label" title="Monthly cost of retained storage at ƒ0.12 per GB">Storage Cost/mo</div>
+        <div class="dash-card-sub" id="dashStoreCostSub">Retention cost</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dash-group" aria-label="Outcomes">
+    <div class="dash-group-title">Outcomes</div>
+    <div class="dash-group-cards">
+      <div class="dash-card state-neutral" id="cardDet">
+        <div class="dash-card-metric" id="dashDet">0</div>
+        <div class="dash-card-label" title="Incidents successfully detected. Requires matching sources, rules, parse health, and analyst attention">Detected</div>
+        <div class="dash-card-sub" id="dashDetSub">Confirmed detections</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardMis">
+        <div class="dash-card-metric" id="dashMis">0</div>
+        <div class="dash-card-label" title="Incidents that occurred but were not detected. Each miss costs reputation; some lead to breaches">Missed</div>
+        <div class="dash-card-sub" id="dashMisSub">Undetected incidents</div>
+      </div>
+      <div class="dash-card state-neutral" id="cardBr">
+        <div class="dash-card-metric" id="dashBr">0</div>
+        <div class="dash-card-label" title="Missed incidents that caused financial and reputational damage. Cost follows a log-normal distribution">Breaches</div>
+        <div class="dash-card-sub" id="dashBrSub">Material impact events</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="cols">
+<!-- LEFT -->
+<div class="col col-l">
+  <div class="card">
+    <div class="card-t">Manual Triage</div>
+    <button class="primary" id="btnTri" onclick="G.manualTriage()" style="width:100%">Triage Alert</button>
+    <button id="btnTri10" onclick="G.manualTriageBatch()" style="width:100%">Triage 10</button>
+    <div class="btn-hint">Manual triage is emergency work. Analysts auto-triage over time.</div>
+  </div>
+  <div class="card hidden" id="cOpsEvent">
+    <div class="card-t"><span>Operations Pulse</span><span class="event-tag" id="eventTag">Decision</span></div>
+    <div class="event-title" id="eventTitle">—</div>
+    <div class="event-body" id="eventBody">—</div>
+    <div class="event-choices" id="eventChoices"></div>
+  </div>
+  <div class="card">
+    <div class="card-t">Staff</div>
+    <div class="row"><span class="l">Junior Analysts</span><span class="v" id="vJr">0</span></div>
+    <button id="btnJr" onclick="G.hire('jr')">Hire Junior ƒ800</button>
+    <div class="btn-hint">~20/day auto-triage · ƒ250/mo</div>
+    <div id="wSr" class="locked"><hr><div class="row"><span class="l">Senior Analysts</span><span class="v" id="vSr">0</span></div><button id="btnSr" onclick="G.hire('sr')" disabled>Hire Senior ƒ2,200</button><div class="btn-hint">~45/day, FP↓, response↓ · ƒ650/mo</div><span class="lock-req">Requires research: Senior Analyst Roles</span></div>
+    <div id="wHu" class="locked"><hr><div class="row"><span class="l">Threat Hunters</span><span class="v" id="vHu">0</span></div><button id="btnHu" onclick="G.hire('hunter')" disabled>Hire Hunter ƒ3,500</button><div class="btn-hint">Hypotheses · ƒ900/mo</div><span class="lock-req">Requires research: Threat Hunting</span></div>
+    <div id="wEn" class="locked"><hr><div class="row"><span class="l">Det. Engineers</span><span class="v" id="vEn">0</span></div><button id="btnEn" onclick="G.hire('eng')" disabled>Hire Engineer ƒ3,000</button><div class="btn-hint">Auto-rules, parsers · ƒ800/mo</div><span class="lock-req">Requires research: Det. Engineer Staffing</span></div>
+  </div>
+  <div class="card"><div class="card-t"><span>Research</span><span id="projCount"></span></div><div id="projL"></div></div>
+</div>
+<!-- MIDDLE -->
+<div class="col col-m">
+  <div class="card"><div class="card-t"><span>Sources</span></div>
+    <div class="src-header"><span>Source</span><span style="width:60px;text-align:right">Vol · Cost</span><span style="width:36px"></span></div>
+    <div id="srcList"></div>
+  </div>
+  <div class="card locked" id="cDetEng"><div class="card-t">Detection Engineering</div>
+    <span class="lock-req">Requires research: Detection Engineering</span>
+    <div class="row"><span class="l" data-tip="Number of active detection rules. Each rule is bound to a primary source">Rules</span><span class="v" id="vRules">0</span></div>
+    <div class="row"><span class="l" data-tip="Ratio of rules to sources. Low attachment = sources producing zero detection value">Attachment</span><span class="v" id="vDA">0%</span></div>
+    <div class="row"><span class="l" data-tip="Detection rule quality (0-100). Higher = fewer false positives, faster detection time">Quality</span><span class="v" id="vRQ">50</span></div>
+    <div class="row"><span class="l" data-tip="Health of log parsers (15-100%). Decays monthly. Engineers repair at 8 points each">Parser health</span><span class="v" id="vPH">100%</span></div>
+    <div class="row"><span class="l" data-tip="Rules whose primary source is disabled. Produce phantom alerts from stale schema">Orphaned rules</span><span class="v" id="vOrph">0</span></div>
+    <div class="row"><span class="l" data-tip="Enabled sources with no rules referencing them. You pay for ingestion but get no alerts">Uncovered sources</span><span class="v" id="vUncov">0</span></div>
+    <div class="row"><span class="l" data-tip="Accumulated noisy patterns not yet suppressed. Follows Ornstein-Uhlenbeck mean-reverting process">Noise backlog</span><span class="v" id="vNBL">0</span></div>
+    <hr><button id="btnRule" onclick="G.writeRule()">Write Rule ƒ200</button>
+    <button id="btnTune" onclick="G.tuneRules()" class="locked" disabled title="Requires research: Tuning Framework">Tune ƒ120</button>
+    <button id="btnSupp" onclick="G.addSuppression()" class="locked" disabled title="Requires research: Tuning Framework">Suppress ƒ80</button>
+  </div>
+  <div class="card hidden" id="cHunt"><div class="card-t">Threat Hunting</div>
+    <div class="row"><span class="l">Hypotheses</span><span class="v" id="vHypo">0</span></div>
+    <div class="row"><span class="l">Findings</span><span class="v g" id="vFind">0</span></div>
+    <div class="row"><span class="l">Queryability</span><span class="v" id="vQry">0</span></div>
+    <hr><button id="btnHuntRun" onclick="G.runHunt()" disabled>Hunt (5 hypo)</button>
+  </div>
+  <div class="card hidden" id="cForensics"><div class="card-t">Forensics</div>
+    <div class="row"><span class="l">Recon depth</span><span class="v" id="vRecon">0%</span></div>
+    <div class="row"><span class="l">Timeline</span><span class="v" id="vTL">0%</span></div>
+    <div class="row"><span class="l">Evidence surv.</span><span class="v" id="vEv">0%</span></div>
+    <div class="row"><span class="l">Retention</span><span class="v" id="vRet">30d</span></div>
+    <hr><button id="btnRet" onclick="G.extendRetention()">+30 days ƒ400</button>
+  </div>
+</div>
+<!-- RIGHT -->
+<div class="col col-r">
+  <div class="card"><div class="card-t">SIEM Utility</div>
+    <div class="radar-wrap"><canvas class="radar" id="radarCanvas" width="220" height="220"></canvas></div>
+    <div id="utilRows"></div>
+  </div>
+  <div class="card hidden" id="cDecision"><div class="card-t">Decision Economics</div>
+    <div class="row"><span class="l" data-tip="Fraction of triage work wasted on false positives">Noise tax</span><span class="v" id="vNT">—</span></div>
+    <div class="row"><span class="l" data-tip="Detection utility lost from disabled sources. Grows with time and quality of gaps">Blindness cost</span><span class="v" id="vBC">—</span></div>
+    <div class="row"><span class="l" data-tip="Total source utility per unit of source cost. Higher = more security per budget">Coverage/cost</span><span class="v" id="vCC">—</span></div>
+    <div class="row"><span class="l" data-tip="Detection rate: detected ÷ total incidents. The fraction of threats you caught">Decision utility</span><span class="v" id="vDU">—</span></div>
+    <hr><div class="row"><span class="l" style="color:var(--blue);font-weight:600" data-tip="Utility-Adjusted Operating Margin: detection × containment × coverage/cost minus noise + blindness + maintenance + fatigue. Positive = SIEM producing more value than burden">Op. Margin (UOM)</span><span class="v" id="vUOM" style="font-weight:700">—</span></div>
+  </div>
+  <div class="card hidden" id="cComply"><div class="card-t">Compliance</div>
+    <div class="row"><span class="l">Score</span><span class="v" id="vCS">0%</span></div>
+    <div class="row"><span class="l">Audit ready</span><span class="v" id="vAR">No</span></div>
+    <div class="row"><span class="l">Gaps</span><span class="v b" id="vGaps">—</span></div>
+  </div>
+  <div class="card">
+    <div class="card-t">Budget</div>
+    <div class="row"><span class="l" data-tip="Current available budget. Sources, salaries, storage, and SLA fines deduct monthly">Funds</span><span class="v" id="vBud">ƒ8,000</span></div>
+    <div class="row"><span class="l" data-tip="Monthly funding from the organisation. Can increase via budget requests or detection bonuses">Income/month</span><span class="v" id="vInc">ƒ1,500</span></div>
+    <div class="row"><span class="l" data-tip="Total monthly costs: source fees + salaries + storage retention">Spend/month</span><span class="v" id="vSpd">ƒ0</span></div>
+    <div class="row"><span class="l" data-tip="Months until budget runs out at current burn rate. OK if income exceeds spend">Runway</span><span class="v" id="vRun">OK</span></div>
+    <div class="row"><span class="l">Next budget cut</span><span class="v" id="vNextCut">—</span></div>
+    <div class="row"><span class="l" data-tip="Board confidence (0-200). Detections earn +4×sv. Misses cost −3×sv. Breaches cost −18×sv. SLA violations cost −15">Reputation</span><span class="v" id="vRep">50</span></div>
+    <button id="btnBud" onclick="G.requestBudget()" disabled>Request Funding (80 rep)</button>
+  </div>
+</div>
+</div>
+<div class="bottom">
+  <div class="bottom-log"><div class="log-t">Event Log</div><div id="log"></div></div>
+  <div class="bottom-graph" id="diagWrap"><div class="hidden" id="cDiag"><div class="log-t">Diagnostics</div><div id="ratioL"></div></div></div>
+</div>
+</div>
+
+<script>
+// ================================================================
+// FATIGUE v5.2
+// ================================================================
+const TICK=125,TPD=288,TPM=8640,RET$=0.12,C='ƒ';
+const SIM_SECONDS_PER_TICK=86400/TPD;
+
+// Baseline source EPS values are intentionally small design numbers.
+// LOG_EPS_SCALE converts them into dashboard-scale EPS while preserving source ratios.
+const LOG_EPS_SCALE=20;
+
+// PACE controls how many simulation ticks run per timer pulse.
+// At PACE=1 the game still uses a fast 125ms pulse; higher UI speeds process
+// more simulated time, alerts, logs, staffing work, finance, events, and storage
+// per wall-clock second without changing per-simulated-day incident probabilities.
+const TIME_RELATED_COUNT_MULTIPLIER=.5;
+
+// Runtime Live EPS is stochastic. Baseline EPS is the planning value; Live EPS is sampled.
+// Gaussian jitter models ordinary workload variation; the diurnal multiplier adds daily rhythm;
+// rare burst multipliers model batch jobs or short noisy periods without changing baseline capacity.
+const EPS_GAUSSIAN_SIGMA=.15;
+const EPS_DIURNAL_AMPLITUDE=.25;
+const EPS_BURST_CHANCE_PER_TICK=.002;
+const EPS_BURST_MAX_MULTIPLIER=2.4;
+
+// SLA fines are deliberately transparent but not deterministic:
+// fine = base + per-existing-violation penalty + uniform stochastic jitter.
+const SLA_FINE_BASE=200;
+const SLA_FINE_PER_VIOLATION=100;
+const SLA_FINE_JITTER_MAX=300;
+
+// Playability constants. These do not change the conceptual model; they make the
+// conference/demo loop less click-heavy and make staffing benefit visible.
+const JUNIOR_TRIAGE_PER_DAY=20;
+const SENIOR_TRIAGE_PER_DAY=45;
+const VALIDATION_RULE_THRESHOLD=3;
+const VALIDATION_MIN_DELAY_TICKS=Math.floor(TPD*.5);
+const VALIDATION_MAX_DELAY_TICKS=Math.floor(TPD*1.5);
+
+// Event pacing: the game should keep producing operational decisions.
+// Each Operations Pulse touches a model variable: queue, parser health,
+// budget, coverage, fatigue, or detection confidence.
+const OPS_EVENT_FIRST_DAY=2;
+const OPS_EVENT_INTERVAL_MIN=4;
+const OPS_EVENT_INTERVAL_MAX=8;
+const FAST_FORWARD_MAX_TICKS=TPD*5;
+const DETECTION_BONUS_BASE=180;
+const DETECTION_BONUS_PER_SEVERITY=90;
+let PACE=1,tickInterval=null,gameRunning=false,gameOver=false;
+
+// --- Randomness and distributions ---
+// Add ?seed=<value> to the URL for reproducible balancing/playtest runs.
+// Without a seed, the browser's rnd() is used.
+const RNG_SEED=new URLSearchParams(location.search).get('seed');
+function hashSeed(str){let h=2166136261>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mulberry32(seed){let a=seed>>>0;return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const _rng=RNG_SEED?mulberry32(hashSeed(RNG_SEED)):Math.random;
+function rnd(){return _rng()}
+
+function randn(){let u=rnd(),v=rnd();if(u<=0)u=Number.MIN_VALUE;return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function normal(m,s){return m+randn()*s}
+function logNormal(m,s){return Math.exp(normal(m,s))}
+function poisson(l){if(l<=0)return 0;if(l>30)return Math.max(0,Math.round(normal(l,Math.sqrt(l))));const L=Math.exp(-l);let k=0,p=1;do{k++;p*=rnd()}while(p>L);return k-1}
+function gammaRV(a){if(a<1)return gammaRV(a+1)*Math.pow(rnd(),1/a);const d=a-1/3,c=1/Math.sqrt(9*d);while(true){let x,v;do{x=randn();v=1+c*x}while(v<=0);v=v*v*v;const u=rnd();if(u<1-.0331*x*x*x*x)return d*v;if(Math.log(u)<.5*x*x+d*(1-v+Math.log(v)))return d*v}}
+function betaRV(a,b){const ga=gammaRV(Math.max(.5,a)),gb=gammaRV(Math.max(.5,b));return ga/(ga+gb)}
+function ouStep(x,mu,th,sig,dt){return x+th*(mu-x)*dt+sig*Math.sqrt(dt)*randn()}
+function clamp(v,lo,hi){return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo}
+function probability(v){return clamp(v,0,1)}
+function nonNeg(v){return Number.isFinite(v)?Math.max(0,v):0}
+function negBinomialMean(mean,dispersion){
+  mean=nonNeg(mean);if(mean<=0)return 0;
+  const shape=Math.max(.5,dispersion),scale=mean/shape;
+  return poisson(gammaRV(shape)*scale);
+}
+function sourceNoiseWeight(x){return x.nz==='High'?1.45:x.nz==='Med'?1:.55}
+function effectiveEPS(x){return nonNeg(x.eps)*LOG_EPS_SCALE}
+function alertNoiseScore(x){return x.nz==='High'?1:x.nz==='Med'?.6:.25}
+
+function simulatedClock(){
+  const totalSeconds=Math.floor(((tk%TPD)/TPD)*86400)%86400;
+  const h=Math.floor(totalSeconds/3600),m=Math.floor((totalSeconds%3600)/60),sec=totalSeconds%60;
+  return [h,m,sec].map(v=>String(v).padStart(2,'0')).join('.');
+}
+function simulatedHour(){return ((tk%TPD)/TPD)*24}
+function diurnalLoadFactor(){
+  // Peak is late business day; trough is overnight. Clamped to avoid extreme low/high telemetry.
+  const hour=simulatedHour();
+  return clamp(1+EPS_DIURNAL_AMPLITUDE*Math.sin(((hour-6)/24)*Math.PI*2),.65,1.35);
+}
+function burstMultiplier(x){
+  // High-noise sources are slightly more likely to produce temporary telemetry bursts.
+  const chance=EPS_BURST_CHANCE_PER_TICK*sourceNoiseWeight(x);
+  return rnd()<chance?1+rnd()*(EPS_BURST_MAX_MULTIPLIER-1):1;
+}
+function sampledEPS(x){
+  // Baseline EPS is the planning number on the source card. This function produces
+  // operational Live EPS used for log accumulation and dashboard display.
+  // Baseline EPS is static; Live EPS is sampled from baseline × diurnal rhythm × Gaussian jitter × rare bursts.
+  const baseline=effectiveEPS(x)*diurnalLoadFactor();
+  return nonNeg(normal(baseline,baseline*EPS_GAUSSIAN_SIGMA)*burstMultiplier(x));
+}
+function calculateSlaFine(){
+  return Math.round(SLA_FINE_BASE+s.slaViol*SLA_FINE_PER_VIOLATION+rnd()*SLA_FINE_JITTER_MAX);
+}
+
+// --- SIGMA LOG SOURCES ---
+// Mapped to Sigma categories/products/services
+const SRC=[
+  {id:'process_creation',n:'Process Creation',sigma:'category: process_creation',c:150,gb:20,eps:60,d:5,h:5,x:4,f:5,co:2,o:2,de:4,nz:'High',pd:.25,md:2.0,ph:1},
+  {id:'authentication',n:'Authentication Logs',sigma:'category: authentication',c:80,gb:8,eps:25,d:4,h:3,x:5,f:3,co:5,o:4,de:5,nz:'Med',pd:.15,md:1.0,ph:1},
+  {id:'firewall',n:'Firewall',sigma:'category: firewall',c:100,gb:35,eps:100,d:3,h:3,x:3,f:2,co:4,o:5,de:3,nz:'Med',pd:.10,md:.8,ph:1},
+  {id:'dns',n:'DNS',sigma:'category: dns',c:60,gb:18,eps:55,d:3,h:5,x:4,f:2,co:2,o:3,de:4,nz:'Med',pd:.12,md:1.0,ph:1},
+  {id:'webserver',n:'Web Server',sigma:'category: webserver',c:90,gb:15,eps:45,d:3,h:4,x:3,f:3,co:3,o:4,de:3,nz:'Med',pd:.18,md:1.5,ph:1},
+  {id:'network_connection',n:'Network Connection',sigma:'category: network_connection',c:120,gb:25,eps:70,d:4,h:4,x:3,f:3,co:2,o:3,de:3,nz:'High',pd:.20,md:1.5,ph:1},
+  {id:'file_event',n:'File Event',sigma:'category: file_event',c:140,gb:18,eps:50,d:4,h:4,x:4,f:5,co:2,o:2,de:4,nz:'High',pd:.28,md:2.0,ph:1},
+  {id:'windows_security',n:'Windows Security',sigma:'product: windows, service: security',c:130,gb:14,eps:40,d:4,h:3,x:3,f:3,co:5,o:3,de:4,nz:'Med',pd:.18,md:1.5,ph:1},
+  {id:'antivirus',n:'Antivirus',sigma:'category: antivirus',c:40,gb:2,eps:5,d:3,h:2,x:3,f:2,co:4,o:3,de:3,nz:'Low',pd:.08,md:.5,ph:1},
+  {id:'linux_auditd',n:'Linux Auditd',sigma:'product: linux, service: auditd',c:110,gb:12,eps:35,d:4,h:4,x:3,f:4,co:5,o:3,de:3,nz:'Med',pd:.25,md:2.0,ph:2},
+  {id:'cloudtrail',n:'AWS CloudTrail',sigma:'product: aws, service: cloudtrail',c:200,gb:10,eps:18,d:5,h:4,x:5,f:4,co:5,o:4,de:5,nz:'Med',pd:.22,md:1.8,ph:2},
+  {id:'azure_signin',n:'Azure Sign-in',sigma:'product: azure, service: signinlogs',c:90,gb:5,eps:10,d:4,h:3,x:5,f:3,co:5,o:4,de:5,nz:'Low',pd:.15,md:1.0,ph:2},
+  {id:'proxy',n:'Proxy / SWG',sigma:'category: proxy',c:160,gb:24,eps:70,d:4,h:4,x:4,f:3,co:3,o:3,de:4,nz:'Med',pd:.20,md:1.5,ph:2},
+  {id:'ps_script',n:'PowerShell Script',sigma:'category: ps_script',c:70,gb:5,eps:10,d:5,h:5,x:3,f:4,co:2,o:2,de:4,nz:'Med',pd:.30,md:2.5,ph:2},
+  {id:'image_load',n:'Image Load',sigma:'category: image_load',c:100,gb:15,eps:40,d:4,h:4,x:3,f:4,co:1,o:2,de:3,nz:'High',pd:.30,md:2.5,ph:2},
+  {id:'registry_event',n:'Registry Event',sigma:'category: registry_event',c:90,gb:10,eps:30,d:4,h:4,x:3,f:4,co:1,o:2,de:3,nz:'High',pd:.28,md:2.0,ph:3},
+  {id:'driver_load',n:'Driver Load',sigma:'category: driver_load',c:15,gb:0.5,eps:0.5,d:2,h:4,x:5,f:4,co:2,o:2,de:4,nz:'Low',pd:.08,md:.3,ph:3},
+  {id:'gcp_audit',n:'GCP Audit',sigma:'product: gcp, service: gcp.audit',c:180,gb:8,eps:14,d:5,h:4,x:5,f:4,co:5,o:4,de:5,nz:'Med',pd:.22,md:1.8,ph:3},
+  {id:'pipe_created',n:'Pipe Created',sigma:'category: pipe_created',c:25,gb:1,eps:2,d:3,h:5,x:3,f:4,co:1,o:2,de:3,nz:'Low',pd:.12,md:.5,ph:2},
+  {id:'create_remote_thread',n:'Create Remote Thread',sigma:'category: create_remote_thread',c:30,gb:0.8,eps:1.5,d:4,h:5,x:3,f:4,co:1,o:2,de:4,nz:'Low',pd:.15,md:.5,ph:2},
+  {id:'dns_query',n:'DNS Query (Sysmon)',sigma:'category: dns_query',c:80,gb:20,eps:60,d:3,h:5,x:4,f:2,co:2,o:3,de:4,nz:'High',pd:.15,md:1.2,ph:2},
+  {id:'wmi_event',n:'WMI Event',sigma:'category: wmi_event',c:35,gb:1,eps:2,d:3,h:4,x:3,f:3,co:1,o:2,de:3,nz:'Low',pd:.12,md:.5,ph:3},
+  {id:'clipboard_capture',n:'Clipboard Change',sigma:'category: clipboard_change',c:20,gb:0.3,eps:0.5,d:2,h:3,x:2,f:3,co:1,o:1,de:2,nz:'Low',pd:.10,md:.3,ph:3},
+  {id:'azure_activity',n:'Azure Activity',sigma:'product: azure, service: activitylogs',c:150,gb:6,eps:12,d:4,h:3,x:5,f:3,co:5,o:4,de:5,nz:'Low',pd:.18,md:1.2,ph:3},
+  {id:'m365_audit',n:'Microsoft 365 Audit',sigma:'product: m365, service: audit',c:170,gb:9,eps:16,d:4,h:3,x:5,f:3,co:5,o:4,de:5,nz:'Med',pd:.20,md:1.5,ph:3},
+  {id:'sysmon_file_delete',n:'File Delete (Sysmon)',sigma:'category: file_delete',c:50,gb:4,eps:8,d:3,h:4,x:3,f:5,co:1,o:2,de:3,nz:'Med',pd:.20,md:1.0,ph:3},
+];
+
+const INC=[
+  {n:'Phishing via email',r:['webserver'],hp:['authentication','process_creation','dns'],sv:1,b:.035},
+  {n:'Credential Stuffing',r:['authentication'],hp:['firewall','proxy','windows_security'],sv:1,b:.030},
+  {n:'DNS C2 Beaconing',r:['dns'],hp:['process_creation','network_connection','proxy'],sv:2,b:.020},
+  {n:'Lateral Movement',r:['windows_security','firewall'],hp:['process_creation','network_connection','authentication'],sv:2,b:.015},
+  {n:'Ransomware',r:['process_creation'],hp:['file_event','windows_security','dns'],sv:3,b:.008},
+  {n:'Cloud API Abuse',r:['cloudtrail'],hp:['authentication','azure_signin'],sv:2,b:.010},
+  {n:'Insider Exfiltration',r:['proxy'],hp:['network_connection','authentication','file_event'],sv:3,b:.005},
+  {n:'BYOVD Attack',r:['driver_load'],hp:['process_creation','image_load','windows_security'],sv:3,b:.002},
+  {n:'Supply Chain',r:['process_creation'],hp:['image_load','dns','file_event'],sv:3,b:.004},
+  {n:'PowerShell Abuse',r:['ps_script'],hp:['process_creation','windows_security','network_connection'],sv:2,b:.012},
+  {n:'Malware via Registry',r:['registry_event'],hp:['process_creation','file_event','antivirus'],sv:2,b:.008},
+  {n:'GCP Privilege Escalation',r:['gcp_audit'],hp:['cloudtrail','authentication'],sv:2,b:.006},
+  {n:'Named Pipe Impersonation',r:['pipe_created'],hp:['process_creation','windows_security'],sv:2,b:.005},
+  {n:'Process Injection',r:['create_remote_thread'],hp:['process_creation','image_load'],sv:3,b:.005},
+  {n:'WMI Persistence',r:['wmi_event'],hp:['process_creation','registry_event'],sv:2,b:.005},
+  {n:'Cloud Account Takeover',r:['azure_signin'],hp:['m365_audit','azure_activity','authentication'],sv:3,b:.006},
+  {n:'Anti-forensic File Deletion',r:['sysmon_file_delete'],hp:['process_creation','file_event'],sv:2,b:.005},
+  {n:'DNS Tunnelling',r:['dns_query'],hp:['dns','network_connection','proxy'],sv:2,b:.008},
+];
+
+// --- PROGRESSION GATES ---
+// These constants define the learning curve. Advanced features are gated by operational
+// evidence rather than time alone: the player must process enough alerts, write enough
+// rules, and maintain enough telemetry before each capability makes sense.
+//
+// Alert volume and triage throughput increased during balancing, so raw unlock counts
+// were raised from the early prototype values. Keep these thresholds centralised;
+// future tuning should adjust this block rather than hunting through project lambdas.
+const GATE_TRIAGE_DET_ENG=100;
+const GATE_TRIAGE_AUTOTRIAGE=250;
+const GATE_TRIAGE_SENIOR=450;
+const GATE_TRIAGE_PHASE2=350;
+const GATE_TRIAGE_HUNTING=650;
+const GATE_TRIAGE_FORENSICS=500;
+const GATE_TRIAGE_COMPLIANCE=500;
+const GATE_TRIAGE_ENGINEERS=750;
+const GATE_TRIAGE_SOAR=900;
+const GATE_TRIAGE_RISK=800;
+const GATE_TRIAGE_ML=1200;
+const GATE_TRIAGE_DECISION=1500;
+const GATE_TRIAGE_PURPLE=1800;
+const GATE_TRIAGE_ZT=2000;
+const GATE_TRIAGE_DEDUP=1000;
+
+const GATE_RULES_PHASE2=8;
+const GATE_RULES_CORRELATION=8;
+const GATE_RULES_ENRICHMENT=5;
+const GATE_RULES_TUNING=5;
+const GATE_RULES_ENGINEERS=12;
+const GATE_RULES_SOAR=15;
+const GATE_RULES_RISK=12;
+const GATE_RULES_ML=22;
+const GATE_RULES_PURPLE=30;
+
+const PROJ=[
+  {id:'det_eng',n:'Detection Engineering',d:'Unlocks rule writing',c:1200,r:()=>s.tot>=GATE_TRIAGE_DET_ENG&&nS()>=2,ph:1,fx:()=>{s.deU=1;show('cDetEng');lg('Detection Engineering unlocked.','i')}},
+  {id:'parsing',n:'Standardised Parsing',d:'Parser decay −40%',c:900,r:()=>nS()>=2&&s.tot>=40,ph:1,fx:()=>{s.pdM*=.6;s.pH=Math.min(100,s.pH+15)}},
+  {id:'autotri',n:'Automated Triage',d:'FP rate −10%',c:1600,r:()=>s.tot>=GATE_TRIAGE_AUTOTRIAGE&&s.deU,ph:1,fx:()=>{s.fp=Math.max(.08,s.fp-.10)}},
+  {id:'ratios',n:'Health Dashboard',d:'Unlocks diagnostics',c:1000,r:()=>nS()>=3&&s.tot>=120,ph:1,fx:()=>{s.raU=1;show('cDiag');lg('Diagnostics unlocked.','i')}},
+  {id:'senior',n:'Senior Analyst Roles',d:'Unlocks senior hiring',c:2000,r:()=>s.jr>=2&&s.tot>=GATE_TRIAGE_SENIOR,ph:1,fx:()=>{s.srU=1;show('wSr');lg('Senior hiring unlocked.','i')}},
+  {id:'corr',n:'Cross-Source Correlation',d:'Rule quality +15',c:2200,r:()=>s.tot>=300&&s.rul>=GATE_RULES_CORRELATION&&nS()>=3,ph:1,fx:()=>{s.rq=Math.min(100,s.rq+15)}},
+  {id:'enrich',n:'Context Enrichment',d:'Context lift +20%, FP −8%',c:2000,r:()=>s.tot>=250&&s.deU&&s.rul>=GATE_RULES_ENRICHMENT,ph:1,fx:()=>{s.cl+=.20;s.fp=Math.max(.08,s.fp-.08)}},
+  {id:'tune',n:'Tuning Framework',d:'Unlocks tune + suppress',c:700,r:()=>s.tot>=220&&s.rul>=GATE_RULES_TUNING,ph:1,fx:()=>{s.tuU=1;show('btnTune');show('btnSupp')}},
+  {id:'hunt',n:'Threat Hunting',d:'Unlocks hunting + hunters',c:3200,r:()=>s.tot>=GATE_TRIAGE_HUNTING&&s.sr>=1&&s.deU&&s.rul>=10,ph:2,fx:()=>{s.huU=1;show('cHunt');s.hkU=1;show('wHu');lg('Hunting launched.','p')}},
+  {id:'forensic',n:'Forensic Toolkit',d:'Unlocks forensics',c:2800,r:()=>s.tot>=GATE_TRIAGE_FORENSICS&&s.det>=3,ph:2,fx:()=>{s.foU=1;show('cForensics');lg('Forensics established.','p')}},
+  {id:'comply',n:'Compliance Framework',d:'Unlocks compliance',c:2200,r:()=>s.tot>=GATE_TRIAGE_COMPLIANCE&&nS()>=5&&s.retD>=30,ph:2,fx:()=>{s.coU=1;show('cComply');lg('Compliance active.','p')}},
+  {id:'eng',n:'Det. Engineer Staffing',d:'Unlocks engineer hiring',c:2500,r:()=>s.tot>=GATE_TRIAGE_ENGINEERS&&s.rul>=GATE_RULES_ENGINEERS&&s.sr>=1,ph:2,fx:()=>{s.enU=1;show('wEn');lg('Engineer hiring unlocked.','i')}},
+  {id:'soar',n:'SOAR Playbooks',d:'Triage ×2.5',c:4500,r:()=>s.tot>=GATE_TRIAGE_SOAR&&s.sr>=2&&s.rul>=GATE_RULES_SOAR,ph:2,fx:()=>{s.soM=2.5;lg('SOAR deployed.','i')}},
+  {id:'risk',n:'Entity Risk Scoring',d:'FP −6%, quality +10',c:3000,r:()=>s.tot>=GATE_TRIAGE_RISK&&has('antivirus')&&s.rul>=GATE_RULES_RISK,ph:2,fx:()=>{s.fp=Math.max(.08,s.fp-.06);s.rq=Math.min(100,s.rq+10)}},
+  {id:'ml',n:'ML Detection',d:'Quality +15, FP −8%',c:5500,r:()=>s.tot>=GATE_TRIAGE_ML&&s.rul>=GATE_RULES_ML&&s.hf>=3,ph:2,fx:()=>{s.rq=Math.min(100,s.rq+15);s.fp=Math.max(.08,s.fp-.08)}},
+  {id:'decutil',n:'Decision Utility',d:'Unlocks economics panel',c:4000,r:()=>s.tot>=GATE_TRIAGE_DECISION&&s.det>=8&&s.hf>=5,ph:3,fx:()=>{s.dcU=1;show('cDecision');lg('Decision tracking active.','p')}},
+  {id:'purple',n:'Purple Team',d:'Quality +12',c:5000,r:()=>s.tot>=GATE_TRIAGE_PURPLE&&s.rul>=GATE_RULES_PURPLE&&s.hf>=5,ph:3,fx:()=>{s.rq=Math.min(100,s.rq+12)}},
+  {id:'zt',n:'Zero Trust Integration',d:'Quality +8, context +15%',c:7000,r:()=>s.tot>=GATE_TRIAGE_ZT&&s.coU&&has('authentication')&&has('cloudtrail'),ph:3,fx:()=>{s.rq=Math.min(100,s.rq+8);s.cl+=.15}},
+  {id:'dedup',n:'Dedup Engine',d:'Suppression quality +30%',c:3500,r:()=>s.tot>=GATE_TRIAGE_DEDUP&&s.suR>=3,ph:3,fx:()=>{s.suQ+=.30}},
+];
+
+// --- STATE ---
+// --- STATE ---
+let s={},tk=0,phase=1;
+const _hc={};// HTML cache for dirty-checking
+function setH(id,html){if(_hc[id]!==html){_hc[id]=html;$(id).innerHTML=html}}
+function init(){
+  s={tot:0,q:0,tp:0,fpc:0,det:0,mis:0,br:0,bud:8000,inc:1500,rep:50,
+     jr:0,sr:0,hu:0,en:0,rul:0,rq:50,pH:100,suR:0,suQ:.3,
+     hyp:0,hf:0,retD:90,retTB:0,fp:.72,cl:0,soM:1,pdM:1,
+     fat:0,snr:0,nbl:0,rulSrc:new Set(),ruleBindings:[],
+     on:new Set(),done:new Set(),day:0,mo:0,wk:0,
+     deU:0,huU:0,foU:0,coU:0,dcU:0,raU:0,srU:0,hkU:0,enU:0,tuU:0,
+     aA:0,tA:0,hA:0,rA:0,eAD:0,eTD:0,eMT:15,aPD:0,
+     fatPrev:0,fatVel:0,fatVelPrev:0,fatAcc:0,
+     blindDays:{},msnr:0,
+     // SLA
+     mttd:0,mttdC:0,mttdS:0,mttr:0,slaViol:0,slaCons:0,slaGrace:0,incidentTimes:[],slaFines:0,
+     // Storage
+     liveEPS:0,logsToday:0,logsTotal:0,storedGB:0,storeBuf:[],
+     alertsToday:0,autoToday:0,manualToday:0,queueStartDay:0,financeToday:0,
+     validationScheduled:0,validationAt:0,validationDone:0,
+     pendingEvent:null,nextOpsEventDay:OPS_EVENT_FIRST_DAY,eventSeq:0,signalCounter:0,detectionBonusTotal:0,
+     queuePressure:0,noiseExposure:0,dcus:0,
+     ledger:[]};
+}
+init();
+
+// --- HELPERS ---
+function nS(){return s.on.size}
+function has(id){return s.on.has(id)}
+function src(id){return SRC.find(x=>x.id===id)}
+function show(id){const e=document.getElementById(id);if(e){e.classList.remove('hidden');e.classList.remove('locked')}}
+function $(id){return document.getElementById(id)}
+function F(n){n=Number.isFinite(n)?n:0;if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e4)return(n/1e3).toFixed(1)+'K';return Math.floor(n).toLocaleString()}
+function S(n){n=Number.isFinite(n)?n:0;return(n<0?'-':'')+F(Math.abs(Math.round(n)))}
+function M(n){n=Number.isFinite(n)?n:0;return(n<0?'-':'')+C+F(Math.abs(Math.round(n)))}
+function P(n){return(n*100).toFixed(0)+'%'}
+function cc(v,lo,hi){return v>=hi?'g':v>=lo?'w':'b'}
+function cr(v,lo,hi){return v<=lo?'g':v<=hi?'w':'b'}
+function ea(){return[...s.on].map(id=>src(id)).filter(Boolean)}
+function tGB(){return ea().reduce((a,x)=>a+x.gb*TIME_RELATED_COUNT_MULTIPLIER,0)}
+function tEPS(){return ea().reduce((a,x)=>a+effectiveEPS(x),0)}
+function mSrc(){return ea().reduce((a,x)=>a+x.c,0)}
+function mSal(){return s.jr*250+s.sr*650+s.hu*900+s.en*800}
+function mRet(){return s.storedGB*RET$}
+function mSpend(){return mSrc()+mSal()+mRet()}
+function aU(k){const a=ea();return a.length?a.reduce((t,x)=>t+x[k],0)/a.length:0}
+function sU(k){return ea().reduce((a,x)=>a+x[k],0)}
+function pSucc(){if(!nS())return 1;const a=ea(),w=a.reduce((acc,x)=>acc+((1-x.pd)*(s.pH/100))*x.gb,0),t=a.reduce((acc,x)=>acc+x.gb,0);return t>0?w/t:1}
+function fatigueDetectionMultiplier(){
+  // Graceful sigmoid: little impact below 35, moderate impact around 60,
+  // and a hard floor so fatigue never makes detection probability collapse to zero by itself.
+  const x=clamp(s.fat,0,100);
+  const sigmoid=1/(1+Math.exp(-(x-62)/14));
+  return clamp(1-sigmoid*.45,.55,1);
+}
+function nextBudgetCutCandidate(){
+  // Budget crisis shutdown is deterministic: highest monthly cost first, then lower detection/hunting value.
+  // This makes the next automatic cut predictable instead of arbitrary.
+  const active=ea();
+  if(!active.length)return null;
+  return active.slice().sort((a,b)=>
+    (b.c-a.c) ||
+    (a.d-b.d) ||
+    (a.h-b.h) ||
+    a.n.localeCompare(b.n)
+  )[0];
+}
+function countPrimaryRules(id){return s.ruleBindings.filter(r=>r.primary===id).length}
+function chooseRuleBinding(){
+  // New rules are not global magic coverage. Each rule gets a primary source
+  // and sometimes a secondary context source. This lets disabled sources create
+  // real orphaned rules and keeps uncovered-source/wasted-spend metrics meaningful.
+  const active=ea();
+  if(!active.length)return{primary:null,sourceIds:[]};
+  // Spread new rules toward least-covered active sources first. This makes uncovered-source logic real
+  // instead of treating all rules as if they covered every enabled source.
+  const sorted=active.slice().sort((a,b)=>
+    (countPrimaryRules(a.id)-countPrimaryRules(b.id)) ||
+    (b.d-a.d) ||
+    a.n.localeCompare(b.n)
+  );
+  const primary=sorted[0];
+  const sourceIds=[primary.id];
+  const secondary=active.filter(x=>x.id!==primary.id).sort((a,b)=>b.x-a.x||b.h-a.h||a.n.localeCompare(b.n))[0];
+  if(secondary&&rnd()<.35)sourceIds.push(secondary.id);
+  return{primary:primary.id,sourceIds};
+}
+function addRule(){
+  const binding=chooseRuleBinding();
+  s.rul++;
+  s.ruleBindings.push({primary:binding.primary,sourceIds:binding.sourceIds,quality:s.rq,day:s.day});
+  binding.sourceIds.forEach(id=>s.rulSrc.add(id)); // kept for diagnostics/backward-compatible reasoning
+  return binding;
+}
+function activeRuleCount(){
+  if(!s.ruleBindings.length)return Math.max(0,s.rul-orphR());
+  return s.ruleBindings.filter(r=>r.primary&&s.on.has(r.primary)).length;
+}
+function dAtt(){return nS()&&s.rul?Math.min(1,activeRuleCount()/(nS()*3)):0}
+function cRate(){const t=s.det+s.mis;return t>0?s.det/t:0}
+function orphR(){
+  if(!s.rul)return 0;
+  if(s.ruleBindings.length)return s.ruleBindings.filter(r=>r.primary&&!s.on.has(r.primary)).length;
+  const w=[...s.rulSrc],d=w.filter(id=>!s.on.has(id)).length;
+  return Math.min(s.rul,Math.ceil(s.rul*(d/(w.length||1))));
+}
+function uncS(){
+  if(!nS())return 0;
+  if(!s.ruleBindings.length)return !s.rul?nS():Math.max(0,nS()-Math.ceil(s.rul/2));
+  const covered=new Set();
+  s.ruleBindings.forEach(r=>{if(r.primary&&s.on.has(r.primary))r.sourceIds.forEach(id=>{if(s.on.has(id))covered.add(id)})});
+  return Math.max(0,nS()-covered.size);
+}
+function wasteS(){const u=uncS();if(u<=0||!nS())return 0;return ea().sort((a,b)=>a.d-b.d).slice(0,u).reduce((a,x)=>a+x.c,0)}
+function calcSNR(){return s.tot>20?s.tp/s.tot:0}
+function calcFat(){
+  // Fatigue is the central feedback variable. It rises from queue pressure, noise,
+  // orphaned rules, parser confusion, and weak signal; it falls from seniors, context,
+  // engineers, and SOAR. Small coefficient changes have large gameplay impact because
+  // fatigue affects both throughput and detection quality.
+  // Empty or immature SOCs should not start tired. Queue pressure is immediate,
+  // but FP and SNR pressure only become meaningful once telemetry and enough triage samples exist.
+  const qP=Math.min(40,s.q/10);
+  const fpP=nS()>0?s.fp*25:0;
+  const snrP=s.tot>20?(1-s.snr)*15:0;
+  const oP=orphR()*3,pP=((100-s.pH)/100)*10,nP=s.nbl*.5;
+  const rel=(s.sr*5+s.cl*20+s.en*3)*(s.soM>1?1.5:1);
+  return Math.max(0,Math.min(100,qP+fpP+snrP+oP+pP+nP-rel));
+}
+function currentDetectionPotential(){
+  // Approximate theoretical incident-detection capacity for calculus-style cumulative metrics.
+  if(!INC.length)return 0;
+  const rc=s.rul>0?Math.min(s.rul*s.rq/1200,.85):0,ps=pSucc(),fm=fatigueDetectionMultiplier();
+  const total=INC.reduce((sum,i)=>{
+    const hr=i.r.every(id=>s.on.has(id)),hn=i.hp.filter(id=>s.on.has(id)).length;
+    return sum+(hr?probability((rc*ps+hn*.08)*fm):0);
+  },0);
+  return total/INC.length;
+}
+function updateCumulativeMetrics(){
+  // Discrete integral approximations. These are not used to punish the player directly yet;
+  // they preserve historical pressure so later dashboards can distinguish a short spike
+  // from chronic exposure.
+  // Discrete integral approximations over simulated days.
+  s.queuePressure+=s.q/TPD;
+  if(s.tot>20)s.noiseExposure+=(1-s.snr)/TPD;
+  s.dcus+=currentDetectionPotential()*(1-s.fat/100)/TPD;
+}
+function fScore(){const a=ea();if(!a.length)return 0;return(a.reduce((t,x)=>t+x.f,0)/a.length/5)*100*Math.min(s.retD/90,1)*(s.pH/100)}
+function bestNextSpend(){
+  if(!s.raU)return null;
+  const d=[{cat:'Sources',val:nS()<4?0.03:0},{cat:'Staff',val:s.fat>30?0.03:s.q>30?0.02:0},{cat:'Rules',val:dAtt()<0.5&&s.deU?0.025:0},{cat:'Engineering',val:s.pH<80?0.03:s.nbl>2?0.02:0},{cat:'Tuning',val:s.fp>0.4&&s.tuU?0.02:0}];
+  const best=d.reduce((a,b)=>b.val>a.val?b:a);
+  return best.val>0.005?best.cat:null;
+}
+
+// Alert-to-EPS ratio calibration.
+// Target band: 1-4% of raw EPS becomes alert candidates.
+//   4 sources (130 EPS), 0 rules:  ratio ~ 0.012 + noise  -> ~100-140 alerts/day
+//   4 sources (130 EPS), 10 rules: ratio ~ 0.016           -> ~170-210 alerts/day
+//   10 sources (300 EPS), 20 rules: ratio ~ 0.020          -> ~480-600 alerts/day
+//   18 sources (500 EPS), 30 rules: ratio ~ 0.028          -> ~1000-1400 alerts/day
+// Relief from suppression and context reduces ratio by up to 0.010.
+// Overdispersion (negBinomialMean, k=14) adds daily burstiness on top of the mean.
+function alertRatioTarget(){
+  const active=ea();if(!active.length)return 0;
+  const noise=active.reduce((sum,x)=>sum+alertNoiseScore(x),0)/active.length;
+  const ruleLift=s.rul<=0?0:Math.min(.008,s.rul*.0004);
+  const parserLift=(1-pSucc())*.008;
+  const qualityLift=((100-s.rq)/100)*.006;
+  const backlogLift=clamp(s.nbl*.001,0,.006);
+  const orphanLift=clamp(orphR()*.0015,0,.006);
+  const relief=clamp(s.cl*.004+s.suR*s.suQ*.002,0,.010);
+  return clamp(.012+noise*.012+ruleLift+parserLift+qualityLift+backlogLift+orphanLift-relief,.01,.04);
+}
+function expectedAlertsPerDay(){
+  const eps=tEPS();if(eps<=0)return 0;
+  return clamp(eps*alertRatioTarget()*TIME_RELATED_COUNT_MULTIPLIER,0,1200);
+}
+function sampledAlertsPerDay(){return negBinomialMean(expectedAlertsPerDay(),14)}
+
+function validateStaticData(){
+  const ids=SRC.map(x=>x.id),seen=new Set(),dupes=new Set();
+  ids.forEach(id=>seen.has(id)?dupes.add(id):seen.add(id));
+  if(dupes.size)throw new Error('Duplicate source IDs: '+[...dupes].join(', '));
+  const sourceIds=new Set(ids);
+  INC.forEach(i=>[...i.r,...i.hp].forEach(id=>{if(!sourceIds.has(id))throw new Error('Incident "'+i.n+'" references unknown source "'+id+'"')}));
+  const projectIds=PROJ.map(p=>p.id),projectSet=new Set(projectIds);
+  if(projectSet.size!==projectIds.length)throw new Error('Project IDs must be unique');
+}
+function validateDom(){
+  const required=['introModal','gameApp','gameoverOverlay','goReason','goStats','log','phaseBadge','objText','tDay','tHour','tMo','tBud','tRep','tMTTD','tMTTR','btnTri','btnTri10','sp8','sp16','spDay','srcList','projL','radarCanvas','diagWrap','cDiag','ratioL','slaBar','progressTitle','progressValue','progressFill','progressHint','cOpsEvent','eventTag','eventTitle','eventBody','eventChoices','vTot','dashAD','dashSrcN','dashConfigEPS','dashEPS','dashGB','dashParse','dashQueue','dashTD','dashMT','dashFP','dashSNR','dashFat','dashFatTrend','dashFatBar','dashStoredGB','dashStoreCost','dashDet','dashMis','dashBr'];
+  required.forEach(id=>{if(!$(id))throw new Error('Missing required element: #'+id)});
+}
+function failSoft(err,ctx){
+  console.error(ctx,err);
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+  gameRunning=false;
+  try{lg((ctx||'Runtime error')+' — simulation paused. See browser console.','b')}catch(_){}
+}
+function safeGameTick(){try{gameTick()}catch(err){failSoft(err,'Runtime error')}}
+window.addEventListener('error',e=>failSoft(e.error||e.message,'Unhandled error'));
+window.addEventListener('unhandledrejection',e=>failSoft(e.reason,'Unhandled promise rejection'));
+function lg(m,c){const e=$('log'),d=document.createElement('div');d.className='l'+c;d.textContent='[D'+s.day+'] '+m;e.prepend(d);while(e.children.length>80)e.removeChild(e.lastChild)}
+function setCardState(id,state){const el=$(id);if(!el)return;el.classList.remove('state-good','state-warn','state-bad','state-neutral');el.classList.add('state-'+(state||'neutral'))}
+
+// --- SPEED / START ---
+function setSpeed(sp){
+  sp=Number(sp);if(![0,1,2,4,8,16].includes(sp))sp=1;
+  PACE=sp;['sp0','sp1','sp2','sp4','sp8','sp16'].forEach(id=>$(id).classList.remove('active'));
+  $('sp'+sp).classList.add('active');
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+  if(sp>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
+  updateUI();
+}
+function activePace(){return Math.max(1,Math.floor(PACE)||1)}
+function runPacedTicks(){
+  const ticks=activePace();
+  for(let i=0;i<ticks&&!gameOver;i++)safeGameTick();
+}
+function fastForwardDay(){
+  if(!gameRunning||gameOver)return;
+  const target=s.day+1,was=PACE;
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+  for(let guard=0;guard<TPD+10&&s.day<target&&!gameOver;guard++)safeGameTick();
+  updateUI();
+  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
+}
+function fastForwardEvent(){
+  if(!gameRunning||gameOver)return;
+  const was=PACE,startDet=s.det,startMis=s.mis,startBr=s.br,startSeq=s.eventSeq,startDay=s.day;
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+  for(let guard=0;guard<FAST_FORWARD_MAX_TICKS&&!gameOver;guard++){
+    safeGameTick();
+    if(s.pendingEvent&&s.eventSeq!==startSeq)break;
+    if(s.det!==startDet||s.mis!==startMis||s.br!==startBr)break;
+    if(s.day>=startDay+5)break;
+  }
+  updateUI();
+  if(was>0&&gameRunning&&!gameOver)tickInterval=setInterval(runPacedTicks,TICK);
+}
+function isBlockedMobile(){
+  return window.matchMedia('(max-width: 900px)').matches ||
+         window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+}
+function enforceMobileBlock(){
+  const blocked=isBlockedMobile();
+  const mobile=$('mobileBlock'),intro=$('introModal'),app=$('gameApp'),go=$('gameoverOverlay');
+  if(blocked){
+    if(mobile)mobile.style.display='flex';
+    if(intro)intro.style.display='none';
+    if(app)app.style.display='none';
+    if(go)go.style.display='none';
+    if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+    gameRunning=false;
+    return true;
+  }
+  if(mobile)mobile.style.display='';
+  return false;
+}
+window.addEventListener('resize',enforceMobileBlock);
+window.addEventListener('orientationchange',enforceMobileBlock);
+document.addEventListener('DOMContentLoaded',enforceMobileBlock);
+
+function startGame(){
+  if(enforceMobileBlock())return;
+  if(gameRunning)return;
+  try{validateStaticData();validateDom()}catch(err){failSoft(err,'Startup validation failed');return}
+  $('introModal').classList.add('hidden');
+  $('gameApp').style.display='flex';
+  gameRunning=true;
+  lg('FATIGUE — a SIEM economics simulator','p');
+  lg('Enable sources, hire analysts, and use Operations Pulse decisions to keep the SOC moving.','i');
+  setSpeed(PACE);
+}
+
+function effectiveFpRate(){return Math.min(.95,s.fp+s.fat*.002)}
+function triageAlert(mode){
+  if(s.q<1)return false;
+  s.q--;s.tot++;
+  if(mode==='auto')s.autoToday++;else s.manualToday++;
+  const fpEff=effectiveFpRate(),fp=betaRV(Math.max(.5,fpEff*20),Math.max(.5,(1-fpEff)*20));
+  if(rnd()>fp){
+    s.tp++;s.signalCounter++;
+    if(s.signalCounter>=6){s.signalCounter=0;s.hyp++;lg('Triage produced an actionable hypothesis.','g')}
+  }else s.fpc++;
+  return true;
+}
+function triageAlerts(n,mode){let done=0;for(let i=0;i<n;i++){if(!triageAlert(mode))break;done++}return done}
+function refreshDerived(){s.snr=calcSNR();s.fat=calcFat()}
+function afterAction(){refreshDerived();updateUI()}
+function handleBudgetCrisis(){
+  if(s.bud>=-3000)return false;
+  const cut=nextBudgetCutCandidate();
+  if(!cut)return false;
+  s.on.delete(cut.id);s.aPD=sampledAlertsPerDay();
+  lg('Budget crisis: disabled '+cut.n+' ('+M(cut.c)+'/mo, deterministic highest-cost source).','b');
+  return true;
+}
+function maybeScheduleValidationIncident(){
+  if(s.validationDone||s.validationScheduled||s.det>0)return;
+  if(!s.deU||s.rul<VALIDATION_RULE_THRESHOLD||nS()<2)return;
+  s.validationScheduled=1;
+  s.validationAt=tk+VALIDATION_MIN_DELAY_TICKS+Math.floor(rnd()*(VALIDATION_MAX_DELAY_TICKS-VALIDATION_MIN_DELAY_TICKS));
+  lg('Operational validation scheduled: coverage will be tested soon.','i');
+}
+function maybeRunValidationIncident(){
+  if(!s.validationScheduled||s.validationDone||tk<s.validationAt)return;
+  const candidates=INC.filter(i=>i.sv<3&&i.r.every(id=>s.on.has(id)));
+  if(!candidates.length){
+    s.validationDone=1;
+    lg('Operational validation found a blind spot: no low-severity scenario is fully covered by enabled sources.','w');
+    return;
+  }
+  const chosen=candidates[Math.floor(rnd()*candidates.length)];
+  s.validationDone=1;
+  lg('Operational validation event: '+chosen.n,'i');
+  procInc(chosen,{forceDetect:true,validation:true});
+}
+function scheduleNextOpsEvent(){
+  s.nextOpsEventDay=s.day+OPS_EVENT_INTERVAL_MIN+Math.floor(rnd()*(OPS_EVENT_INTERVAL_MAX-OPS_EVENT_INTERVAL_MIN+1));
+}
+function makeEvent(id,title,body,choices,tag='Decision'){
+  s.eventSeq++;
+  s.pendingEvent={id,title,body,choices,tag,seq:s.eventSeq};
+  lg('Operations pulse: '+title,'p');
+}
+function maybeCreateOpsEvent(){
+  if(s.pendingEvent||s.day<s.nextOpsEventDay||!gameRunning||gameOver)return;
+  const options=[];
+
+  if(s.bud<700){
+    options.push(()=>makeEvent(
+      'budget_bridge',
+      'Cash-flow squeeze',
+      'The programme is short on cash before the next visible milestone. You can ask for bridge funding, but it costs credibility.',
+      [
+        {label:'Request bridge funding (+ƒ700, −5 rep)',fn:'budgetBridge'},
+        {label:'Hold scope and accept delay',fn:'eventDismiss'}
+      ],
+      'Finance'
+    ));
+  }
+
+  if(s.q>25){
+    options.push(()=>makeEvent(
+      'queue_surge',
+      'Queue is becoming the game',
+      'Analysts are spending too much time on backlog. Choose whether to burn effort now or reduce future noise.',
+      [
+        {label:'Focused triage sprint (clear up to 30 alerts, +4 fatigue)',fn:'triageSprint'},
+        {label:'Suppress noisy pattern (ƒ80, queue −15%, future noise↓)',fn:'quickSuppress'}
+      ],
+      'Workload'
+    ));
+  }
+
+  if(s.pH<92||nS()>=4){
+    options.push(()=>makeEvent(
+      'parser_warning',
+      'Parser drift warning',
+      'Recent telemetry changes are reducing parser confidence. Ignoring it may make detections silently weaker.',
+      [
+        {label:'Patch parser now (ƒ120, parser health +12)',fn:'patchParser'},
+        {label:'Accept drift for now (parser health −6)',fn:'acceptParserRisk'}
+      ],
+      'Pipeline'
+    ));
+  }
+
+  if(s.deU&&s.rul>=2){
+    options.push(()=>makeEvent(
+      'coverage_drill',
+      'Coverage drill opportunity',
+      'A controlled scenario can validate whether your sources and rules actually detect something.',
+      [
+        {label:'Run validation drill (ƒ100, possible detection)',fn:'runCoverageDrill'},
+        {label:'Skip drill and keep operating',fn:'eventDismiss'}
+      ],
+      'Detection'
+    ));
+  }
+
+  if(nS()>=2&&s.jr+s.sr===0){
+    options.push(()=>makeEvent(
+      'staffing_pressure',
+      'Telemetry without people',
+      'You are collecting data faster than the organisation can examine it. This is visibility, not operations.',
+      [
+        {label:'Authorize temporary contractor (+15 auto-triage today, ƒ120)',fn:'contractorTriage'},
+        {label:'Accept backlog risk',fn:'acceptBacklogRisk'}
+      ],
+      'Staffing'
+    ));
+  }
+
+  if(!options.length){
+    options.push(()=>makeEvent(
+      'stakeholder_check',
+      'Stakeholder asks: so what changed?',
+      'You have a chance to turn current operational evidence into confidence or funding.',
+      [
+        {label:'Show operational evidence (+rep if detections, +ƒ if triage)',fn:'stakeholderEvidence'},
+        {label:'No update yet',fn:'eventDismiss'}
+      ],
+      'Review'
+    ));
+  }
+
+  options[Math.floor(rnd()*options.length)]();
+  scheduleNextOpsEvent();
+}
+function clearOpsEvent(){
+  s.pendingEvent=null;
+  updateUI();
+}
+function forceDetectableScenario(label){
+  const candidates=INC.filter(i=>i.sv<3&&i.r.every(id=>s.on.has(id)));
+  if(!candidates.length){
+    lg(label+': no fully covered low-severity scenario exists. This is a blind spot, not bad luck.','w');
+    s.hyp+=1;
+    return false;
+  }
+  const chosen=candidates[Math.floor(rnd()*candidates.length)];
+  lg(label+': '+chosen.n,'i');
+  procInc(chosen,{forceDetect:true,validation:true});
+  return true;
+}
+function awardDetectionBonus(i){
+  const bonus=DETECTION_BONUS_BASE+i.sv*DETECTION_BONUS_PER_SEVERITY;
+  s.bud+=bonus;s.detectionBonusTotal+=bonus;
+  if(s.det%3===0)s.inc+=100;
+  lg('Operational confidence: '+M(bonus)+' response funding awarded.','g');
+  if(s.det%3===0)lg('Recurring support increased: +'+M(100)+'/mo after repeated detections.','g');
+}
+function eventChoice(fn){
+  const map={
+    budgetBridge(){s.bud+=700;s.rep=Math.max(0,s.rep-5);lg('Bridge funding approved: +'+M(700)+', reputation −5.','g')},
+    triageSprint(){const done=triageAlerts(Math.min(30,s.q),'auto');s.fat=Math.min(100,s.fat+4);lg('Focused triage sprint cleared '+done+' alerts, but pressure increased fatigue.','i')},
+    quickSuppress(){if(s.bud>=80){s.bud-=80;s.suR++;s.q=Math.max(0,Math.floor(s.q*.85));s.aPD=sampledAlertsPerDay();lg('Noisy pattern suppressed: queue reduced and future candidates dampened.','g')}else lg('Not enough budget to suppress the pattern.','w')},
+    patchParser(){if(s.bud>=120){s.bud-=120;s.pH=Math.min(100,s.pH+12);lg('Parser patch deployed: parser health improved.','g')}else lg('Not enough budget to patch parsers.','w')},
+    acceptParserRisk(){s.pH=Math.max(15,s.pH-6);lg('Parser drift accepted: parser health declined.','w')},
+    runCoverageDrill(){if(s.bud>=100){s.bud-=100;forceDetectableScenario('Coverage drill')}else lg('Not enough budget to run the drill.','w')},
+    contractorTriage(){if(s.bud>=120){s.bud-=120;const done=triageAlerts(Math.min(15,s.q),'auto');lg('Contractor triage processed '+done+' alerts.','i')}else lg('Not enough budget for temporary triage support.','w')},
+    acceptBacklogRisk(){s.q+=8;s.fat=Math.min(100,s.fat+3);lg('Backlog risk accepted: queue and fatigue increased.','w')},
+    stakeholderEvidence(){
+      if(s.det>0){s.rep=Math.min(200,s.rep+6);s.bud+=250;lg('Stakeholders saw detection evidence: +6 rep, +'+M(250)+' discretionary budget.','g')}
+      else if(s.tot>=50){s.bud+=180;lg('You showed triage throughput, but no detection evidence yet: +'+M(180)+'.','i')}
+      else{lg('Not enough operational evidence yet. The room remains unconvinced.','w')}
+    },
+    eventDismiss(){lg('Decision deferred. No immediate change.','i')}
+  };
+  if(map[fn])map[fn]();
+  clearOpsEvent();
+  afterAction();
+}
+
+
+// --- ACTIONS ---
+const G={
+  eventChoice(fn){eventChoice(fn)},
+  manualTriage(){const done=triageAlerts(1,'manual');if(done)lg('Manual triage: '+done+' alert processed.','i');afterAction()},
+  manualTriageBatch(){const done=triageAlerts(10,'manual');if(done)lg('Manual triage: '+done+' alerts processed.','i');afterAction()},
+  hire(t){const c={jr:800,sr:2200,hunter:3500,eng:3000},f={sr:'srU',hunter:'hkU',eng:'enU'};if(t!=='jr'&&!s[f[t]])return;if(s.bud<c[t])return;s.bud-=c[t];if(t==='jr')s.jr++;else if(t==='sr')s.sr++;else if(t==='hunter')s.hu++;else s.en++;lg(t+' hired.','g');afterAction()},
+  toggleSource(id){const x=src(id);if(!x)return;if(s.on.has(id)){s.on.delete(id);lg(x.n+' disabled.','w')}else if(s.bud>=x.c){s.bud-=x.c;s.on.add(id);s.aPD=sampledAlertsPerDay();lg(x.n+' enabled: +'+F(effectiveEPS(x))+' baseline EPS, '+x.gb+'GB/day, '+x.nz+' noise.','g');if(s.deU&&countCoveredRules(id)===0)lg('Coverage warning: '+x.n+' is enabled but has no active rule binding yet.','w')}afterAction()},
+  writeRule(){if(!s.deU||s.bud<200)return;s.bud-=200;const b=addRule();s.aPD=sampledAlertsPerDay();lg('Rule written'+(b.primary?' for '+src(b.primary).n:'')+'.','i');maybeScheduleValidationIncident();afterAction()},
+  tuneRules(){if(!s.tuU||s.bud<120||s.rul<1)return;s.bud-=120;s.fp=Math.max(.08,s.fp-.015);s.rq=Math.min(100,s.rq+2);s.aPD=sampledAlertsPerDay();lg('Rules tuned: FP pressure down, quality up.','g');afterAction()},
+  addSuppression(){if(s.bud<80)return;s.bud-=80;s.suR++;s.aPD=sampledAlertsPerDay();lg('Suppression added: noisy candidates reduced.','g');afterAction()},
+  runHunt(){if(s.hyp<5)return;s.hyp-=5;const lam=(1.5+(s.hu>0?1:0))*(aU('h')/5);const f=poisson(lam);s.hf+=f;if(f>0){s.tp+=f;s.det+=Math.max(1,Math.floor(f/2));lg('Hunt: '+f+' finding(s)!','g')}else lg('Hunt: nothing.','w');afterAction()},
+  extendRetention(){if(s.bud<400)return;s.bud-=400;s.retD+=30;lg('Retention extended to '+s.retD+' days.','i');afterAction()},
+  requestBudget(){if(s.rep<80)return;s.rep-=80;s.inc+=500;lg('Funding +'+C+'500/mo','g');afterAction()},
+  buyProject(id){const p=PROJ.find(x=>x.id===id);if(!p||s.done.has(id))return;if(s.bud>=p.c&&p.r()){s.bud-=p.c;p.fx();s.done.add(id);lg('Research: '+p.n,'i');maybeScheduleValidationIncident();afterAction()}},
+};
+
+// --- TICK ---
+function gameTick(){
+  if(gameOver)return;
+  tk++;
+
+  // The tick loop is the simulation engine. Each tick advances five simulated minutes.
+  // PACE controls how many five-minute simulation ticks execute per timer pulse.
+  // Per-tick storage accumulation: logs = liveEPS * seconds_per_tick
+  const liveEPS=Math.max(0,ea().reduce((a,x)=>a+sampledEPS(x),0));
+  const logsThisTick=Math.max(0,Math.round(liveEPS*SIM_SECONDS_PER_TICK*TIME_RELATED_COUNT_MULTIPLIER));
+  s.logsToday+=logsThisTick;s.logsTotal+=logsThisTick;
+  s.liveEPS=liveEPS;
+  // Daily
+  if(tk%TPD===0){
+    s.day++;
+    // Storage: accumulate today's GB, push to rolling buffer
+    const dayGB=tGB();s.storedGB+=dayGB;
+    s.storeBuf.push(dayGB);
+    // Finance accrues daily so the player is not stuck waiting for a monthly deposit.
+    // Monthly events remain as reporting/checkpoint events.
+    const dailyNet=(s.inc-mSpend())/30;s.bud+=dailyNet;s.financeToday=dailyNet;
+    handleBudgetCrisis();
+    // Retention cleanup: probabilistic — drop oldest day if buffer > retD
+    while(s.storeBuf.length>s.retD){const old=s.storeBuf.shift();s.storedGB=Math.max(0,s.storedGB-old*(0.85+rnd()*0.3))}
+    const qDelta=s.q-s.queueStartDay;
+    if(nS()>0||s.alertsToday||s.autoToday||s.manualToday){
+      lg('Day '+s.day+' summary: '+F(s.alertsToday)+' alerts, '+F(s.autoToday)+' auto / '+F(s.manualToday)+' manual triaged, queue '+(qDelta>=0?'+':'')+S(qDelta)+', budget '+M(dailyNet)+'.',qDelta>20?'w':'i');
+    }
+    s.alertsToday=0;s.autoToday=0;s.manualToday=0;s.queueStartDay=s.q;
+    s.logsToday=0;
+    maybeCreateOpsEvent();
+  }
+  // Weekly: SLA fines
+  if(tk%(TPD*7)===0&&s.day>7){
+    s.wk++;
+    const recent=s.incidentTimes.filter(t=>t.day>=s.day-7);
+    const detected=recent.filter(t=>t.detected);
+    if(detected.length>0){
+      const wMTTD=detected.reduce((a,t)=>a+t.det,0)/detected.length;
+      const wMTTR=detected.reduce((a,t)=>a+t.resp,0)/detected.length;
+      const wCrit=detected.filter(t=>t.sv>=3);const wCMTTD=wCrit.length>0?wCrit.reduce((a,t)=>a+t.det,0)/wCrit.length:0;
+      if(wCMTTD>18||wMTTD>36||wMTTR>75){const fine=calculateSlaFine();s.bud-=fine;s.slaFines+=fine;lg('SLA fine '+M(fine)+' = base '+M(SLA_FINE_BASE)+' + '+M(SLA_FINE_PER_VIOLATION)+'×violations + jitter (MTTD '+wMTTD.toFixed(0)+'m / MTTR '+wMTTR.toFixed(0)+'m)','b')}
+    }
+  }
+  // Monthly
+  if(tk%TPM===0){
+    s.mo++;const inc=s.inc,sp=mSpend();
+    if(nS()>2){const bdc=ea().reduce((a,x)=>a+x.md,0)*s.pdM;const dc=Math.max(0,normal(bdc,bdc*.2));s.pH=Math.max(15,Math.min(100,s.pH-dc+s.en*8))}
+    lg('Mo'+s.mo+' summary: income '+M(inc)+'/mo, spend '+M(sp)+'/mo (daily accrual active).','i');
+    handleBudgetCrisis();
+    // Monthly SLA check
+    checkSLA();
+  }
+  // Alerts: overdispersed daily workload model.
+  // Expected alerts/day is recalculated periodically, then sampled per tick with a Poisson draw.
+  // This creates quiet/busy periods without making queue growth perfectly smooth.
+  const arr=ea();
+  if(tk===1||tk%12===0)s.aPD=sampledAlertsPerDay();
+  const arrivals=poisson((s.aPD||0)/TPD);
+  for(let j=0;j<arrivals;j++){if(rnd()<probability(s.suR*s.suQ*.05))continue;s.q++;s.alertsToday++}
+  // Noise: OU
+  const hiN=arr.filter(x=>x.nz==='High').length;
+  s.nbl=Math.max(0,ouStep(s.nbl,Math.max(0,hiN*2-s.en*3-s.suR*.8),.1,.3,1/TPD));
+  s.snr=calcSNR();s.fat=calcFat();updateCumulativeMetrics();
+  // Fatigue velocity/acceleration
+  const rawVel=(s.fat-s.fatPrev)*TPD;s.fatVel=s.fatVel*.92+rawVel*.08;
+  const rawAcc=(s.fatVel-s.fatVelPrev)*TPD;s.fatAcc=s.fatAcc*.95+rawAcc*.05;
+  s.fatPrev=s.fat;s.fatVelPrev=s.fatVel;
+  if(tk%Math.floor(TPD/2)===0)maybeCreateOpsEvent();
+  // Blindness integral
+  if(tk%12===0){SRC.forEach(x=>{if(x.ph<=phase&&!s.on.has(x.id))s.blindDays[x.id]=(s.blindDays[x.id]||0)+12/TPD;else s.blindDays[x.id]=0})}
+  // Marginal source
+  if(tk%(TPD*2)===0&&nS()>0){const cand=SRC.filter(x=>x.ph<=phase&&!s.on.has(x.id));if(cand.length){const b=cand.reduce((a,c)=>(c.d+c.h)>(a.d+a.h)?c:a);s.msnr=(b.d/5)*.05-(b.nz==='High'?.15:b.nz==='Med'?.05:.01)}else s.msnr=0}
+  // Triage: staff accumulates fractional capacity; completed capacity consumes queued alerts.
+  // UI speed is applied by runPacedTicks(), which executes more simulation ticks per
+  // wall-clock pulse. Keep analyst capacity defined per simulated day so 4x speed
+  // advances time faster without making analysts 16x stronger in wall-clock terms.  const fatP=1-s.fat/200;
+  const fatP=1-s.fat/200;
+  const bTD=(s.jr*JUNIOR_TRIAGE_PER_DAY+s.sr*SENIOR_TRIAGE_PER_DAY)*s.soM,lTD=bTD*(1+s.cl)*fatP,tPT=lTD/TPD;
+  const autoBefore=s.autoToday;
+  s.tA+=tPT;while(s.tA>=1&&s.q>=1){s.tA--;triageAlert('auto')}
+  if(s.q<1)s.tA=0;
+  if(s.autoToday>autoBefore&&s.autoToday%20===0)lg('Analysts auto-triaged '+s.autoToday+' alerts today.','i');
+  // Engineers
+  if(s.en>0&&s.deU){s.rA+=s.en*.3/TPD;while(s.rA>=1){addRule();s.rA--}}
+  // Hunters
+  if(s.hu>0&&s.huU){s.hA+=s.hu*.5*(aU('h')/5)/TPD;while(s.hA>=1){s.hyp++;s.hA--}}
+  // Incidents: Poisson with blindness integral
+  maybeScheduleValidationIncident();
+  maybeRunValidationIncident();
+  const tp_=1+s.mo*.04;
+  INC.forEach(i=>{let bMul=1;i.r.forEach(rid=>{const bd=s.blindDays[rid]||0;if(bd>14)bMul+=bd/60});const n=poisson(i.b*tp_*bMul/TPD);for(let j=0;j<n;j++)procInc(i)});
+  // Rep drift
+  if(tk%120===0&&s.det>s.mis&&s.rep<200)s.rep++;
+  // EMA
+  const al=.05;s.eAD=s.eAD*(1-al)+(s.aPD||0)*al;s.eTD=s.eTD*(1-al)+lTD*al;
+  s.eMT=s.eMT*(1-al)+(lTD>0?1440/lTD:999)*al;
+  // Phase
+  if(phase===1&&s.deU&&s.tot>=GATE_TRIAGE_PHASE2&&s.rul>=GATE_RULES_PHASE2&&nS()>=4){phase=2;lg('═══ PHASE 2: Scale ═══','p')}
+  if(phase===2&&s.tot>=1000&&s.huU&&s.foU&&s.sr>=2){phase=3;lg('═══ PHASE 3: Advanced ═══','p')}
+  // Ledger
+  if(tk%4===0&&nS()>0)recLedger();
+  // UI every 500ms
+  if(tk%2===0)updateUI();
+}
+
+function procInc(i,opt={}){
+  const hr=i.r.every(id=>s.on.has(id)),hn=i.hp.filter(id=>s.on.has(id)).length;
+  const rc=s.rul>0?Math.min(s.rul*s.rq/1200,.85):0;
+  const pDetect=probability((rc*pSucc()+hn*.08)*fatigueDetectionMultiplier());
+  const detected=hr&&(opt.forceDetect||rnd()<pDetect);
+  if(detected){
+    // Detection time in minutes: base 3-15m, degraded by fatigue/queue/parser
+    const detectMin=detected?(3+rnd()*12+s.fat*.3+s.q*.05+(100-s.pH)*.1):(9999);
+    const respondMin=detected?(detectMin+5+rnd()*20+s.q*.1):(9999);
+    s.incidentTimes.push({det:detectMin,resp:respondMin,detected,day:s.day,sv:i.sv});
+    if(s.incidentTimes.length>50)s.incidentTimes.shift();
+    s.det++;s.rep=Math.min(200,s.rep+i.sv*4);s.tp++;lg((opt.validation?'VALIDATED: ':'DETECTED: ')+i.n+' ('+detectMin.toFixed(0)+'m)','g');awardDetectionBonus(i);
+    if(s.foU){const fq=fScore();lg('  Forensic: '+fq.toFixed(0)+'%',fq>50?'g':'w')}
+  }else{
+    s.incidentTimes.push({det:9999,resp:9999,detected:false,day:s.day,sv:i.sv});
+    if(s.incidentTimes.length>50)s.incidentTimes.shift();
+    s.mis++;
+    if(rnd()<i.sv*.18){
+      s.br++;s.rep=Math.max(0,s.rep-i.sv*18);
+      const bc=logNormal(Math.log(i.sv*800),.4);s.bud-=bc;
+      lg('BREACH: '+i.n+' — '+C+F(Math.round(bc))+' lost','b');
+    }else{s.rep=Math.max(0,s.rep-i.sv*3);lg('MISSED: '+i.n,'b')}
+  }
+}
+
+// --- SLA ---
+function checkSLA(){
+  // Monthly SLA enforcement. Detected incidents drive MTTD/MTTR averages;
+  // missed incidents are counted separately. This avoids sentinel values for misses
+  // turning a soft missed-standard warning into an artificial hard timing breach.
+  const recent=s.incidentTimes.filter(t=>t.day>=s.day-30);
+  if(recent.length===0)return;
+  const crit=recent.filter(t=>t.sv>=3),std=recent.filter(t=>t.sv<3);
+  const detectedCrit=crit.filter(t=>t.detected),detectedStd=std.filter(t=>t.detected),detectedAll=recent.filter(t=>t.detected);
+  const avg=(items,k)=>items.length>0?items.reduce((a,t)=>a+t[k],0)/items.length:0;
+
+  // MTTD/MTTR are averages over detected incidents only.
+  // Misses are evaluated separately; otherwise 9999-minute sentinel values bypass the grace buffer.
+  s.mttdC=avg(detectedCrit,'det');
+  s.mttdS=avg(detectedStd,'det');
+  s.mttd=avg(detectedAll,'det');
+  s.mttr=avg(detectedAll,'resp');
+
+  const missedCrit=crit.filter(t=>!t.detected).length;
+  const missedStd=std.filter(t=>!t.detected).length;
+
+  const softParts=[];
+  const hardParts=[];
+  if(missedCrit>0)hardParts.push('missed critical '+missedCrit);
+  if(missedStd>=2)hardParts.push('missed standard '+missedStd);
+  else if(missedStd>0)softParts.push('missed standard '+missedStd);
+
+  if(detectedCrit.length>0&&s.mttdC>18)hardParts.push('Crit MTTD '+s.mttdC.toFixed(0)+'m>18m hard limit');
+  else if(detectedCrit.length>0&&s.mttdC>15)softParts.push('Crit MTTD '+s.mttdC.toFixed(0)+'m>15m target');
+
+  if(detectedStd.length>0&&s.mttdS>36)hardParts.push('Std MTTD '+s.mttdS.toFixed(0)+'m>36m hard limit');
+  else if(detectedStd.length>0&&s.mttdS>30)softParts.push('Std MTTD '+s.mttdS.toFixed(0)+'m>30m target');
+
+  if(detectedAll.length>0&&s.mttr>75)hardParts.push('MTTR '+s.mttr.toFixed(0)+'m>75m hard limit');
+  else if(detectedAll.length>0&&s.mttr>60)softParts.push('MTTR '+s.mttr.toFixed(0)+'m>60m target');
+
+  const hard=hardParts.length>0;
+  const soft=softParts.length>0;
+  if(hard||soft){
+    if(hard||s.slaGrace>0){
+      s.slaViol++;s.slaCons++;s.slaGrace=0;
+      s.rep=Math.max(0,s.rep-(hard?15:8));
+      const parts=hard?hardParts:softParts;
+      lg('SLA VIOLATION — '+parts.join(', '),'b');
+    }else{
+      s.slaGrace=1;
+      s.rep=Math.max(0,s.rep-3);
+      lg('SLA WARNING — within grace buffer: '+softParts.join(', '),'w');
+    }
+  }else{
+    s.slaCons=0;
+    s.slaGrace=0;
+  }
+  if(s.slaViol>=5){endGame('Five SLA violations. The board has lost confidence in your security programme.')}
+  if(s.slaCons>=3){endGame('Three consecutive SLA violations. You have been terminated.')}
+  if(s.rep<=0){endGame('Reputation reached zero. The organisation no longer trusts your leadership.')}
+  if(s.bud<-10000){endGame('Catastrophic budget deficit. The programme has been shut down.')}
+}
+
+
+function endGame(reason){
+  gameOver=true;gameRunning=false;
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null}
+  $('goReason').textContent=reason;
+  $('goStats').innerHTML=`Day ${s.day} · Month ${s.mo}<br>Detected: ${s.det} · Missed: ${s.mis} · Breaches: ${s.br}<br>Alerts Triaged: ${F(s.tot)} · SLA Violations: ${s.slaViol} · Fines: ${C}${F(s.slaFines)}`;
+  $('gameoverOverlay').classList.remove('hidden');
+}
+
+// --- LEDGER ---
+function compLedger(){
+  const n=nS(),sc=mSrc(),sl=mSal(),rc=mRet(),tc=sc+sl+rc||1;
+  return{col:(n>0?(aU('d')/5)*dAtt():0)-sc/tc,lab:(s.jr+s.sr>0?Math.min(1,(s.eTD/Math.max(1,s.eAD))*(1-s.fp)):0)-sl/tc,mnt:Math.max(-1,Math.min(1,(s.pH/100)*(s.rq/100)-(((100-s.pH)/100)*.5+orphR()*.05))),noi:Math.max(-1,Math.min(1,s.suR*s.suQ*.05+s.cl*.3-s.fp*.4-s.nbl*.03-s.fat/200)),cov:Math.max(-1,Math.min(1,dAtt()*.5+(n>0?aU('h')/10:0)-Math.min(1,(n>0?SRC.filter(x=>!s.on.has(x.id)&&x.ph<=phase).reduce((a,x)=>a+(x.d+x.h)*x.eps*.001,0):0)/20))),ret:Math.max(-1,Math.min(1,(s.foU?(fScore()/100)*.8:Math.min(.2,s.retD/150))-rc/tc))};
+}
+function recLedger(){
+  const row=compLedger();
+  row.qp=s.queuePressure;
+  row.ne=s.noiseExposure;
+  row.dcus=s.dcus;
+  s.ledger.push(row);
+  if(s.ledger.length>120)s.ledger.shift();
+}
+
+// --- OBJECTIVE ---
+function progressReq(label,cur,target){
+  return{label,cur:Math.max(0,cur||0),target:Math.max(1,target||1)};
+}
+function progressGoal(title,hint,reqs){
+  // Multi-condition milestones use the average of capped requirement progress.
+  // The hint lists only unmet requirements, so the player can see the next practical action.
+  const capped=reqs.map(r=>Math.min(1,r.cur/r.target));
+  const pct=reqs.length?Math.round(capped.reduce((a,b)=>a+b,0)/reqs.length*100):100;
+  const unmet=reqs.filter(r=>r.cur<r.target).map(r=>r.label+' '+F(r.cur)+'/'+F(r.target));
+  return{title,hint:unmet.length?unmet.join(' · '):hint,pct:Math.max(0,Math.min(100,pct))};
+}
+function getProgressGoal(){
+  // Advisory overlay over the actual project gates. It explains one useful next move,
+  // but it is not the only valid strategy. The player may staff first, engineer first,
+  // or expand telemetry first; the model will expose the trade-off.
+  if(nS()<2)return progressGoal('Recommended: establish minimum visibility','Advisory: enable 2 sources. Low-cost/high-value start: Authentication + DNS or Process Creation.',[
+    progressReq('sources',nS(),2)
+  ]);
+  if(s.q>40&&s.jr+s.sr<1)return progressGoal('Recommended: add triage capacity','Queue is growing. Hire a junior or use manual triage as a temporary workaround.',[
+    progressReq('queue relief',Math.max(0,80-s.q),80),
+    progressReq('analysts',s.jr+s.sr,1)
+  ]);
+  if(!s.deU)return progressGoal('Recommended: unlock Detection Engineering','Advisory: triage enough alerts and research Detection Engineering. Hiring is optional but reduces clicking.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_DET_ENG),
+    progressReq('sources',nS(),2)
+  ]);
+  if(s.rul<GATE_RULES_TUNING)return progressGoal('Recommended: build rule coverage','Rules turn telemetry into detection value. Uncovered sources are mostly cost and noise.',[
+    progressReq('rules',s.rul,GATE_RULES_TUNING)
+  ]);
+  if(!s.tuU&&s.fp>.55)return progressGoal('Recommended: unlock tuning','Noise is high. Tuning and suppression reduce alert waste.',[
+    progressReq('triaged',s.tot,220),
+    progressReq('rules',s.rul,GATE_RULES_TUNING)
+  ]);
+  if(phase===1)return progressGoal('Recommended: prepare for Phase 2','Advisory milestone: enough workload history, telemetry breadth, and rule coverage to scale.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_PHASE2),
+    progressReq('sources',nS(),4),
+    progressReq('rules',s.rul,GATE_RULES_PHASE2)
+  ]);
+  if(!s.srU&&s.q>80)return progressGoal('Recommended: unlock senior analysts','Senior analysts reduce operational drag. This is a recovery path, not the only path.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_SENIOR),
+    progressReq('juniors',s.jr,2)
+  ]);
+  if(!s.huU)return progressGoal('Recommended: add hunting when stable','Hunting is useful after basic detection has enough maturity.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_HUNTING),
+    progressReq('seniors',s.sr,1),
+    progressReq('rules',s.rul,10)
+  ]);
+  if(!s.foU)return progressGoal('Recommended: add forensics','Forensics becomes useful once detections exist and evidence retention matters.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_FORENSICS),
+    progressReq('detections',s.det,3)
+  ]);
+  if(phase===2)return progressGoal('Recommended: reach Phase 3','Combine hunting, forensics, senior capacity, and operating history.',[
+    progressReq('triaged',s.tot,1000),
+    progressReq('seniors',s.sr,2),
+    progressReq('hunting',s.huU?1:0,1),
+    progressReq('forensics',s.foU?1:0,1)
+  ]);
+  if(!s.dcU)return progressGoal('Recommended: unlock Decision Utility','Use outcomes to reason about whether the SIEM is worth its operating burden.',[
+    progressReq('triaged',s.tot,GATE_TRIAGE_DECISION),
+    progressReq('detections',s.det,8),
+    progressReq('hunt findings',s.hf,5)
+  ]);
+  return progressGoal('Recommended: optimise the SOC','Use margin, fatigue, and coverage signals. No single path is optimal.',[
+    progressReq('operating margin',Math.max(0,Math.round((compLedger().uom+2)*25)),100)
+  ]);
+}
+function updateProgress(){
+  const g=getProgressGoal();
+  $('progressTitle').textContent=g.title;
+  $('progressValue').textContent=g.pct+'%';
+  $('progressFill').style.width=g.pct+'%';
+  $('progressHint').textContent=g.hint;
+}
+
+function getObjective(){
+  if(nS()===0)return'Choose a telemetry strategy: start narrow and useful, not broad and noisy.';
+  if(s.q>60&&s.jr+s.sr===0)return'Queue is growing. Hire an analyst or use Triage 10 as emergency work.';
+  if(!s.deU)return'Build enough triage history to research Detection Engineering. Staffing is optional but helps.';
+  if(s.rul<GATE_RULES_TUNING)return'Write rules to attach detection value to enabled sources.';
+  if(uncS()>0)return'Warning: some enabled sources have no active rule coverage.';
+  if(s.det===0)return'Coverage is being tested. Tune, suppress, or expand rules if misses appear.';
+  if(phase===1)return'Prepare for Phase 2: telemetry breadth, rule coverage, and operational history.';
+  if(phase===2)return'Choose a scale path: senior analysts, hunting, forensics, or engineering.';
+  const bns=bestNextSpend();
+  return'Optimise operating value.'+(bns?' Suggested investment: '+bns+'.':'');
+}
+
+// --- UI (dirty-checked source rendering) ---
+function renderOpsEvent(){
+  const card=$('cOpsEvent');
+  if(!s.pendingEvent){card.classList.add('hidden');return}
+  const e=s.pendingEvent;
+  card.classList.remove('hidden');
+  $('eventTag').textContent=e.tag||'Decision';
+  $('eventTitle').textContent=e.title;
+  $('eventBody').textContent=e.body;
+  $('eventChoices').innerHTML=e.choices.map(c=>'<button onclick="G.eventChoice(\''+c.fn+'\')">'+c.label+'</button>').join('');
+}
+
+function updateUI(){
+  if(gameOver)return;
+  const sp=mSpend(),rw=sp>s.inc?s.bud/(((sp-s.inc)/30)||1):99;
+  $('phaseBadge').textContent='Phase '+phase;$('objText').textContent=getObjective();
+  updateProgress();
+  renderOpsEvent();
+  $('tDay').textContent=s.day;$('tHour').textContent=simulatedClock();$('tMo').textContent=s.mo;
+  $('tBud').textContent=S(s.bud);$('tBud').style.color=s.bud<0?'var(--red)':s.bud<1000?'var(--amber)':'';
+  $('tRep').textContent=s.rep;
+  $('tMTTD').textContent=s.mttd>0?s.mttd.toFixed(0)+'m':'—';$('tMTTD').style.color=s.mttd>30?'var(--red)':s.mttd>15?'var(--amber)':'';
+  $('tMTTR').textContent=s.mttr>0?s.mttr.toFixed(0)+'m':'—';$('tMTTR').style.color=s.mttr>60?'var(--red)':s.mttr>40?'var(--amber)':'';
+  const fatArrow=s.fatVel>5?'↑↑':s.fatVel>1?'↑':s.fatVel<-5?'↓↓':s.fatVel<-1?'↓':'→';
+  // Dashboard
+  $('vTot').textContent=F(s.tot);$('btnTri').disabled=s.q<1;$('btnTri10').disabled=s.q<1;
+  $('btnTri').textContent=s.q>0?'Triage Alert ('+F(s.q)+' queued)':'Triage Alert';
+  $('btnTri10').textContent=s.q>0?'Triage 10 ('+F(Math.min(10,s.q))+' ready)':'Triage 10';
+  const fps=s.tot>0?s.fpc/s.tot:0;
+  $('dashAD').textContent=s.eAD.toFixed(0);
+  $('dashSrcN').textContent=nS();
+  $('dashConfigEPS').textContent=F(tEPS());
+  $('dashEPS').textContent=F(Math.round(s.liveEPS));
+  $('dashGB').textContent=tGB().toFixed(1);
+  const ps=pSucc();$('dashParse').textContent=nS()>0?P(ps):'—';
+  $('dashStoredGB').textContent=s.storedGB<1000?s.storedGB.toFixed(1)+' GB':(s.storedGB/1000).toFixed(2)+' TB';
+  $('dashStoreCost').textContent=M(mRet());
+  $('dashQueue').textContent=F(s.q);
+  $('dashTD').textContent=s.eTD.toFixed(0);
+  $('dashMT').textContent=s.eMT<900?s.eMT.toFixed(1)+'m':'—';
+  $('dashFP').textContent=s.tot>10?P(fps):'—';
+  $('dashSNR').textContent=s.tot>20?s.snr.toFixed(2):'—';
+  $('dashFat').textContent=s.fat.toFixed(0);$('dashFatTrend').textContent=fatArrow;
+  $('dashFatBar').style.width=s.fat+'%';
+  $('dashDet').textContent=s.det;$('dashMis').textContent=s.mis;$('dashBr').textContent=s.br;
+
+  $('dashTotSub').textContent=s.det+s.mis+s.br>0?'Detection programme output':'Overall analyst throughput';
+  $('dashADSub').textContent=s.eAD>s.eTD?'Incoming workload exceeds capacity':'Current incoming workload';
+  $('dashSrcNSub').textContent=nS()>0?'Active telemetry sources':'No active telemetry';
+  $('dashConfigEPSSub').textContent=nS()>0?'Static planning rate':'No configured rate';
+  $('dashEPSSub').textContent=nS()>0?'Observed telemetry flow':'No live telemetry';
+  $('dashGBSub').textContent=nS()>0?'Daily log volume':'No daily volume';
+  $('dashParseSub').textContent=nS()>0?(ps>.95?'Parser health strong':ps>.85?'Minor parsing loss':'Parser health degraded'):'No parser activity';
+  $('dashStorageSub').textContent=s.retD+'d retention';
+  $('dashStoreCostSub').textContent=s.storedGB>0?'Retention cost':'No storage cost yet';
+  $('dashQueueSub').textContent=s.q>0?F(s.q)+' alerts waiting':'Queue clear';
+  $('dashTDSub').textContent=s.eTD>=s.eAD?'Capacity keeps up':'Capacity under pressure';
+  $('dashMTSub').textContent=s.eMT<15?'Healthy response pace':s.eMT<40?'Growing delay':'Queue delay estimate';
+  $('dashFPSub').textContent=s.tot>10?(fps<=.30?'Noise controlled':fps<=.55?'Moderate noise':'Noise pressure'):'Need more samples';
+  $('dashSNRSub').textContent=s.tot>20?(s.snr>=.5?'High analyst yield':s.snr>=.25?'Mixed quality':'Weak analyst yield'):'Need more samples';
+  $('dashFatSub').textContent=s.fat<=30?'Sustainable pace':s.fat<=60?'Sustained strain':'Burnout risk';
+  $('dashDetSub').textContent=s.det>0?'Confirmed detections':'No detections yet';
+  $('dashMisSub').textContent=s.mis===0?'No missed incidents':s.mis<5?'Some misses accumulating':'Misses are building';
+  $('dashBrSub').textContent=s.br===0?'No material impact events':'Material impact events';
+
+  setCardState('cardTot','neutral');
+  setCardState('cardAD',s.eAD<=s.eTD*.75?'good':s.eAD<=s.eTD?'warn':'bad');
+  setCardState('cardSrcN',nS()>0?'good':'warn');
+  setCardState('cardConfigEPS',nS()>0?'neutral':'warn');
+  setCardState('cardEPS',nS()>0?'neutral':'warn');
+  setCardState('cardGB',nS()>0?'neutral':'warn');
+  setCardState('cardParse',nS()===0?'warn':ps>.95?'good':ps>.85?'warn':'bad');
+  setCardState('cardStorage',s.storedGB<250?'good':s.storedGB<1000?'warn':'bad');
+  setCardState('cardStoreCost',mRet()<50?'good':mRet()<200?'warn':'bad');
+  setCardState('cardQueue',s.q<=30?'good':s.q<=150?'warn':'bad');
+  setCardState('cardTD',s.eTD>=s.eAD?'good':s.eTD>=s.eAD*.75?'warn':'bad');
+  setCardState('cardMT',s.eMT<15?'good':s.eMT<40?'warn':'bad');
+  setCardState('cardFP',s.tot<=10?'neutral':fps<=.30?'good':fps<=.55?'warn':'bad');
+  setCardState('cardSNR',s.tot<=20?'neutral':s.snr>=.5?'good':s.snr>=.25?'warn':'bad');
+  setCardState('cardFat',s.fat<=30?'good':s.fat<=60?'warn':'bad');
+  setCardState('cardDet',s.det>0?'good':'neutral');
+  setCardState('cardMis',s.mis===0?'good':s.mis<5?'warn':'bad');
+  setCardState('cardBr',s.br===0?'good':'bad');
+  // Budget
+  $('vBud').textContent=M(s.bud);$('vBud').className='v '+(s.bud<0?'b':s.bud<1000?'w':'');
+  $('vInc').textContent=M(s.inc);$('vSpd').textContent=M(sp);$('vSpd').className='v '+(sp>s.inc?'b':sp>s.inc*.8?'w':'');
+  $('vRun').textContent=sp>s.inc?rw.toFixed(0)+' d':'OK';$('vRun').className='v '+(sp>s.inc?(rw<3?'b':rw<8?'w':'g'):'g');
+  const nextCut=nextBudgetCutCandidate();
+  $('vNextCut').textContent=s.bud<-2500&&nextCut?nextCut.n+' ('+M(nextCut.c)+'/mo)':nextCut&&sp>s.inc*1.2?nextCut.n:'—';
+  $('vNextCut').className='v '+(s.bud<-2500?'b':sp>s.inc*1.2?'w':'');
+  $('vRep').textContent=s.rep;$('vRep').className='v '+(s.rep>80?'g':s.rep>30?'w':'b');
+  $('btnBud').disabled=s.rep<80;
+  $('vJr').textContent=s.jr;$('btnJr').disabled=s.bud<800;
+  if(s.srU){$('vSr').textContent=s.sr;$('btnSr').disabled=s.bud<2200}
+  if(s.hkU){$('vHu').textContent=s.hu;$('btnHu').disabled=s.bud<3500}
+  if(s.enU){$('vEn').textContent=s.en;$('btnEn').disabled=s.bud<3000}
+  // Dirty-check source list to avoid blink
+  setH('srcList',buildSrcHTML());
+  // Det Eng
+  if(s.deU){
+    $('vRules').textContent=s.rul;$('vDA').textContent=P(dAtt());$('vDA').className='v '+cc(dAtt(),.3,.6);
+    $('vRQ').textContent=s.rq;$('vRQ').className='v '+cc(s.rq,40,70);
+    $('vPH').textContent=s.pH.toFixed(0)+'%';$('vPH').className='v '+cc(s.pH,40,70);
+    $('vOrph').textContent=orphR();$('vOrph').className='v '+(orphR()>0?'b':'g');
+    $('vUncov').textContent=uncS();$('vUncov').className='v '+(uncS()>0?'w':'g');
+    $('vNBL').textContent=s.nbl.toFixed(1);$('vNBL').className='v '+cr(s.nbl,2,5);
+    $('btnRule').disabled=s.bud<200;
+    if(s.tuU){$('btnTune').disabled=s.bud<120;$('btnSupp').disabled=s.bud<80}
+  }
+  if(s.huU){$('vHypo').textContent=s.hyp;$('vFind').textContent=s.hf;$('vQry').textContent=nS()>0?aU('h').toFixed(1):'0';$('btnHuntRun').disabled=s.hyp<5}
+  if(s.foU){$('vRecon').textContent=fScore().toFixed(0)+'%';$('vRecon').className='v '+cc(fScore(),30,60);
+    const tl=has('authentication')&&has('windows_security')?85:has('windows_security')?55:has('authentication')?50:15;
+    $('vTL').textContent=tl+'%';$('vTL').className='v '+cc(tl,40,70);
+    $('vEv').textContent=Math.min(100,s.retD*1.1*(s.pH/100)).toFixed(0)+'%';
+    $('vRet').textContent=s.retD+'d';$('btnRet').disabled=s.bud<400}
+  if(s.coU){const cu=aU('co'),cs=Math.min(100,(cu/5)*60+(s.retD>60?15:0)+(has('authentication')?10:0)+(has('cloudtrail')?10:0)+(s.pH>80?5:0));
+    $('vCS').textContent=cs.toFixed(0)+'%';$('vCS').className='v '+cc(cs,40,70);
+    $('vAR').textContent=cs>75?'Yes':'No';$('vAR').className='v '+(cs>75?'g':'b');
+    const g=[];if(!has('authentication'))g.push('Auth');if(s.retD<60)g.push('Ret');if(!has('cloudtrail'))g.push('Cloud');
+    $('vGaps').textContent=g.length?g.join(', '):'None';$('vGaps').className='v '+(g.length?'b':'g')}
+  // SLA bar
+  const slaOk=s.slaViol===0||((s.mttdC<=15||s.mttdC===0)&&(s.mttdS<=30||s.mttdS===0)&&s.mttr<=60);
+  $('slaBar').className='sla-bar '+(slaOk?'ok':'');
+  $('slaMTTDc').textContent=s.mttdC>0?s.mttdC.toFixed(0)+'m':'—';
+  $('slaMTTDs').textContent=s.mttdS>0?s.mttdS.toFixed(0)+'m':'—';
+  $('slaMTTR').textContent=s.mttr>0?s.mttr.toFixed(0)+'m':'—';
+  $('slaViol').textContent=s.slaViol;$('slaCons').textContent=s.slaCons;
+  drawRadar();renderUtil();
+  if(s.raU)renderRat()
+  if(s.dcU)renderDec();
+  renderProj();
+}
+
+function countCoveredRules(id){return s.ruleBindings.filter(r=>r.primary&&s.on.has(r.primary)&&r.sourceIds.includes(id)).length}
+function buildSrcHTML(){
+  let h='';SRC.forEach(x=>{if(x.ph>phase)return;const on=s.on.has(x.id),can=s.bud>=x.c,covered=countCoveredRules(x.id);
+    const cov=s.deU?(on?(covered>0?' · covered by '+covered+' rule'+(covered!==1?'s':''):' · no active rule coverage'):' · not enabled'):' · rules locked';
+    const warn=on&&s.deU&&covered===0?' style="color:#b45309"':'';
+    const nzLabel=x.nz==='High'?'noisy':x.nz==='Low'?'quiet':'moderate noise';
+    const tip='Det: '+x.d+'/5 · Hunt: '+x.h+'/5 · Ctx: '+x.x+'/5 · For: '+x.f+'/5 · Comp: '+x.co+'/5 | '+nzLabel+' · parse difficulty: '+(x.pd*100).toFixed(0)+'% · decay: '+x.md+'/mo';
+    h+='<div class="src-row" title="'+tip+'"><div class="src-dot '+(on?'on':'off')+'"></div><div class="src-info"><div class="src-name"'+warn+'>'+x.n+'</div><div class="src-meta">'+x.sigma+' · '+x.gb+'GB '+C+x.c+cov+'</div></div><button onclick="G.toggleSource(\''+x.id+'\')" '+((!on&&!can)?'disabled':'')+'>'+( on?'Disable':'Enable')+'</button></div>';
+  });return h;
+}
+function sourcePotential(k){return nS()>0?clamp(aU(k)/5,0,1):0}
+function utilityScores(){
+  const parse=nS()>0?pSucc():0,sourceBreadth=clamp(nS()/6,0,1),ruleCoverage=dAtt(),ruleDepth=clamp(s.rul/12,0,1),ruleQuality=clamp(s.rq/100,0,1);
+  const detEvidence=clamp(s.det/10,0,1),missPenalty=1-clamp((s.mis+s.br*2)/10,0,.75),capRatio=s.eAD>0?clamp(s.eTD/s.eAD,0,1):0;
+  const queueHealth=1-clamp(s.q/180,0,1),fatigueHealth=1-clamp(s.fat/100,0,1);
+  const fpObserved=s.tot>10?s.fpc/s.tot:s.fp,noiseHealth=1-clamp(fpObserved,0,1);
+  const retention=clamp(s.retD/180,0,1),contextLift=clamp(s.cl,0,1),ledger=clamp(s.ledger.length/60,0,1);
+  const auth=has('authentication')||has('windows_security')?1:0;
+  const cloud=has('cloudtrail')||has('azure_signin')||has('azure_activity')||has('m365_audit')||has('gcp_audit')?1:0;
+  const detMaturity=.05+.35*ruleCoverage+.20*ruleDepth+.15*ruleQuality+.15*parse+.10*detEvidence;
+  const huntMaturity=.03+.12*sourceBreadth+.20*(s.huU?1:0)+.20*clamp(s.hu/2,0,1)+.25*clamp(s.hf/5,0,1)+.10*clamp(s.hyp/10,0,1)+.10*contextLift;
+  const ctxMaturity=.08+.18*sourceBreadth+.20*parse+.22*contextLift+.17*(s.raU?1:0)+.15*ruleCoverage;
+  const forMaturity=.04+.35*(s.foU?1:0)+.25*clamp(fScore()/100,0,1)+.10*sourceBreadth+.10*parse+.16*retention;
+  const compMaturity=.03+.45*(s.coU?1:0)+.15*auth+.10*cloud+.12*retention+.10*parse+.05*(s.pH/100);
+  const opsMaturity=.30*capRatio+.20*queueHealth+.20*fatigueHealth+.15*noiseHealth+.15*parse;
+  const decMaturity=.03+.20*(s.raU?1:0)+.35*(s.dcU?1:0)+.15*ledger+.15*(bestNextSpend()?1:0)+.12*ruleCoverage;
+  return{d:clamp(5*sourcePotential('d')*detMaturity*missPenalty,0,5),h:clamp(5*sourcePotential('h')*huntMaturity,0,5),x:clamp(5*sourcePotential('x')*ctxMaturity,0,5),f:clamp(5*sourcePotential('f')*forMaturity,0,5),co:clamp(5*sourcePotential('co')*compMaturity,0,5),o:clamp(5*opsMaturity,0,5),de:clamp(5*sourcePotential('de')*decMaturity,0,5)};
+}
+function drawRadar(){
+  const cv=$('radarCanvas');if(!cv)return;const ctx=cv.getContext('2d'),scores=utilityScores();
+  const dpr=window.devicePixelRatio||1,sz=220;cv.width=sz*dpr;cv.height=sz*dpr;cv.style.width=sz+'px';cv.style.height=sz+'px';ctx.scale(dpr,dpr);
+  const dims=[{k:'d',l:'Det'},{k:'h',l:'Hunt'},{k:'x',l:'Ctx'},{k:'f',l:'For'},{k:'co',l:'Comp'},{k:'o',l:'Ops'},{k:'de',l:'Dec'}];
+  const n=dims.length,cx=sz/2,cy=sz/2,r=80,sa=-Math.PI/2,st=Math.PI*2/n;
+  ctx.clearRect(0,0,sz,sz);
+  [.25,.5,.75,1].forEach(sc=>{ctx.beginPath();for(let i=0;i<=n;i++){const a=sa+i*st,x=cx+Math.cos(a)*r*sc,y=cy+Math.sin(a)*r*sc;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.strokeStyle='#e5e7eb';ctx.lineWidth=.5;ctx.stroke()});
+  for(let i=0;i<n;i++){const a=sa+i*st;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.strokeStyle='#e5e7eb';ctx.lineWidth=.5;ctx.stroke()}
+  ctx.beginPath();for(let i=0;i<=n;i++){const idx=i%n,a=sa+idx*st,v=scores[dims[idx].k]/5;ctx.lineTo(cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v)}ctx.fillStyle='rgba(37,99,235,.1)';ctx.fill();ctx.strokeStyle='#2563eb';ctx.lineWidth=2;ctx.stroke();
+  ctx.font='10px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<n;i++){const a=sa+i*st,v=scores[dims[i].k]/5;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v,3,0,Math.PI*2);ctx.fillStyle='#2563eb';ctx.fill();ctx.fillStyle='#6b7280';ctx.fillText(dims[i].l,cx+Math.cos(a)*(r+16),cy+Math.sin(a)*(r+16))}
+}
+function renderUtil(){
+  const dims=[{k:'d',l:'Detection',c:'var(--blue)',tip:'Ability to detect threats. Depends on rules, quality, parse health, and detection evidence'},{k:'h',l:'Hunting',c:'var(--purple)',tip:'Proactive threat discovery capability. Requires hunters, hypotheses, and queryable data'},{k:'x',l:'Context',c:'var(--cyan)',tip:'Enrichment depth available to analysts. Reduces per-alert cognitive load and detection time'},{k:'f',l:'Forensic',c:'var(--pink)',tip:'Post-incident investigation capability. Depends on retention, source depth, and parser health'},{k:'co',l:'Compliance',c:'var(--amber)',tip:'Regulatory and audit readiness. Requires authentication, cloud sources, and sufficient retention'},{k:'o',l:'Operational',c:'var(--green)',tip:'Day-to-day SOC health. Capacity vs workload, queue health, fatigue, noise, parser health'},{k:'de',l:'Decision',c:'#e11d48',tip:'Ability to make data-driven security decisions. Requires detection evidence and operational maturity'}];
+  const scores=utilityScores();let h='';
+  dims.forEach(d=>{const v=scores[d.k],p=(v/5)*100;h+='<div class="row"><span class="l" title="'+d.tip+'">'+d.l+'</span><span class="v '+cc(p,50,75)+'">'+v.toFixed(1)+'</span></div>'});
+  setH('utilRows',h);
+}
+function renderRat(){
+  const w=[];
+  if(tGB()>40&&aU('d')<2.5)w.push({c:'crit',t:'Data landfill — '+tGB().toFixed(0)+'GB/d, det '+aU('d').toFixed(1)});
+  if(aU('d')>3&&aU('x')<2.5)w.push({c:'amb',t:'Rules w/o context'});
+  if(ea().filter(x=>x.nz==='High').length>=3)w.push({c:'crit',t:'Noise factory'});
+  if(s.q>200)w.push({c:'crit',t:'Backlog crisis — '+F(s.q)});else if(s.q>50)w.push({c:'amb',t:'Backlog — '+F(s.q)});
+  if(s.fp>.55)w.push({c:'amb',t:'Severity inflation — FP '+(s.fp*100).toFixed(0)+'%'});
+  if(s.pH<50)w.push({c:'crit',t:'Parser decay — '+s.pH.toFixed(0)+'%'});
+  if(orphR()>2)w.push({c:'crit',t:'Orphaned rules — '+orphR()});
+  if(uncS()>2)w.push({c:'amb',t:'Uncovered sources — '+uncS()+' paying '+C+wasteS()});
+  if(s.fatAcc>50&&s.fat>40)w.push({c:'crit',t:'Death spiral — fatigue accelerating'});
+  if(s.fat>70)w.push({c:'crit',t:'Critical fatigue — '+s.fat.toFixed(0)+'%'});else if(s.fat>45)w.push({c:'amb',t:'Rising fatigue — '+s.fat.toFixed(0)+'%'});
+  if(s.snr<.2&&s.tot>50)w.push({c:'crit',t:'SNR collapse — '+s.snr.toFixed(2)});
+  const chronic=SRC.filter(x=>x.ph<=phase&&(s.blindDays[x.id]||0)>21);
+  chronic.slice(0,3).forEach(x=>w.push({c:'amb',t:'Chronic blind spot — '+x.n+' ('+Math.floor(s.blindDays[x.id])+'d)'}));
+  if(s.msnr<-.05&&nS()>=4)w.push({c:'amb',t:'Source saturation — more sources may hurt SNR'});
+  if(mSpend()>s.inc*1.3)w.push({c:'crit',t:'Unsustainable spend'});
+  const bns=bestNextSpend();if(bns)w.push({c:'info',t:'Best invest: '+bns});
+  setH('ratioL',w.length?w.map(x=>'<div class="warn '+x.c+'"><span class="warn-icon">'+(x.c==='crit'?'●':x.c==='info'?'→':'◐')+'</span>'+x.t+'</div>').join(''):'<div style="color:var(--green);font-size:11px">No issues.</div>');
+}
+function renderDec(){
+  const ti=s.det+s.mis,du=ti>0?s.det/ti:0,cr_=cRate();
+  const cc_=nS()>0?(sU('d')+sU('h')+sU('x'))/(mSrc()||1)*100:0;
+  const nt=s.tot>0?s.fpc/s.tot:0;
+  const bc=nS()>0?SRC.filter(x=>!s.on.has(x.id)&&x.ph<=phase).reduce((a,x)=>a+(x.d+x.h)*x.eps*.001,0):0;
+  const mb=(100-s.pH)/100;
+  $('vNT').textContent=P(nt);$('vNT').className='v '+cr(nt,.25,.5);
+  $('vBC').textContent=bc.toFixed(1);$('vBC').className='v '+cr(bc,5,15);
+  $('vCC').textContent=cc_.toFixed(1);$('vCC').className='v '+cc(cc_,50,120);
+  $('vDU').textContent=P(du);$('vDU').className='v '+cc(du,.4,.7);
+  const uom=(du*cr_*(cc_/200))-(nt+bc/20+mb+s.fat/200);
+  $('vUOM').textContent=uom.toFixed(3);$('vUOM').className='v '+(uom>.1?'g':uom>0?'w':'b');
+}
+function renderProj(){
+  let h='',av=0;PROJ.forEach(p=>{
+    if(p.ph>phase)return;const d=s.done.has(p.id),a=!d&&p.r(),c=s.bud>=p.c;if(a&&c)av++;
+    const cls=d?'proj done':'proj';
+    h+='<div class="'+cls+'"><div class="pn">'+(d?'&#10003; ':'')+p.n+'</div><div class="pd">'+p.d+'</div><div class="pm"><span class="pc">'+C+F(p.c)+'</span>'+(d?'<span class="ps">Done</span>':'<button onclick="G.buyProject(\''+p.id+'\')" '+(a&&c?'':'disabled')+' style="'+(a&&c?'':'filter:grayscale(1)')+'">'+( a&&c?'Go':'—')+'</button>')+'</div></div>';
+  });setH('projL',h);$('projCount').textContent=av>0?av+' available':'';
+}
+window.Fatigue={state:()=>s,pace:()=>PACE,startGame,setSpeed,gameTick:safeGameTick,actions:G,expectedAlertsPerDay,alertRatioTarget};
+window.G=G;window.startGame=startGame;window.setSpeed=setSpeed;
+</script>
+</body>
+</html>
