@@ -46,8 +46,9 @@
 
       if (index === sequence.length) {
         resetSequence();
+        const unlockedAt = Date.now();
         sessionStorage.setItem("fatigueUnlocked", "1");
-        sessionStorage.setItem("fatigueUnlockedAt", String(Date.now()));
+        sessionStorage.setItem("fatigueUnlockedAt", String(unlockedAt));
         window.location.href = `/game/?fatigueUnlocked=1&fatigueUnlockedAt=${encodeURIComponent(unlockedAt)}`;
         return;
       }
