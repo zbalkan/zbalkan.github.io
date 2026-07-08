@@ -128,7 +128,7 @@ The difference is not formatting. It is whether the organization understands wha
 
 None of those failures surface as “the rule is wrong.” They surface as operational noise, unexplained triage errors, alert fatigue, and incidents detected but not responded to in time. The concept makes them diagnosable as what they are: a specific requirement, incompletely served, at a specific artifact type.
 
-This is where my earlier Detection-as-Code work fits into the larger argument. The [practical implementation model] dealt with repository structure and repeatable validation. The [log replay work] made the evidence substrate executable against a real rule engine. The [rule-behavior analysis] showed why platform semantics matter: a rule file may look like static configuration, but its behavior depends on parser output, inheritance, grouping, frequency logic, evaluation order, and the runtime that consumes it. Those details came from one detection stack, but the obligation is general. A detection is not validated because the artifact exists. It is validated only when the evidence, inference, confidence assumptions, and platform behavior have been tested together.
+This is where my earlier Detection-as-Code work fits into the larger argument. The [practical implementation model](https://zaferbalkan.com/wazuh-devenv/) dealt with repository structure and repeatable validation. The [log replay work](https://zaferbalkan.com/log-replay/) made the evidence substrate executable against a real rule engine. The [rule-behavior analysis](https://zaferbalkan.com/wazuh-rules/) showed why platform semantics matter: a rule file may look like static configuration, but its behavior depends on parser output, inheritance, grouping, frequency logic, evaluation order, and the runtime that consumes it. Those details came from one detection stack, but the obligation is general. A detection is not validated because the artifact exists. It is validated only when the evidence, inference, confidence assumptions, and platform behavior have been tested together.
 
 ## Tool-independence is not platform agnosticism
 
@@ -149,3 +149,7 @@ The practitioner who builds from the concept re-learns nothing when the tool cha
 The practitioner reasoning from tools re-learns everything. Each migration is a reset. Each new platform reopens questions that should have been settled once, at the level of the concept. The repository built around platform affordances is not a detection program. It is a record of what the previous tool made convenient to express.
 
 A program built that way is not wrong because it used SPL. It is wrong because SPL was the reason its detections existed. That is the distinction the concept makes visible.
+
+---
+
+P.S: When I wrote detection engineering and Wazuh baseline as [a theory of it last time](https://zaferbalkan.com/detection-engineering/), it became somewhere between a practical and academic position. Reading it after months later, it was not of help to a reader, but a free flow of thoughts and dumps of resources. I wrote this article with the hope to provide a better foundation.
