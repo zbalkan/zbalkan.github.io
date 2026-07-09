@@ -78,7 +78,7 @@ detection:
 
 Converted to Microsoft KQL, the portable intent becomes:
 
-```kql
+```sql
 DeviceProcessEvents
 | where FileName =~ "cmd.exe" or FolderPath endswith @"\cmd.exe"
 | where ProcessCommandLine contains "powershell -nop"
