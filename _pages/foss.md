@@ -6,22 +6,22 @@ title: "Contributions"
 
 This page summarizes merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
 
-Generated: 2026-07-12 08:39 UTC
+Generated: 2026-07-13 09:55 UTC
 
 ## Repository Summary
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
 | [`getredash/redash`](https://github.com/getredash/redash) | **28693** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **20182** | 1 | [#369](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/369) merged 2022-05-08 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16088** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **15976** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14185** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9152** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
-| [`dotnet/docs`](https://github.com/dotnet/docs) | **4730** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **20202** | 1 | [#369](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/369) merged 2022-05-08 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16097** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **15983** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14193** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9177** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
+| [`dotnet/docs`](https://github.com/dotnet/docs) | **4731** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3674** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
-| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3075** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
-| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3072** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
+| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3077** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
+| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3073** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | [`duffn/dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | **3019** | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
 | [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1814** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
 | [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1331** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
