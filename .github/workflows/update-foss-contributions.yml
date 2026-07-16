@@ -20,7 +20,7 @@ env:
   SINCE_DATE: "2016-01-01"
   MIN_STARS: "2"
   OUTPUT_FILE: "_pages/foss.md"
-  TARGET_BRANCH: "main"
+  TARGET_BRANCH: "master"
 
 jobs:
   update-foss-contributions:
@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout main
+      - name: Checkout default branch
         uses: actions/checkout@v7
         with:
           ref: ${{ env.TARGET_BRANCH }}
@@ -536,7 +536,7 @@ jobs:
           git add -- "$OUTPUT_FILE"
           git commit -m "Update FOSS contributions page"
 
-          # Incorporate unrelated commits that may have reached main while
+          # Incorporate unrelated commits that may have reached default branch while
           # this workflow was generating the page.
           git pull --rebase origin "$TARGET_BRANCH"
           git push origin "HEAD:$TARGET_BRANCH"
