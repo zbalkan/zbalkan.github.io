@@ -20,49 +20,83 @@ env:
   SINCE_DATE: "2016-01-01"
   MIN_STARS: "2"
   OUTPUT_FILE: "_pages/foss.md"
+  TARGET_BRANCH: "main"
 
 jobs:
   update-foss-contributions:
+    name: Generate and commit contributions page
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
 
       - name: Generate FOSS contributions page
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          PYTHONUTF8: "1"
         run: |
+          set -Eeuo pipefail
+
           python3 <<'PY'
+          import html
           import json
           import os
           import re
           import subprocess
           import sys
+          import tempfile
           from collections import defaultdict
-          from datetime import datetime, timezone
+          from pathlib import Path
+          from typing import Any
 
-          github_user = os.environ["GITHUB_USER"]
-          excluded_users = os.environ["EXCLUDED_USERS"].split()
-          excluded_orgs = os.environ["EXCLUDED_ORGS"].split()
-          since_date = os.environ["SINCE_DATE"]
+
+          github_user = os.environ["GITHUB_USER"].strip()
+          excluded_users = os.environ.get("EXCLUDED_USERS", "").split()
+          excluded_orgs = os.environ.get("EXCLUDED_ORGS", "").split()
+          since_date = os.environ["SINCE_DATE"].strip()
           min_stars = int(os.environ.get("MIN_STARS", "0"))
-          output_file = os.environ["OUTPUT_FILE"]
+          output_file = Path(os.environ["OUTPUT_FILE"])
 
-          exclusion_terms = []
-          exclusion_terms.extend(f"-user:{user}" for user in excluded_users)
-          exclusion_terms.extend(f"-org:{org}" for org in excluded_orgs)
-          exclusion_query = " ".join(exclusion_terms)
+          if not github_user:
+              raise SystemExit("GITHUB_USER must not be empty.")
 
-          search_query = (
-              f"is:closed is:pr author:{github_user} "
-              f"archived:false {exclusion_query} "
-              f"merged:>{since_date}"
-          )
+          if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", since_date):
+              raise SystemExit(
+                  f"SINCE_DATE must use YYYY-MM-DD format; received: {since_date!r}"
+              )
+
+          if min_stars < 0:
+              raise SystemExit("MIN_STARS must be zero or greater.")
+
+          exclusion_terms = [
+              *(f"-user:{user}" for user in excluded_users),
+              *(f"-org:{org}" for org in excluded_orgs),
+          ]
+
+          search_parts = [
+              "is:pr",
+              "is:merged",
+              f"author:{github_user}",
+              *exclusion_terms,
+              f"merged:>={since_date}",
+          ]
+
+          search_query = " ".join(search_parts)
 
           graphql_query = """
           query($searchQuery: String!, $cursor: String) {
-            search(query: $searchQuery, type: ISSUE, first: 100, after: $cursor) {
+            search(
+              query: $searchQuery
+              type: ISSUE
+              first: 100
+              after: $cursor
+            ) {
               issueCount
               pageInfo {
                 hasNextPage
@@ -70,17 +104,18 @@ jobs:
               }
               nodes {
                 ... on PullRequest {
+                  id
                   title
                   url
                   number
-                  createdAt
-                  closedAt
-                  merged
                   mergedAt
                   repository {
+                    id
                     name
                     nameWithOwner
+                    url
                     stargazerCount
+                    isArchived
                     owner {
                       login
                     }
@@ -91,208 +126,417 @@ jobs:
           }
           """
 
-          def run_gh_graphql(query, search_query, cursor=None):
-              cmd = [
-                  "gh", "api", "graphql",
-                  "-f", f"query={query}",
-                  "-F", f"searchQuery={search_query}",
+
+          def run_gh_graphql(
+              query: str,
+              search_query: str,
+              cursor: str | None = None,
+          ) -> dict[str, Any]:
+              command = [
+                  "gh",
+                  "api",
+                  "graphql",
+                  "--field",
+                  f"query={query}",
+                  "--field",
+                  f"searchQuery={search_query}",
               ]
 
-              if cursor:
-                  cmd.extend(["-F", f"cursor={cursor}"])
+              if cursor is not None:
+                  command.extend(["--field", f"cursor={cursor}"])
 
               result = subprocess.run(
-                  cmd,
+                  command,
                   text=True,
                   capture_output=True,
                   check=False,
               )
 
               if result.returncode != 0:
-                  print(result.stdout, file=sys.stdout)
-                  print(result.stderr, file=sys.stderr)
-                  raise SystemExit(result.returncode)
+                  if result.stdout:
+                      print(result.stdout, file=sys.stdout)
 
-              data = json.loads(result.stdout)
+                  if result.stderr:
+                      print(result.stderr, file=sys.stderr)
 
-              if data.get("errors"):
-                  print(json.dumps(data["errors"], indent=2), file=sys.stderr)
-                  raise SystemExit(1)
+                  raise SystemExit(
+                      f"GitHub GraphQL request failed with exit code "
+                      f"{result.returncode}."
+                  )
 
-              return data
+              try:
+                  payload = json.loads(result.stdout)
+              except json.JSONDecodeError as error:
+                  print(result.stdout, file=sys.stderr)
+                  raise SystemExit(
+                      f"GitHub returned invalid JSON: {error}"
+                  ) from error
 
-          def table_cell(value):
-              value = "" if value is None else str(value)
-              value = re.sub(r"\s+", " ", value).strip()
-              return value.replace("|", "\\|")
+              errors = payload.get("errors")
 
-          print(f"Using query: {search_query}")
-          print(f"Minimum stars for summary table: {min_stars}")
+              if errors:
+                  print(
+                      json.dumps(errors, indent=2, ensure_ascii=False),
+                      file=sys.stderr,
+                  )
+                  raise SystemExit("GitHub GraphQL returned one or more errors.")
 
-          prs = []
-          cursor = None
-          issue_count = None
+              if "data" not in payload or "search" not in payload["data"]:
+                  raise SystemExit(
+                      "GitHub GraphQL response did not contain data.search."
+                  )
+
+              return payload
+
+
+          def markdown_text(value: object) -> str:
+              """
+              Normalize externally controlled text for use inside a Markdown
+              table cell.
+
+              HTML escaping prevents raw HTML injection. Escaping pipes keeps
+              the table structure intact. Escaping braces prevents accidental
+              Jekyll/Liquid interpretation.
+              """
+              text = "" if value is None else str(value)
+              text = re.sub(r"\s+", " ", text).strip()
+              text = html.escape(text, quote=True)
+              text = text.replace("|", r"\|")
+              text = text.replace("{", "&#123;").replace("}", "&#125;")
+              return text
+
+
+          print(f"GitHub user: {github_user}")
+          print(f"Search query: {search_query}")
+          print(f"Minimum stars in repository summary: {min_stars}")
+          print(f"Output file: {output_file}")
+
+          pull_requests_by_id: dict[str, dict[str, Any]] = {}
+          cursor: str | None = None
+          issue_count: int | None = None
+          page_number = 0
 
           while True:
-              data = run_gh_graphql(graphql_query, search_query, cursor)
-              search = data["data"]["search"]
+              page_number += 1
+
+              payload = run_gh_graphql(
+                  graphql_query,
+                  search_query,
+                  cursor,
+              )
+              search = payload["data"]["search"]
 
               if issue_count is None:
-                  issue_count = search.get("issueCount")
+                  issue_count = int(search["issueCount"])
 
-              for node in search["nodes"]:
+                  # GitHub's GraphQL search connection exposes at most
+                  # 1,000 results. Publishing a truncated page would be
+                  # misleading, so fail visibly instead.
+                  if issue_count > 1_000:
+                      raise SystemExit(
+                          "GitHub search returned "
+                          f"{issue_count} matches, exceeding the GraphQL search "
+                          "limit of 1,000. Partition the query by date ranges."
+                      )
+
+              nodes = search.get("nodes") or []
+              accepted_on_page = 0
+
+              for node in nodes:
                   if not node:
                       continue
 
-                  if not node.get("merged"):
-                      continue
+                  pull_request_id = node.get("id")
+                  merged_at = node.get("mergedAt")
+                  repository = node.get("repository")
 
-                  if not node.get("mergedAt"):
-                      continue
+                  if not pull_request_id:
+                      raise SystemExit(
+                          "A pull request was returned without a GraphQL ID."
+                      )
 
-                  prs.append(node)
+                  if not merged_at:
+                      raise SystemExit(
+                          "The is:merged query returned a pull request without "
+                          f"mergedAt: {node.get('url', pull_request_id)}"
+                      )
+
+                  if not repository:
+                      raise SystemExit(
+                          "A pull request was returned without repository data: "
+                          f"{node.get('url', pull_request_id)}"
+                      )
+
+                  # Deduplicate defensively in case search pagination changes
+                  # while the workflow is running.
+                  pull_requests_by_id[pull_request_id] = node
+                  accepted_on_page += 1
+
+              print(
+                  f"Processed page {page_number}: "
+                  f"{len(nodes)} nodes, {accepted_on_page} accepted."
+              )
 
               page_info = search["pageInfo"]
 
               if not page_info["hasNextPage"]:
                   break
 
-              cursor = page_info["endCursor"]
+              cursor = page_info.get("endCursor")
 
-          grouped = defaultdict(list)
+              if not cursor:
+                  raise SystemExit(
+                      "GitHub reported another page but supplied no end cursor."
+                  )
 
-          for pr in prs:
-              repo = pr["repository"]
-              owner = repo["owner"]["login"]
-              name = repo["name"]
-              full_name = repo["nameWithOwner"]
-              stars = repo.get("stargazerCount") or 0
+          pull_requests = list(pull_requests_by_id.values())
 
-              grouped[(owner, name, full_name, stars)].append({
-                  "title": pr["title"],
-                  "url": pr["url"],
-                  "number": pr["number"],
-                  "mergedAt": pr.get("mergedAt") or "",
-                  "createdAt": pr.get("createdAt") or "",
-              })
+          if issue_count is None:
+              raise SystemExit("GitHub search did not report issueCount.")
 
-          total_prs = len(prs)
-          total_repos = len(grouped)
+          if len(pull_requests) != issue_count:
+              raise SystemExit(
+                  "GitHub reported "
+                  f"{issue_count} matching pull requests, but "
+                  f"{len(pull_requests)} unique records were retrieved. "
+                  "Refusing to publish an incomplete page."
+              )
 
-          summary_repos = [
-              key for key in grouped.keys()
-              if key[3] >= min_stars
+          repositories: dict[str, dict[str, Any]] = {}
+
+          for pull_request in pull_requests:
+              repository = pull_request["repository"]
+              repository_id = repository["id"]
+
+              entry = repositories.setdefault(
+                  repository_id,
+                  {
+                      "id": repository_id,
+                      "owner": repository["owner"]["login"],
+                      "name": repository["name"],
+                      "full_name": repository["nameWithOwner"],
+                      "url": repository["url"],
+                      "stars": int(repository.get("stargazerCount") or 0),
+                      "archived": bool(repository.get("isArchived")),
+                      "pull_requests": [],
+                  },
+              )
+
+              # Repository metadata could theoretically change between
+              # paginated requests. Keep the most recent values returned.
+              entry.update(
+                  {
+                      "owner": repository["owner"]["login"],
+                      "name": repository["name"],
+                      "full_name": repository["nameWithOwner"],
+                      "url": repository["url"],
+                      "stars": int(repository.get("stargazerCount") or 0),
+                      "archived": bool(repository.get("isArchived")),
+                  }
+              )
+
+              entry["pull_requests"].append(
+                  {
+                      "title": pull_request["title"],
+                      "url": pull_request["url"],
+                      "number": int(pull_request["number"]),
+                      "merged_at": pull_request["mergedAt"],
+                  }
+              )
+
+          total_pull_requests = len(pull_requests)
+          total_repositories = len(repositories)
+
+          summary_repositories = [
+              repository
+              for repository in repositories.values()
+              if repository["stars"] >= min_stars
           ]
 
-          summary_prs_count = sum(len(grouped[key]) for key in summary_repos)
-          summary_repos_count = len(summary_repos)
-          generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-          lines = []
-          lines.append("---")
-          lines.append("layout: single")
-          lines.append("permalink: /foss/")
-          lines.append('title: "Contributions"')
-          lines.append("---")
-          lines.append("")
-          lines.append(
-              "This page summarizes merged pull requests I have contributed to "
-              "third-party open-source repositories. It excludes repositories under "
-              "`zbalkan` and `DeltaZulu-OU`."
+          summary_pull_request_count = sum(
+              len(repository["pull_requests"])
+              for repository in summary_repositories
           )
-          lines.append("")
-          lines.append(f"Generated: {generated_at}")
 
-          if issue_count is not None and issue_count != total_prs:
-              lines.append("")
-              lines.append(
-                  f"Note: GitHub search reported **{issue_count}** matching items before "
-                  f"post-filtering. The generated list contains **{total_prs}** merged pull requests."
-              )
+          lines: list[str] = [
+              "---",
+              "layout: single",
+              "permalink: /foss/",
+              'title: "Contributions"',
+              "---",
+              "",
+              (
+                  "This page summarizes merged pull requests I have contributed "
+                  "to third-party open-source repositories. It excludes "
+                  "repositories under `zbalkan` and `DeltaZulu-OU`."
+              ),
+              "",
+              "## Repository Summary",
+              "",
+              "| Repository | Stars ★ | Merged PRs | Latest merged PR |",
+              "|---|---:|---:|---|",
+          ]
 
-          lines.append("")
-          lines.append("## Repository Summary")
-          lines.append("")
-          lines.append("| Repository | Stars ★ | Merged PRs | Latest merged PR |")
-          lines.append("|---|---:|---:|---|")
-
-          for owner, name, full_name, stars in sorted(
-              summary_repos,
-              key=lambda x: (-x[3], -len(grouped[x]), x[2].lower())
+          for repository in sorted(
+              summary_repositories,
+              key=lambda item: (
+                  -item["stars"],
+                  -len(item["pull_requests"]),
+                  item["full_name"].casefold(),
+              ),
           ):
-              repo_prs = sorted(
-                  grouped[(owner, name, full_name, stars)],
-                  key=lambda p: p["mergedAt"],
-                  reverse=True
+              repository_pull_requests = sorted(
+                  repository["pull_requests"],
+                  key=lambda item: (
+                      item["merged_at"],
+                      item["number"],
+                  ),
+                  reverse=True,
               )
 
-              latest = repo_prs[0]
-              latest_date = latest["mergedAt"][:10] if latest["mergedAt"] else ""
+              latest = repository_pull_requests[0]
+              latest_date = latest["merged_at"][:10]
               latest_link = f"[#{latest['number']}]({latest['url']})"
+              archived_suffix = " *(archived)*" if repository["archived"] else ""
 
               lines.append(
-                  f"| [`{table_cell(full_name)}`](https://github.com/{full_name}) | "
-                  f"**{stars}** | {len(repo_prs)} | {latest_link} merged {latest_date} |"
+                  f"| [`{markdown_text(repository['full_name'])}`]"
+                  f"({repository['url']}){archived_suffix} | "
+                  f"**{repository['stars']}** | "
+                  f"{len(repository_pull_requests)} | "
+                  f"{latest_link} merged {latest_date} |"
               )
 
           lines.append(
-              f"| **Total shown** |  | **{summary_prs_count}** | "
-              f"**{summary_repos_count} repositories shown / {total_repos} total repositories, "
-              f"{total_prs} total merged PRs found** |"
+              f"| **Total shown** |  | "
+              f"**{summary_pull_request_count}** | "
+              f"**{len(summary_repositories)} repositories shown / "
+              f"{total_repositories} total repositories, "
+              f"{total_pull_requests} total merged PRs found** |"
           )
 
-          lines.append("")
-          lines.append("## Pull Requests by Repository")
-          lines.append("")
+          lines.extend(
+              [
+                  "",
+                  "## Pull Requests by Repository",
+                  "",
+              ]
+          )
 
-          for owner, name, full_name, stars in sorted(
-              grouped.keys(),
-              key=lambda x: (x[0].lower(), x[1].lower())
+          for repository in sorted(
+              repositories.values(),
+              key=lambda item: (
+                  item["owner"].casefold(),
+                  item["name"].casefold(),
+              ),
           ):
-              repo_url = f"https://github.com/{full_name}"
-              lines.append(f"### [{full_name}]({repo_url})")
-              lines.append("")
-              lines.append("| PR | Title | Merged |")
-              lines.append("|---:|---|---|")
+              archived_suffix = " — Archived" if repository["archived"] else ""
 
-              repo_prs = sorted(
-                  grouped[(owner, name, full_name, stars)],
-                  key=lambda p: p["mergedAt"],
-                  reverse=True
+              lines.extend(
+                  [
+                      (
+                          f"### [{markdown_text(repository['full_name'])}]"
+                          f"({repository['url']}){archived_suffix}"
+                      ),
+                      "",
+                      "| PR | Title | Merged |",
+                      "|---:|---|---|",
+                  ]
               )
 
-              for pr in repo_prs:
-                  merged_date = pr["mergedAt"][:10] if pr["mergedAt"] else ""
-                  title = table_cell(pr["title"])
+              repository_pull_requests = sorted(
+                  repository["pull_requests"],
+                  key=lambda item: (
+                      item["merged_at"],
+                      item["number"],
+                  ),
+                  reverse=True,
+              )
+
+              for pull_request in repository_pull_requests:
+                  merged_date = pull_request["merged_at"][:10]
+
                   lines.append(
-                      f"| [#{pr['number']}]({pr['url']}) | {title} | {merged_date} |"
+                      f"| [#{pull_request['number']}]"
+                      f"({pull_request['url']}) | "
+                      f"{markdown_text(pull_request['title'])} | "
+                      f"{merged_date} |"
                   )
 
               lines.append("")
 
-          lines.append("")
-          lines.append(f"Query: `{search_query}`")
-          lines.append("{: .notice}")
-          lines.append("")
+          lines.extend(
+              [
+                  f"Query: `{markdown_text(search_query)}`",
+                  "{: .notice}",
+                  "",
+              ]
+          )
 
-          output_dir = os.path.dirname(output_file)
-          if output_dir:
-              os.makedirs(output_dir, exist_ok=True)
+          rendered = "\n".join(lines).rstrip() + "\n"
 
-          with open(output_file, "w", encoding="utf-8", newline="\n") as f:
-              f.write("\n".join(lines).rstrip() + "\n")
+          output_file.parent.mkdir(parents=True, exist_ok=True)
+
+          current = None
+
+          try:
+              current = output_file.read_text(encoding="utf-8")
+          except FileNotFoundError:
+              pass
+
+          if current == rendered:
+              print("Generated page is unchanged.")
+              raise SystemExit(0)
+
+          # Write atomically so an interrupted generation does not leave a
+          # partially written page.
+          temporary_path: Path | None = None
+
+          try:
+              with tempfile.NamedTemporaryFile(
+                  mode="w",
+                  encoding="utf-8",
+                  newline="\n",
+                  dir=output_file.parent,
+                  prefix=f".{output_file.name}.",
+                  suffix=".tmp",
+                  delete=False,
+              ) as temporary_file:
+                  temporary_file.write(rendered)
+                  temporary_path = Path(temporary_file.name)
+
+              temporary_path.replace(output_file)
+          finally:
+              if temporary_path is not None and temporary_path.exists():
+                  temporary_path.unlink()
+
+          print(
+              f"Wrote {total_pull_requests} pull requests from "
+              f"{total_repositories} repositories to {output_file}."
+          )
           PY
 
       - name: Commit updated page
+        shell: bash
         run: |
-          if [ -z "$(git status --porcelain -- "$OUTPUT_FILE")" ]; then
-            echo "No changes to commit."
+          set -Eeuo pipefail
+
+          if git diff --quiet -- "$OUTPUT_FILE"; then
+            echo "No contribution changes to commit."
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Changes detected in $OUTPUT_FILE:"
+          git diff --stat -- "$OUTPUT_FILE"
 
-          git add "$OUTPUT_FILE"
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- "$OUTPUT_FILE"
           git commit -m "Update FOSS contributions page"
-          git push
+
+          # Incorporate unrelated commits that may have reached main while
+          # this workflow was generating the page.
+          git pull --rebase origin "$TARGET_BRANCH"
+          git push origin "HEAD:$TARGET_BRANCH"
