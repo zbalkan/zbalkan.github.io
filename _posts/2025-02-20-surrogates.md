@@ -8,7 +8,7 @@ tags:
 last_modified_at: 2025-02-26T12:32:00+02:00
 ---
 
-This time I am going to write about some odd behavior by Windows. The behavior is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
+This time I am going to write about some odd behaviour by Windows. The behaviour is by design and there is no obvious security impact. Therefore, this article is written just for the sake of sharing some geeky content.
 
 ## What do you see?
 
@@ -48,7 +48,7 @@ There is nothing suspicious about the executable. It is just the weird decoding 
 
 ## It's complicated
 
-These files have names that include unrenderable characters. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarize, still[^1].
+These files have names that include unrenderable characters. No language pack can help you. These are called surrogate pairs. There are better explanations online, and I'd rather leave the explanation to them. I'd like to summarise, still[^1].
 
 Windows was an early adopter of Unicode, and its file APIs use UTF‑16 internally since Windows 2000-used to be UCS-2 in Windows 95 era, when Unicode standard was only a draft on paper, but that's another topic. Using UTF-16 means that filenames, text strings, and other data are stored as sequences of 16‑bit units. For Windows, a properly formed surrogate pair is perfectly acceptable[^2]. However, issues arise when string manipulation produces isolated or malformed surrogates. Such errors can lead to unreadable filenames and display glitches—even though the operating system itself can execute files correctly. But we can create them deliberately as well, which we can see below.
 
@@ -77,7 +77,7 @@ Thus, the surrogate pair `\ud83e\udd26` represents the emoji 🤦. Although thes
 
 ## Wanna try?
 
-You can try the Python code below to create a bunch of squares or rather files with invalid UTF-8 names that cannot be rendered in any localization setup. As you have read above, these are expected not to be rendered. To create unrenderable file names, we need the high and low surrogates. See the table for the range.
+You can try the Python code below to create a bunch of squares or rather files with invalid UTF-8 names that cannot be rendered in any localisation setup. As you have read above, these are expected not to be rendered. To create unrenderable file names, we need the high and low surrogates. See the table for the range.
 
 | Surrogate Type | Unicode Range | Expected UTF-8 Encoding |
 |----------------|---------------|-------------------------|
@@ -122,7 +122,7 @@ Test the code, and play with it. I know that these would break some FIM solution
 
 ## Postscriptum
 
-I wanted to add another section about comparison with Linux. Even though I mentioned it in the footnotes, it is better to visualize.
+I wanted to add another section about comparison with Linux. Even though I mentioned it in the footnotes, it is better to visualise.
 
 Let's check the existing file on WSL, to see how Ubuntu will render it. When we check the locale, we see that our WSL instance is set to use UTF-8:
 
@@ -146,7 +146,7 @@ While the script result tells us that all the write operations succeeded, `ls` s
 <img src="/assets/images/what-wsl-lin3.png" width="600" alt="Changed the locale to POSIX">
 <img src="/assets/images/what-wsl-lin4.png" width="600" alt="Changed the locale to POSIX">
 
-Script gets completed as expected. But this time there are only one file generated instead of 2! At this point I am not sure what has happened. I am assuming this is due to the fact that UTF-8 supports more characters so that it allowed one more valid file name than POSIX did. Let me know if you have more information on the behavioral difference here. You can find the code I used on Linux here. Beware that I do not use `surrogatepass` as we do not decode bytes to string in Linux. We can just use bytes as file names.
+Script gets completed as expected. But this time there are only one file generated instead of 2! At this point I am not sure what has happened. I am assuming this is due to the fact that UTF-8 supports more characters so that it allowed one more valid file name than POSIX did. Let me know if you have more information on the behavioural difference here. You can find the code I used on Linux here. Beware that I do not use `surrogatepass` as we do not decode bytes to string in Linux. We can just use bytes as file names.
 
 ```python
 import os
@@ -184,7 +184,7 @@ print(f"\n\nFiles created in directory: {out_path}\n")
 print(f"{success_count} files created out of {total} total files")
 ```
 
-We can see that surrogate pairs, as UTF-16-specific features, causes different behavior on Windows and Linux side. Windows allowed these characters to be used while Linux dropped some bytes, *possibly* UTF-8 assumptions. I don't know enough about the internals here.
+We can see that surrogate pairs, as UTF-16-specific features, causes different behaviour on Windows and Linux side. Windows allowed these characters to be used while Linux dropped some bytes, *possibly* UTF-8 assumptions. I don't know enough about the internals here.
 
 ---
 

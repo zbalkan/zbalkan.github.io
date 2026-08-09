@@ -9,9 +9,9 @@ tags:
 last_modified_at: 2025-02-25T11:45:00+02:00
 ---
 
-[Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon) is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilize known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
+[Sysmon](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon) is the go-to utility for most of those who want more visibility on their Windows endpoints. Sysadmins or security engineers try to utilise known good baselines instead of configuring manually. Generally, this baseline is either [SwiftOnSecurity](https://github.com/SwiftOnSecurity/sysmon-config) or [Olaf Hartong's work](https://github.com/olafhartong/sysmon-modular).
 
-Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog. There, you can find many advanced ways for optimizing Wazuh to detect very specific behaviors. I do not suggest mixing them up and having a too verbose configuration. It is the most accurate way of having an alert fatigue.
+Sysmon is amazing with the ability it provides for visibility. You can find the [articles](https://wazuh.com/search/?s=sysmon) that use Sysmon with Wazuh on the official blog. There, you can find many advanced ways for optimising Wazuh to detect very specific behaviours. I do not suggest mixing them up and having a too verbose configuration. It is the most accurate way of having an alert fatigue.
 
 <img src="/assets/images/sysmon-logo.png" width="600" alt="Sysinternals Sysmon logo">
 
@@ -27,7 +27,7 @@ I want to mention some basics to ensure we are on the same page:
 
 ## Fine-tuning for Wazuh
 
-I'd like to note that if you are using Wazuh, just like any SIEM, you need some fine-tuning and tailoring for your environment. Then, you need a continuous fine-tuning process during the lifetime. As a *filter-at-source* mechanism for your SIEM, Sysmon needs sane configurations as well. I have mentioned that the users generally stick to the well-known configurations. Before even adapting to your own environment, we can modify those configurations for Wazuh by comparing the File Integrity Monitoring (FIM) capabilities to Sysmon. This level of filtering helps you optimize the load. Analyze the table below for a comparison.
+I'd like to note that if you are using Wazuh, just like any SIEM, you need some fine-tuning and tailoring for your environment. Then, you need a continuous fine-tuning process during the lifetime. As a *filter-at-source* mechanism for your SIEM, Sysmon needs sane configurations as well. I have mentioned that the users generally stick to the well-known configurations. Before even adapting to your own environment, we can modify those configurations for Wazuh by comparing the File Integrity Monitoring (FIM) capabilities to Sysmon. This level of filtering helps you optimise the load. Analyse the table below for a comparison.
 
 | Event ID | Name | Covered by Wazuh FIM | Atomic Rule ID | Rule Group | Child rule files | Data Source [^1] |
 |---:|---|---|---:|---|---|---:|
@@ -70,7 +70,7 @@ Under the circumstances, you need to follow these steps if you want to make the 
 - Exclude events covered by FIM
 - Either
   - Write custom rules for Sysmon events not covered by the default ruleset, or
-  - Exclude those events in your Sysmon configuration to minimize the load[^2].
+  - Exclude those events in your Sysmon configuration to minimise the load[^2].
 
 This approach will give you the best of both worlds. To help other Wazuh users, I provided modified versions of the most popular Sysmon configurations in gists. Please compare the original versions against the ones I shared to see the notes on further details and understand what has been suppressed.
 

@@ -9,7 +9,7 @@ tags:
   - Attack simulation
 ---
 
-Wazuh's powerful log analysis and rule engine enables organizations to monitor and respond to various security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the Wazuh log testing capabilities shines—providing a sandboxed environment to validate and refine rules against sample logs. Log testing can happen via RESTful API, Dashboard or `wazuh-logtest` CLI tool. All the capabilities I am going to mention below apply to these three methods, even though I will name only `wazuh-logtest` from now on.
+Wazuh's powerful log analysis and rule engine enables organisations to monitor and respond to various security events. For Wazuh users, fine-tuning and testing custom rules and decoders is a crucial part of the process. This is where the Wazuh log testing capabilities shines—providing a sandboxed environment to validate and refine rules against sample logs. Log testing can happen via RESTful API, Dashboard or `wazuh-logtest` CLI tool. All the capabilities I am going to mention below apply to these three methods, even though I will name only `wazuh-logtest` from now on.
 
 However, regarding Windows event logs, the `wazuh-logtest` presents a unique challenge. In this article, I’ll explore the problem and introduce `wazuhevtx`, a tool designed to bridge the gap and bring seamless rule testing for Windows event logs to the Wazuh ecosystem.
 
@@ -17,7 +17,7 @@ However, regarding Windows event logs, the `wazuh-logtest` presents a unique cha
 
 ### Rule Testing with `wazuh-logtest`
 
-The `wazuh-logtest` tool is an interactive utility that enables users to test rules and decoders in isolation. It allows you to paste sample logs, view their processing lifecycle, and observe which rules match. This three-phase process—pre-decoding, decoding, and filtering—helps users debug decoders, refine rules, and validate expected behaviors. You can find the [official documentation of the tool](https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html) for parameters, [getting started guide](https://documentation.wazuh.com/current/user-manual/ruleset/testing.html), and [architecture](https://documentation.wazuh.com/current/development/wazuh-logtest.html) on Wazuh resources.
+The `wazuh-logtest` tool is an interactive utility that enables users to test rules and decoders in isolation. It allows you to paste sample logs, view their processing lifecycle, and observe which rules match. This three-phase process—pre-decoding, decoding, and filtering—helps users debug decoders, refine rules, and validate expected behaviours. You can find the [official documentation of the tool](https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html) for parameters, [getting started guide](https://documentation.wazuh.com/current/user-manual/ruleset/testing.html), and [architecture](https://documentation.wazuh.com/current/development/wazuh-logtest.html) on Wazuh resources.
 
 #### How `wazuh-logtest` Works
 
@@ -41,7 +41,7 @@ On the Wazuh manager node, run this command to start.
 Oct 15 21:07:00 linux-agent sshd[29205]: Invalid user blimey from 18.18.18.18 port 48928
 ```
 
-3. **Analyze the Output:** The tool processes the log in three phases
+3. **Analyse the Output:** The tool processes the log in three phases
 
   Phase 1: Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp.
 <img src="/assets/images/logtest-phase1.png" width="800" alt="Pre-Decoding—Extracts metadata such as hostname, program_name, and timestamp">
@@ -638,7 +638,7 @@ But this is not enough. It is still nothing but noise. In order to make this ale
 <img src="/assets/images/uacme-log6.PNG" width="800" alt="Log 6 (20:43:58.450 UTC): explorer.exe Accesses Taskmgr.exe">
 
 * Following svchost.exe, the explorer.exe process accessed Taskmgr.exe. The granted access rights (0x12367B) suggest this was a standard interaction initiated by the desktop shell for process visibility or integration with the Task Manager GUI.
-* This interaction likely reflects normal system behavior rather than malicious intent.
+* This interaction likely reflects normal system behaviour rather than malicious intent.
 
 ```plaintext
 **Phase 1: Completed pre-decoding.

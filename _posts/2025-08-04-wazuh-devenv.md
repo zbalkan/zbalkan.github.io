@@ -25,7 +25,7 @@ last_modified_at: 2025-08-15T14:20:00+03:00
 
 At the beginning were the logs. Then, people started collecting, filtering, correlating, and aggregating them. They implemented data engineering pipelines for log data. Now, it is the software engineering's turn to take the best practices. In combination with these, the discipline of detection engineering has slowly arisen over the last decade. It is a relatively recent term that has found its way into taxonomy, but it caught on very fast. However, it is a matter of scale and [maturity](https://www.elastic.co/security-labs/elastic-releases-debmm).
 
-If you are running [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) in your environment in your organization, either to protect your entity or others' as a service provider, one of the primary operational challenges you would face is the "customization tax"[^1]. You need to keep your detection rules up to date, working, and not conflicting with each other. You need to write your suppressions properly as well.
+If you are running [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) in your environment in your organisation, either to protect your entity or others' as a service provider, one of the primary operational challenges you would face is the "customisation tax"[^1]. You need to keep your detection rules up to date, working, and not conflicting with each other. You need to write your suppressions properly as well.
 
 If you have ever written software more complex than basic scripting, the solution to the problems above may sound a lot like unit tests and regression tests to you. And you'd be right. This is where Detection as Code (DaC)[^2], a term of the detection engineering field, comes into play. Treat your detections as code, and make them testable. So that you can make use of generic CI/CD pipelines for all the capabilities. This will add accidental complexity as it is based on "how you solved the problem". The essential complexity, aka "the complex nature of the problem you are trying to solve,"[^3] is already there: detecting suspicious and malicious activity within a dumpster of logs. Therefore, you apply similar solutions to similar problems, borrowing from the decades-long experience of the software engineering field.
 
@@ -47,7 +47,7 @@ What would be the easiest way to solve this problem? Well, a test or staging env
 For Wazuh 4.x, I've implemented a DaC model using a lightweight Python-based testing harness and a local Wazuh instance. This setup allows you to:
 
 - Develop and validate rules in isolation
-- Use behavioral testing to confirm expected alerting
+- Use behavioural testing to confirm expected alerting
 - Use Git workflows for collaboration and promotion
 - Deploy only after tests and reviews have passed
 
@@ -60,7 +60,7 @@ I must warn that it is possible to store configurations, rules, and decoders in 
 
 {% include gallery id="galleryGraph" caption="Detection-as-Code workflow samples" %}
 
-It all starts with logs. You need to obtain sample logs for whatever the new data source is. I am more into the [Red, Green, Refactor](https://martinfowler.com/bliki/TestDrivenDevelopment.html) motto of test-driven development. While I suggest you Google and learn this interesting topic by yourselves, I can summarize so as not to break your attention flow. In TDD, tests are your requirements or specs. So, for `Red, Green, Refactor`, the developer starts with writing tests as software-defined requirements. Then, without any piece of code, the tests would fail; hence, the first step is `Red`. Afterwards, the developers start writing code to meet the requirements, ensuring the tests pass, so that the tests are `Green`. At this point, you meet your functional requirements. So, you can proceed with `Refactor` and ensure not breaking the tests.
+It all starts with logs. You need to obtain sample logs for whatever the new data source is. I am more into the [Red, Green, Refactor](https://martinfowler.com/bliki/TestDrivenDevelopment.html) motto of test-driven development. While I suggest you Google and learn this interesting topic by yourselves, I can summarise so as not to break your attention flow. In TDD, tests are your requirements or specs. So, for `Red, Green, Refactor`, the developer starts with writing tests as software-defined requirements. Then, without any piece of code, the tests would fail; hence, the first step is `Red`. Afterwards, the developers start writing code to meet the requirements, ensuring the tests pass, so that the tests are `Green`. At this point, you meet your functional requirements. So, you can proceed with `Refactor` and ensure not breaking the tests.
 
 For security folks with no software development background, I need to mention what refactoring means. Tight deadlines, lack of experience, bad management, or clever(!) shortcuts cause `dirty code`. Dirty code is hard to read, hard to understand, and worse, hard to maintain in the long term. In order to make your code clean, you invest your time and effort to ensure you do not break the code while making it easier to maintain.
 {: .notice--info}
@@ -69,12 +69,12 @@ After we get the logs, we write tests, then build our detection building blocks 
 
 In the end, I built the testing framework for Wazuh rules, [wazuh-devenv](https://github.com/zbalkan/wazuh-devenv). I used the term `devenv` specifically since I care about the testing part in the eyes of the developers or detection engineers. We need something that can run in the IDE or CLI. The same testing framework can be used for further steps in your pipelines, or even a Breach and Attack Simulation (BAS) process.
 
-I had a local test environment in WSL just to use `wazuh-logtest`. The idea of writing a test framework around it came a bit later, around September 2014. Originally, I started developing this framework around October 2024, and I believe it is mature enough to let others utilize it.
+I had a local test environment in WSL just to use `wazuh-logtest`. The idea of writing a test framework around it came a bit later, around September 2014. Originally, I started developing this framework around October 2024, and I believe it is mature enough to let others utilise it.
 {: .notice--primary}
 
 ## Wazuh-devenv Testing Model
 
-Please check the [README file](https://github.com/zbalkan/wazuh-devenv/blob/main/README.md#installation) of the project for installation instructions. Here, the focus is on the tests. Now, let's write our first test. In the `wazuh-devenv` project structure, you'll see that the tests are categorized under 3 directories: preflight_tests, regression_tests, and behavioral_tests.
+Please check the [README file](https://github.com/zbalkan/wazuh-devenv/blob/main/README.md#installation) of the project for installation instructions. Here, the focus is on the tests. Now, let's write our first test. In the `wazuh-devenv` project structure, you'll see that the tests are categorised under 3 directories: preflight_tests, regression_tests, and behavioral_tests.
 
 {% include gallery id="galleryTree" caption="Directory tree in VS Code" %}
 
@@ -82,7 +82,7 @@ Please check the [README file](https://github.com/zbalkan/wazuh-devenv/blob/main
 - `regression_tests`: These tests are the ones you must focus on.
   - `builtin`: These are generated from the INI-formatted tests from [the Wazuh repository](https://github.com/wazuh/wazuh). I developed a test generator for this purpose, then manually fixed the remaining problems, and pasted the test code into this repository. The directory contains 1635 tests, and 75 out of them are skipped for various reasons. The top reason is the `send_multiple_logs` function, which accepts a list of logs as input. It is useful for temporal rules like "Multiple failed logins" where **N number of logs within T seconds** must trigger an alert. We skip multiple single-item tests and merge them into a combined test accepting multiple logs. As a side note, I do not suggest running built-in tests very often as they would require 20-30 mins under a 4GB RAM, 2 CPU environment. You do not need to touch this folder at all.
   - `custom`: **This is the place you must write the tests for your custom rules**. It is under regression tests as they are testing whether your rules are working or not after changes.
-- `behavioral_tests`: This directory is designed for Breach and Attack Simulations or advanced testing scenarios. You can read this old article on testing Wazuh with Atomic Red Team. This is an advanced case and out of the scope of this article. If you want to give it a try on behavioral tests, check [these](https://socfortress.medium.com/validate-your-security-detection-rules-23e90a256ae8) [two](https://socfortress.medium.com/how-to-run-atomic-red-team-on-linux-and-automate-attack-simulations-with-velociraptor-d4b52b05721b) articles by Taylor Walton on utilizing Atomic Red Team and Wazuh, and make up your mind on how to build a behavioral test pipeline.
+- `behavioral_tests`: This directory is designed for Breach and Attack Simulations or advanced testing scenarios. You can read this old article on testing Wazuh with Atomic Red Team. This is an advanced case and out of the scope of this article. If you want to give it a try on behavioural tests, check [these](https://socfortress.medium.com/validate-your-security-detection-rules-23e90a256ae8) [two](https://socfortress.medium.com/how-to-run-atomic-red-team-on-linux-and-automate-attack-simulations-with-velociraptor-d4b52b05721b) articles by Taylor Walton on utilising Atomic Red Team and Wazuh, and make up your mind on how to build a behavioural test pipeline.
 
 We'll write our first test based on an old article on the Wazuh blog, [Creating decoders and rules from scratch](https://wazuh.com/blog/creating-decoders-and-rules-from-scratch/). Following the workflow, let's get the log first.
 
@@ -281,11 +281,11 @@ How does this additional complexity improve your detection environment? I wanted
 
 ### Value measured by Detection-as-Code Maturity
 
-The [Elastic Detection Engineering Behavior Maturity Model (DEBMM)](https://www.elastic.co/security-labs/elastic-releases-debmm) is a structured framework for evaluating and improving how security teams develop, test, deploy, and maintain detection rules. It defines maturity across several key areas, including telemetry integration, threat landscape alignment, false positive/negative reduction, stakeholder collaboration, and automation. Each area is broken down into qualitative behaviors and quantitative metrics, allowing teams to assess where they stand and what operational capabilities are required to progress.
+The [Elastic Detection Engineering Behavior Maturity Model (DEBMM)](https://www.elastic.co/security-labs/elastic-releases-debmm) is a structured framework for evaluating and improving how security teams develop, test, deploy, and maintain detection rules. It defines maturity across several key areas, including telemetry integration, threat landscape alignment, false positive/negative reduction, stakeholder collaboration, and automation. Each area is broken down into qualitative behaviours and quantitative metrics, allowing teams to assess where they stand and what operational capabilities are required to progress.
 
 {% include gallery id="galleryDebmm" caption="Detection Engineering Behavior Maturity Model" %}
 
-DEBMM addresses the common challenges faced in detection engineering: outdated or static rules, inconsistent testing, lack of telemetry context, poor integration with threat intelligence, and reactive tuning. By introducing defined maturity tiers and measurable criteria, it enables teams to move from ad hoc processes to disciplined, automated, and intelligence-driven detection workflows. The added value lies in improved rule fidelity, reduced alert noise, faster adaptation to new threats, and clearer prioritization of engineering efforts. However, reaching higher maturity levels involves non-trivial investment—engineering time, automation infrastructure, cross-team collaboration, and in some cases, integration of AI or machine learning pipelines.
+DEBMM addresses the common challenges faced in detection engineering: outdated or static rules, inconsistent testing, lack of telemetry context, poor integration with threat intelligence, and reactive tuning. By introducing defined maturity tiers and measurable criteria, it enables teams to move from ad hoc processes to disciplined, automated, and intelligence-driven detection workflows. The added value lies in improved rule fidelity, reduced alert noise, faster adaptation to new threats, and clearer prioritisation of engineering efforts. However, reaching higher maturity levels involves non-trivial investment—engineering time, automation infrastructure, cross-team collaboration, and in some cases, integration of AI or machine learning pipelines.
 
 We can now assess what we can build with the `wazuh-devenv` project, with the structured approach of DEBMM:
 
@@ -325,7 +325,7 @@ If "But, I don't want a complex pipeline!" was your thought after reading the ar
 
 ## Conclusion
 
-The [wazuh-devenv](https://github.com/zbalkan/wazuh-devenv) project demonstrates that Detection-as-Code is both achievable and practical —even in XML-based streaming engines like Wazuh 4.x. By combining version control, behavioral testing, and structured workflows, you can safely iterate on detection logic, catch problems before they hit production, track what changed, when, and why. It's a foundational step toward scalable, resilient, and auditable detection engineering.
+The [wazuh-devenv](https://github.com/zbalkan/wazuh-devenv) project demonstrates that Detection-as-Code is both achievable and practical —even in XML-based streaming engines like Wazuh 4.x. By combining version control, behavioural testing, and structured workflows, you can safely iterate on detection logic, catch problems before they hit production, track what changed, when, and why. It's a foundational step towards scalable, resilient, and auditable detection engineering.
 
 Future work is the migration paths for Wazuh 5.x's new detection engine. But there's time for that.
 

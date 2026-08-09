@@ -1,5 +1,5 @@
 ---
-title: "Detection-as-Code for Wazuh 4.x: Log replay for behavioral testing"
+title: "Detection-as-Code for Wazuh 4.x: Log replay for behavioural testing"
 tags:
   - Wazuh
   - SIEM
@@ -45,7 +45,7 @@ galleryRegression:
     image_path: /assets/images/replay-regression.png
 ---
 
-After my previous [blog article](https://zaferbalkan.com/wazuh-devenv/), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioral tests for [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program). In this article, we will walk through the steps one by one to install and set up the development environment on WSL[^1] and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
+After my previous [blog article](https://zaferbalkan.com/wazuh-devenv/), I received feedback that it is good at providing a high-level perspective but lacks the bottom-up approach of technical implementations. Therefore, I decided to write a how-to guide dedicated to writing behavioural tests for [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program). In this article, we will walk through the steps one by one to install and set up the development environment on WSL[^1] and then write our first tests. I will try to do a walkthrough, but I'll add context whenever I can.
 
 **Full disclosure:** I developed `wazuh-devenv`, `wazuhevtx`, and `wazuh-testgen` because I kept running into the same testing challenges in my own work. They’re open-source, built for my workflow, and may not be the only way to achieve these results. This article is more like "my way" of implementing Detection-as-Code. Feel free to adapt the concepts here using your own tools or methods—what matters is making detection testing repeatable and reliable.
 {: .notice--info}
@@ -54,7 +54,7 @@ After my previous [blog article](https://zaferbalkan.com/wazuh-devenv/), I recei
 
 Here’s a narrative version with the same voice and glossary, no numbered steps:
 
-I’m assuming you’ve already got your favorite Python IDE handy; I’ll use VS Code here because it plays nicely with WSL and lets me keep everything inside Windows while coding against Linux. First things first: make sure WSL itself is installed. If it isn’t, open an elevated terminal and run `wsl --install`, then reboot when Windows asks. Once WSL is available, pick the Linux distro that best mirrors your production environment so your tests behave the same way. You can see what’s officially supported at the moment by asking WSL to list them:
+I’m assuming you’ve already got your favourite Python IDE handy; I’ll use VS Code here because it plays nicely with WSL and lets me keep everything inside Windows while coding against Linux. First things first: make sure WSL itself is installed. If it isn’t, open an elevated terminal and run `wsl --install`, then reboot when Windows asks. Once WSL is available, pick the Linux distro that best mirrors your production environment so your tests behave the same way. You can see what’s officially supported at the moment by asking WSL to list them:
 
 ```ini
 wsl.exe --list --online
@@ -140,7 +140,7 @@ Wazuh rules are like building blocks. Unlike other rule languages like Sigma or 
 
 This unique design also has side effects: converting Sigma or some other detection language to Wazuh is not a one-to-one translation job. You must find a parent for a proper detection logic. While you can have rules without a parent, you would end up with independent nodes and basically break the tree/graph structure I mentioned above. In the long term, you'll face performance issues. However, while drafting your rule, that is still the first step. You start with a very specific rule, then find a suitable parent in the current ruleset. We will use this approach very soon.
 
-{% include gallery id="galleryExplorer" caption="Wazuh default ruleset visualized as a directed acyclic graph (DAG)" %}
+{% include gallery id="galleryExplorer" caption="Wazuh default ruleset visualised as a directed acyclic graph (DAG)" %}
 
 In the graph above[^3], you can see the first-level rules, depicted as the children of the **virtual root** I created. It shows the rules with no parent rule. This is the starting point of every match. One of the great resources when detecting threats in Windows endpoints is the very noisy `Security/4688` [^4]. In the graph, you can see the parent-child relationship I have mentioned. In the reverse order, we can see these rules:
 
@@ -152,13 +152,13 @@ In the graph above[^3], you can see the first-level rules, depicted as the child
 
 {% include gallery id="galleryTree" caption="Wazuh rule `67027 - A process was created.` shown in the graph" %}
 
-Now that we understand the way rules work, we can proceed with writing behavioral rules.
+Now that we understand the way rules work, we can proceed with writing behavioural rules.
 
-### Behavioral testing through log replay
+### Behavioural testing through log replay
 
-The Wazuh rules are building blocks chained as tree or graph structures, as we mentioned in the previous paragraph. Therefore, testing single rules ensures that the engineer does not break the evaluation chain. This is the reason I called these tests [regression tests](https://en.wikipedia.org/wiki/Regression_testing): to ensure changes did not break previously functioning parts. But regression testing do not guarantee better detection coverage, that is the job of attack simulations. You can attack test devices or services and monitor the alerts. That way, we can ensure we are covering proper behavior-based detections in our environment. Refer to the [Emulation of ATT&CK techniques and detection with Wazuh](https://wazuh.com/blog/emulation-of-attck-techniques-and-detection-with-wazuh/) and [Adversary emulation with CALDERA and Wazuh](https://wazuh.com/blog/adversary-emulation-with-caldera-and-wazuh/) article by Wazuh team for testing defenses through attack simulation.
+The Wazuh rules are building blocks chained as tree or graph structures, as we mentioned in the previous paragraph. Therefore, testing single rules ensures that the engineer does not break the evaluation chain. This is the reason I called these tests [regression tests](https://en.wikipedia.org/wiki/Regression_testing): to ensure changes did not break previously functioning parts. But regression testing do not guarantee better detection coverage, that is the job of attack simulations. You can attack test devices or services and monitor the alerts. That way, we can ensure we are covering proper behaviour-based detections in our environment. Refer to the [Emulation of ATT&CK techniques and detection with Wazuh](https://wazuh.com/blog/emulation-of-attck-techniques-and-detection-with-wazuh/) and [Adversary emulation with CALDERA and Wazuh](https://wazuh.com/blog/adversary-emulation-with-caldera-and-wazuh/) article by Wazuh team for testing defences through attack simulation.
 
-But this is an expensive approach: one behavior at a time and writing detections afterwards requires a high amount of time and human resources. Luckily, there's a middle ground: replaying logs! We can make use of public resources for logs that contain malicious behavior, run them against our test harness, `wazuh-devenv`, and check if we can detect the malicious behavior effectively. And this is exactly what I'll do here.
+But this is an expensive approach: one behaviour at a time and writing detections afterwards requires a high amount of time and human resources. Luckily, there's a middle ground: replaying logs! We can make use of public resources for logs that contain malicious behaviour, run them against our test harness, `wazuh-devenv`, and check if we can detect the malicious behaviour effectively. And this is exactly what I'll do here.
 
 Let's start with an amazing resource, [EVTX-to-MITRE-Attack](https://github.com/mdecrevoisier/EVTX-to-MITRE-Attack) by [Michel de CREVOISIER](https://github.com/mdecrevoisier). The repository contains Windows event log samples mapped to MITRE ATT&CK TTPs that we can make use of.
 
@@ -170,7 +170,7 @@ For educational purposes, I will check if we can detect Lateral Movement via Rem
 - ID4688,4778,4779 RDP hijack direct.evtx
 - ID4825-Denied RDP connection with valid credentials.evtx
 
-Let's analyze them manually before checking what kind of attacks we are expecting.
+Let's analyse them manually before checking what kind of attacks we are expecting.
 
 #### ID4688,4778,4779 RDP hijack direct.evtx
 
@@ -186,16 +186,16 @@ In the Security log, three event IDs are most relevant to RDP session hijacking 
 | 21:01:05.572   | Security/4688          | `SYSTEM (FS01$)`          | `TSTheme.exe` (under `admmig`)               | RDP theme service launches under disconnected user. Typical side effect of session handover. | **Informational**                                |
 | 21:01:05.744   | Security/4688          | `SYSTEM (FS01$)`          | `TSTheme.exe` (under `admmarsid`)            | RDP theme service starts for hijacked session now assigned to `admmarsid`.                   | **Informational**                                |
 | 21:01:05.831   | Security/4778          | `admmarsid`               | `RDP-Tcp#8` reconnected                      | `admmarsid` reconnects from client `JUMP01`. Confirms hijack succeeded.                      | **High**                                         |
-| 21:01:06.203   | Security/4688          | `SYSTEM (FS01$)`          | `AtBroker.exe` (under `admmarsid`)           | Accessibility broker starts, common during session initialization.                           | **Informational**                                |
+| 21:01:06.203   | Security/4688          | `SYSTEM (FS01$)`          | `AtBroker.exe` (under `admmarsid`)           | Accessibility broker starts, common during session initialisation.                           | **Informational**                                |
 | 21:01:06.206   | Security/4688          | `NETWORK SERVICE (FS01$)` | `rdpclip.exe` (under `admmarsid`)            | RDP clipboard service starts for hijacked user. Normal post-login process.                   | **Informational**                                |
 | 21:01:07.051   | Security/4688          | `SYSTEM (FS01$)`          | `taskhostw.exe`                              | Generic host process for Windows tasks during session startup.                               | **Informational**                                |
-| 21:01:07.150   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (COM surrogate)                | COM process spawns as part of GUI initialization.                                            | **Informational**                                |
+| 21:01:07.150   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (COM surrogate)                | COM process spawns as part of GUI initialisation.                                            | **Informational**                                |
 | 21:01:37.111   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (under `admmig`)               | COM surrogate tied to lingering admmig context after hijack.                                 | **Medium**                                       |
 | 21:02:14.789   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe` (under `admmig`)               | Another COM object launch tied to admmig’s context despite disconnection.                    | **Medium**                                       |
 | 21:02:35.089   | Security/4688          | `SYSTEM (FS01$)`          | `taskhostw.exe`                              | Host process for RDP session environment management.                                         | **Informational**                                |
 | 21:02:35.208   | Security/4688          | `SYSTEM (FS01$)`          | `dllhost.exe`                                | COM surrogate tied to interactive desktop persistence.                                       | **Informational**                                |
 
-Let's define our detection requirements after analyzing the timeline of events. We want Wazuh to alert us when these events were forwarded.
+Let's define our detection requirements after analysing the timeline of events. We want Wazuh to alert us when these events were forwarded.
 
 According to the Wazuh [rules classification guide](https://documentation.wazuh.com/current/user-manual/ruleset/rules/rules-classification.html), the highest level of an alert is level **15 - Severe attack**. In the logs above we can see that the hijack succeded, and there is no doubt that the alert must be precise. To help the comprehesion of the user, we must provide clear and rich alerts with proper MITRE ATT&CK TTP IDs. In my humble opinion, the best suited ones would be [T1021.001 - Remote Services: Remote Desktop Protocol](https://attack.mitre.org/techniques/T1021/001/), [T1563.002 - Remote Service Session Hijacking: RDP Hijacking](https://attack.mitre.org/techniques/T1563/002/), and [T1078 - Valid Accounts](https://attack.mitre.org/techniques/T1078).
 
@@ -206,7 +206,7 @@ To satisfy the requirements above, we need to:
 3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1563.002 - Remote Service Session Hijacking: RDP Hijacking*.
 3. Ensure that there is an alert with level **15** and has a MITRE ATT&CK TTP ID of *T1078 - Valid Accounts*.
 
-How we will implement the rule depends on us but these are the minimum set of behaviors we want to observe if we replay these logs.
+How we will implement the rule depends on us but these are the minimum set of behaviours we want to observe if we replay these logs.
 
 #### ID4688-4778 RDP hijack command execution.evtx
 
@@ -236,7 +236,7 @@ But we cannot use the EVTX files in our test environment. The `wazuh-devenv` tes
 
 {% include gallery id="galleryWazuhevtx" caption="You can use pip or pipx to download wazuhevtx tool" %}
 
-But now, we'll use a helper to speed up the process by using a test generator that I simply called [wazuh-testgen](https://github.com/zbalkan/wazuh-testgen). This is a separate tool I created to support the `wazuh-devenv` project. Thanks to the `wazuhevtx` library, we can just provide an attack scenario, the directory of EVTX files, and the output files, and get a template for writing behavioral tests to start working on. The `evtx` subcommand of the `wazuh-testgen` imports the `wazuhevtx` library to convert the logs in memory and processes to generate test templates. Below, you can see the usage for the EVTX subcommand.
+But now, we'll use a helper to speed up the process by using a test generator that I simply called [wazuh-testgen](https://github.com/zbalkan/wazuh-testgen). This is a separate tool I created to support the `wazuh-devenv` project. Thanks to the `wazuhevtx` library, we can just provide an attack scenario, the directory of EVTX files, and the output files, and get a template for writing behavioural tests to start working on. The `evtx` subcommand of the `wazuh-testgen` imports the `wazuhevtx` library to convert the logs in memory and processes to generate test templates. Below, you can see the usage for the EVTX subcommand.
 
 ```bash
 usage: generator.py evtx [-h] --scenario SCENARIO --input_dir INPUT_DIR --output_dir OUTPUT_DIR
@@ -553,7 +553,7 @@ falsepositives:
 level: high
 ```
 
-We can summarize the detection conditions: In the process creation events (Security/4688), search for ` /dest:rdp-tcp#` in the command line field. This is exactly what we wanted, but not sufficient. In the first log sample, we have a more reliable indicator of the attack: the session disconnect/reconnect events with different accounts but same session name. We must cover that with a higher severity. Then, we can focus on the denied RDP connection in the last file. It is nothing but the Security/4825 - A user was denied the access to Remote Desktop. Let's write the rules now:
+We can summarise the detection conditions: In the process creation events (Security/4688), search for ` /dest:rdp-tcp#` in the command line field. This is exactly what we wanted, but not sufficient. In the first log sample, we have a more reliable indicator of the attack: the session disconnect/reconnect events with different accounts but same session name. We must cover that with a higher severity. Then, we can focus on the denied RDP connection in the last file. It is nothing but the Security/4825 - A user was denied the access to Remote Desktop. Let's write the rules now:
 
 ```xml
 <group name="custom,windows,security,windows_security,">
@@ -600,7 +600,7 @@ After you created the rules, ensure the file permissions are correct. Run `./fix
 
 {% include gallery id="galleryGreen" caption="Unit tests succeeded, we are in Green state." %}
 
-We reached the `Green` state. It is now up to the detection engineers to fine-tune the rules more for the `Refactor` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioral tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
+We reached the `Green` state. It is now up to the detection engineers to fine-tune the rules more for the `Refactor` phase. It is possible to add more groups and labels or suppress false positive cases. Our behavioural tests are now completed. We can now ensure that Wazuh can detect many of the Lateral Movement events via Remote Desktop. With more coverage, we improved our detection posture.
 
 ### Future-proofing detections through regression testing
 
@@ -668,7 +668,7 @@ class CustomRules(unittest.TestCase):
         self.assertIn('windows_security', response.rule_groups)
 ```
 
-The first and the last ones were easy as they included atomic detections. We can just provide the sample logs, and it would suffice. But the second rule was a temporal detection; two rules in a period of time must be triggered for the correlation. For that, we will use the `send_multiple_logs` function and provide 2 logs instead. This way, the regression test will actually be a slimmed-down version of the behavioral test, so it is up to you if you want to use this test or not. Let's fix the test and run it once again.
+The first and the last ones were easy as they included atomic detections. We can just provide the sample logs, and it would suffice. But the second rule was a temporal detection; two rules in a period of time must be triggered for the correlation. For that, we will use the `send_multiple_logs` function and provide 2 logs instead. This way, the regression test will actually be a slimmed-down version of the behavioural test, so it is up to you if you want to use this test or not. Let's fix the test and run it once again.
 
 ```python
 import unittest
@@ -729,14 +729,14 @@ class RDPHijackRules(unittest.TestCase):
 
 You can see the tests are passing. At this point, we can be sure no change in the future will break your detections without ringing some bells or flying some red flags.
 
-{% include gallery id="galleryRegression" caption="Regression tests are passing along with the behavioral tests" %}
+{% include gallery id="galleryRegression" caption="Regression tests are passing along with the behavioural tests" %}
 
 ## Conclusion
 
-Log replay in Wazuh, when combined with the `wazuh-devenv` testing framework, elevates detection engineering from guesswork to a repeatable, code-driven discipline. Helpers like wazuhevtx make short work of converting raw EVTX into Wazuh-ready JSONL, while wazuh-testgen turns complex scenarios into ready-to-run behavioral and regression tests. Together, they let you validate high-fidelity detections against real attack telemetry—just one step shy of full attack simulation—without the operational risk or expense. This workflow keeps your rules sharp, your coverage mapped to MITRE ATT&CK, and your changes regression-proof. If you care about maturing your detection pipeline, download these tools, feed them real-world logs, and see how close you can get to adversary emulation before you ever light the match.
+Log replay in Wazuh, when combined with the `wazuh-devenv` testing framework, elevates detection engineering from guesswork to a repeatable, code-driven discipline. Helpers like wazuhevtx make short work of converting raw EVTX into Wazuh-ready JSONL, while wazuh-testgen turns complex scenarios into ready-to-run behavioural and regression tests. Together, they let you validate high-fidelity detections against real attack telemetry—just one step shy of full attack simulation—without the operational risk or expense. This workflow keeps your rules sharp, your coverage mapped to MITRE ATT&CK, and your changes regression-proof. If you care about maturing your detection pipeline, download these tools, feed them real-world logs, and see how close you can get to adversary emulation before you ever light the match.
 
 ---
 [^1]: It is 2025. When we say WSL, we mention WSL2. Not even MS mention WSL1 in any documents anymore.
 [^2]: A [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) is a data structure composed of nodes (in this case, Wazuh rules) connected by one-way edges. "Directed" means that the relationship flows in a single direction, from a parent rule to a more specific child rule. "Acyclic" means there are no loops, ensuring that the analysis process always moves forward and terminates. In Wazuh, this structure allows the analysis engine to efficiently filter events by starting with general rules and navigating down a tree to the most specific match, without having to check every single rule for every log.
-[^3]: For this visualization, I used an analysis tool I wrote called simply [rulevis](https://github.com/zbalkan/rulevis). It is in alpha state, but it works!
+[^3]: For this visualisation, I used an analysis tool I wrote called simply [rulevis](https://github.com/zbalkan/rulevis). It is in alpha state, but it works!
 [^4]: Remember that the rule IDs are unique to the event channel; therefore, the ID numbers by themselves mean nothing. Use the `<Event Channel> <Event Id>` format to be precise.

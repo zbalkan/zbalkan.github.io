@@ -19,7 +19,7 @@ Walk through a casino and you will see rows of slot machines. Someone sits down,
 
 Working with AI development tools can sometimes resemble this pattern more than many engineers are comfortable admitting. A prompt produces code, a design suggestion, or a configuration. The output might be close to what was intended, or it might miss the mark entirely. When that happens, the natural reaction is to adjust the prompt and try again. After several attempts, something that appears workable often emerges.
 
-While the slot-machine analogy is useful, in practice AI-assisted development behaves less like pure randomness and more like a **guided search under constraints**. The model operates within defined parameters and optimization boundaries. Even so, the external behavior can resemble repeated attempts until something acceptable appears.
+While the slot-machine analogy is useful, in practice AI-assisted development behaves less like pure randomness and more like a **guided search under constraints**. The model operates within defined parameters and optimisation boundaries. Even so, the external behaviour can resemble repeated attempts until something acceptable appears.
 {: .notice--info}
 
 At a superficial level, this resembles productivity. Iteration accelerates, output increases, and systems appear faster to build. Yet software engineering has never been evaluated by whether a system can eventually be generated. The discipline emerged because engineers learned that systems which merely appear to work often fail once they encounter real operating conditions.
@@ -52,19 +52,19 @@ flowchart LR
 
 ## Some History
 
-Much of the current excitement around AI-assisted development centers on speed. Code generation is faster, design alternatives can be explored quickly, and prototypes can appear with far less manual effort than before. These capabilities are real, and in many cases they are genuinely useful.
+Much of the current excitement around AI-assisted development centres on speed. Code generation is faster, design alternatives can be explored quickly, and prototypes can appear with far less manual effort than before. These capabilities are real, and in many cases they are genuinely useful.
 
 Where the discussion becomes more complicated is when speed begins to be interpreted as evidence that earlier engineering practices are becoming unnecessary. It is increasingly common to hear claims that the traditional development lifecycle is collapsing, that stages such as design and testing can be compressed into a single loop of generation and validation, or that structured development processes belong to a slower era of software development.
 
 This interpretation overlooks why those practices appeared. The Software Development Lifecycle did not emerge because engineers preferred process to creativity. It emerged because software projects repeatedly failed when development relied primarily on iteration and intuition.
 
-Early software systems were comparatively small and operated in tightly controlled environments. Programs were often written by the same people who ran them, and informal practices were usually sufficient because the consequences of failure were limited. That situation changed during the 1960s as organizations began commissioning systems whose complexity exceeded the methods used to build them. Systems grew larger, dependencies multiplied, and failures became more costly. Projects ran over budget, schedules slipped, and deployed systems sometimes failed in ways that were difficult to correct.
+Early software systems were comparatively small and operated in tightly controlled environments. Programs were often written by the same people who ran them, and informal practices were usually sufficient because the consequences of failure were limited. That situation changed during the 1960s as organisations began commissioning systems whose complexity exceeded the methods used to build them. Systems grew larger, dependencies multiplied, and failures became more costly. Projects ran over budget, schedules slipped, and deployed systems sometimes failed in ways that were difficult to correct.
 
 The response was not simply to write code more quickly. Engineers began introducing structure into how systems were specified, designed, verified, and deployed. Over time those practices evolved into what we now describe as the Software Development Lifecycle. Seen from this perspective, the SDLC is less a rigid sequence of stages and more an accumulation of lessons about how complex systems fail.
 
 ## Why the SDLC Exists
 
-The SDLC did not emerge fully formed as a predefined framework. It developed gradually as engineers discovered which practices prevented particular classes of failure. Requirements practices appeared because teams were building systems that did not match the needs they were supposed to solve. Architecture reviews emerged because structural design mistakes were expensive to correct once implementation had begun. Testing became formalized because defects discovered in production were disruptive and costly. Change and release controls appeared because uncontrolled updates could destabilize operational systems. Monitoring eventually became essential because even well-tested systems behave differently once they encounter real environments.
+The SDLC did not emerge fully formed as a predefined framework. It developed gradually as engineers discovered which practices prevented particular classes of failure. Requirements practices appeared because teams were building systems that did not match the needs they were supposed to solve. Architecture reviews emerged because structural design mistakes were expensive to correct once implementation had begun. Testing became formalised because defects discovered in production were disruptive and costly. Change and release controls appeared because uncontrolled updates could destabilise operational systems. Monitoring eventually became essential because even well-tested systems behave differently once they encounter real environments.
 
 Viewed this way, the SDLC is not simply a workflow but a **formal risk management model**. It is a collection of controls that exist because particular risks occur often enough to justify preventing them. These controls implicitly map to risk classes such as requirements risk, structural risk, and operational risk.
 
@@ -81,7 +81,7 @@ Looking at the lifecycle through the lens of risk control clarifies the situatio
 | SDLC Control Area         | Risk Mitigated                               | Status in AI Development | Concern                                                |
 | ------------------------- | -------------------------------------------- | ------------------------ | ------------------------------------------------------ |
 | Requirements governance   | Building the wrong system                    | Unchanged                | AI can implement unclear requirements quickly          |
-| Requirements traceability | Weak linkage between need and implementation | More opaque              | Generated artifacts may lack traceability              |
+| Requirements traceability | Weak linkage between need and implementation | More opaque              | Generated artefacts may lack traceability              |
 | Architecture review       | Structural design flaws                      | Unchanged                | Pattern-based designs may ignore real constraints      |
 | Secure design review      | Insecure trust boundaries                    | Unchanged                | Generated designs may repeat insecure patterns         |
 | Secure implementation     | Coding vulnerabilities                       | Amplified                | AI-generated code may include known flaws              |
@@ -95,7 +95,7 @@ Looking at the lifecycle through the lens of risk control clarifies the situatio
 
 AI reduces the marginal cost of code generation, but not system entropy or operational complexity.
 
-Another issue involves assurance. Traditional lifecycle practices produce evidence: traceability between requirements and tests, review records, design decisions, and defect metrics. These artifacts allow organizations to reason about whether a system has been properly validated.
+Another issue involves assurance. Traditional lifecycle practices produce evidence: traceability between requirements and tests, review records, design decisions, and defect metrics. These artefacts allow organisations to reason about whether a system has been properly validated.
 
 Many AI-assisted workflows do not yet produce equivalent evidence consistently. In practice, this often introduces the risk of **correlated validation failure** (for example, when the same model generates both code and tests that miss the same edge cases).
 
@@ -105,7 +105,7 @@ The issue is not that AI-generated systems cannot work. The issue is that qualit
 
 Consider a simple but realistic scenario. A developer uses an AI tool to generate a cloud infrastructure configuration for a new microservice. The prompt is vague, and the generated configuration includes a security group rule that opens port 22 (SSH) to the internet (0.0.0.0/0).
 
-The system functions correctly. It deploys, responds to requests, and passes basic validation. However, it violates a fundamental security assumption. This exposure can enable unauthorized access attempts, credential harvesting, or lateral movement if the service is compromised. Without architecture review or secure design validation, the issue remains undetected until it is exploited or discovered during audit.
+The system functions correctly. It deploys, responds to requests, and passes basic validation. However, it violates a fundamental security assumption. This exposure can enable unauthorised access attempts, credential harvesting, or lateral movement if the service is compromised. Without architecture review or secure design validation, the issue remains undetected until it is exploited or discovered during audit.
 
 This is not a failure of generation speed. It is a failure of missing controls.
 
@@ -113,7 +113,7 @@ This is not a failure of generation speed. It is a failure of missing controls.
 
 A more practical middle ground, at least in my experience, is to integrate AI into the lifecycle without removing control points.
 
-Human review should follow initial AI-generated artifacts to assess correctness, constraints, and security implications. Automated analysis and testing should be embedded in CI/CD pipelines. Independent verification, distinct from AI-generated tests, becomes more important, not less. At each stage, evidence should be produced and retained. Review decisions, validation results, and test coverage still matter because they are the basis for trust.
+Human review should follow initial AI-generated artefacts to assess correctness, constraints, and security implications. Automated analysis and testing should be embedded in CI/CD pipelines. Independent verification, distinct from AI-generated tests, becomes more important, not less. At each stage, evidence should be produced and retained. Review decisions, validation results, and test coverage still matter because they are the basis for trust.
 
 This approach does not eliminate error. It reduces the likelihood that errors propagate unchecked.
 The scenario above is an obvious failure caused by missing controls. More concerning are the less visible ones. When AI tools generate logic and data flows, reviewers may lack sufficient context to fully understand the implications of changes. This can degrade the shared mental model within a team.
@@ -122,7 +122,7 @@ Over time, systems may remain functional but become harder to reason about, hard
 
 ## Another risk in the shadows
 
-AI development tools lower the barrier for creating systems outside formal governance structures. Organizations have always struggled with [shadow IT](https://en.wikipedia.org/wiki/Shadow_IT) because teams will build solutions when official processes move too slowly. AI makes that easier.
+AI development tools lower the barrier for creating systems outside formal governance structures. Organisations have always struggled with [shadow IT](https://en.wikipedia.org/wiki/Shadow_IT) because teams will build solutions when official processes move too slowly. AI makes that easier.
 
 Applications and integrations can now be assembled quickly with minimal effort. Some will solve legitimate problems. Others will accumulate risk. From a governance perspective, these systems often fall outside asset inventories, bypass established controls, and escape audit scope. From an operational perspective, they often lack ownership, documentation, and architectural consistency, introducing technical debt and integration complexity. From a security perspective, they expand the attack surface, introduce inconsistent controls, and create compliance challenges.
 
