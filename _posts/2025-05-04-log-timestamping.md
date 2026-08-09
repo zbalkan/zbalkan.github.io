@@ -23,7 +23,7 @@ Standard log rotation and backup practices don’t provide cryptographic proof t
 - Existed at a specific point in time.
 - Has not been altered since.
 
-Timestamps from filesystems (`mtime`, `ctime`) are easy to spoof. Even centralized log management cannot prevent insider or post-compromise manipulation without some cryptographic anchor.
+Timestamps from filesystems (`mtime`, `ctime`) are easy to spoof. Even centralised log management cannot prevent insider or post-compromise manipulation without some cryptographic anchor.
 
 While this may not be a security requirement, it could be necessary for compliance in some cases. For instance, [PCI DSS](https://www.pcisecuritystandards.org/standards/pci-dss/) 4.0.1 Req. 10.3.2 says *"Audit log files are protected to prevent modifications by individuals"*. While this generally means creating controls to provide a sufficient level of security for logs at rest, there is still room for improvement.
 
@@ -208,7 +208,7 @@ This feeds all JSONL logs -such as `sign_all.jsonl`, `verify_all.jsonl`, task su
 
 Wazuh rules inspect the `event` field in each log. For example, a `verify_failed` or `missing_tsr` event may indicate tampering or broken evidence chains.
 
-You can utilize these rules, just remember to update the rule IDs and groups to align your environment:
+You can utilise these rules, just remember to update the rule IDs and groups to align your environment:
 
 ```xml
 <group name="custom,timestamping,">

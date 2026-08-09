@@ -4,7 +4,7 @@ permalink: /foss/
 title: "Contributions"
 ---
 
-This page summarizes merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
+This page summarises merged pull requests I have contributed to third-party open-source repositories. It excludes repositories under `zbalkan` and `DeltaZulu-OU`.
 
 ## Repository Summary
 
@@ -159,7 +159,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | PR | Title | Merged |
 |---:|---|---|
-| [#26](https://github.com/ryanries/ADReplStatus/pull/26) | Parallelize DC discovery and improve diagnostics and UI reliability | 2026-06-17 |
+| [#26](https://github.com/ryanries/ADReplStatus/pull/26) | Parallelise DC discovery and improve diagnostics and UI reliability | 2026-06-17 |
 
 ### [TechnitiumSoftware/DnsServer](https://github.com/TechnitiumSoftware/DnsServer)
 
@@ -182,7 +182,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | PR | Title | Merged |
 |---:|---|---|
-| [#389](https://github.com/themepark-dev/theme.park/pull/389) | Fixed color issue with links in Groups tab under Settings | 2022-06-27 |
+| [#389](https://github.com/themepark-dev/theme.park/pull/389) | Fixed colour issue with links in Groups tab under Settings | 2022-06-27 |
 
 ### [wazuh/wazuh](https://github.com/wazuh/wazuh)
 

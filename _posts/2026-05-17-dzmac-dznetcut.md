@@ -28,17 +28,17 @@ galleryDznetcut:
     image_path: https://github.com/DeltaZulu-OU/dznetcut/raw/master/assets/images/main.png
 ---
 
- I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release and are available under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organization.
+ I have been working on two small Windows tools: **DZMAC** and **dznetcut**. Both are in early release and are available under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organisation.
 
-They are not one product, and I do not want to force them into a single artificial category. DZMAC is for adapter identity work: inspecting, changing, randomizing, and restoring MAC addresses on Windows. dznetcut is an offensive Layer 2 testing tool: discovering hosts on a local network and running targeted ARP disruption tests.
+They are not one product, and I do not want to force them into a single artificial category. DZMAC is for adapter identity work: inspecting, changing, randomising, and restoring MAC addresses on Windows. dznetcut is an offensive Layer 2 testing tool: discovering hosts on a local network and running targeted ARP disruption tests.
 
-Both live under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organization, which is why they use the `dz` prefix. DeltaZulu is my private company; I use it to publish FOSS tools that I intend to maintain as proper software rather than loose experiments.
+Both live under the [DeltaZulu OÜ](https://github.com/DeltaZulu-OU) GitHub organisation, which is why they use the `dz` prefix. DeltaZulu is my private company; I use it to publish FOSS tools that I intend to maintain as proper software rather than loose experiments.
 
 The overlap is local network identity. MAC addresses are weak identifiers, but networks still use them for memory. ARP is not a security protocol, but many LANs still behave as if local Layer 2 adjacency is harmless. These are old assumptions. They are also still operationally relevant.
 
 Both tools are Windows Forms applications with a GUI and a CLI in the same executable. That is deliberate. The GUI is for interactive work, where seeing the adapter, the current state, and the target matters. The CLI is for repeatable work, where the same operation has to be run again without clicking through the interface.
 
-They both target .NET Framework 4.8.1. I chose that because these are Windows tools, not cross-platform frameworks, agents, dashboards, or Electron applications. The goal is small binaries and a natural Windows desktop workflow without bundling a separate modern .NET runtime. DZMAC has no packet-driver dependency. dznetcut requires Npcap because packet capture and packet injection on Windows require a packet driver. The free Npcap license allows installation on up to five systems and does not permit redistribution; deployments beyond that scope require an [Npcap OEM license](https://npcap.com/oem/).
+They both target .NET Framework 4.8.1. I chose that because these are Windows tools, not cross-platform frameworks, agents, dashboards, or Electron applications. The goal is small binaries and a natural Windows desktop workflow without bundling a separate modern .NET runtime. DZMAC has no packet-driver dependency. dznetcut requires Npcap because packet capture and packet injection on Windows require a packet driver. The free Npcap licence allows installation on up to five systems and does not permit redistribution; deployments beyond that scope require an [Npcap OEM licence](https://npcap.com/oem/).
 
 ## DZMAC
 
@@ -46,7 +46,7 @@ DZMAC started as a replacement for a tool I had used for years: [Technitium MAC 
 
 TMAC was one of those small Windows utilities that did exactly what many of us needed. It listed adapters, showed useful network information, changed MAC addresses, restored the original address, and supported network configuration profiles. It was simple, practical, and familiar. The problem is that it has not meaningfully moved for a long time.
 
-DZMAC is my attempt to keep that kind of workflow alive on modern Windows. It is not a reverse-engineering project and it is not trying to clone every TMAC feature. It is a focused replacement for the parts I still care about: adapter inspection, MAC address changes, randomization, restore, basic IP context, presets, and CLI support.
+DZMAC is my attempt to keep that kind of workflow alive on modern Windows. It is not a reverse-engineering project and it is not trying to clone every TMAC feature. It is a focused replacement for the parts I still care about: adapter inspection, MAC address changes, randomisation, restore, basic IP context, presets, and CLI support.
 
 {% include gallery id="galleryDzmac" caption="GUI and CLI aspects of dzmac" %}
 
@@ -56,15 +56,15 @@ Driver support is a variable, not a given. The `NetworkAddress` registry overrid
 
 DZMAC puts the common pieces in one place. The main view shows the adapters. The detail view shows the connection name, device description, original MAC, active MAC, vendor information, link state, IPv4 and IPv6 status, gateway, DNS, and other useful context. The restore path is visible. Presets are available when the same adapter state needs to be reused.
 
-That context matters. A MAC address is not strong identity, but it is often enough for correlation. Access points, routers, DHCP servers, captive portals, NAC systems, and logs may remember that the same local endpoint appeared before. That is why modern operating systems support MAC randomization. The address is weak as authentication, but still useful as memory.
+That context matters. A MAC address is not strong identity, but it is often enough for correlation. Access points, routers, DHCP servers, captive portals, NAC systems, and logs may remember that the same local endpoint appeared before. That is why modern operating systems support MAC randomisation. The address is weak as authentication, but still useful as memory.
 
-[Windows 10 and 11 already include per-network Wi-Fi MAC randomization](https://support.microsoft.com/en-us/windows/connect-to-a-wi-fi-network-in-windows-1f881677-b569-0cd5-010d-e3cd3579d263), accessible from Settings → Network & Internet → Wi-Fi. DZMAC is not a replacement for that feature and does not conflict with it, but the two serve different purposes. The built-in option is persistent, profile-scoped, and limited to Wi-Fi. DZMAC works across adapter types — including Ethernet — and is useful when you need a specific address, a quick one-off change, a known preset, or CLI-driven automation rather than a system-managed random value.
+[Windows 10 and 11 already include per-network Wi-Fi MAC randomisation](https://support.microsoft.com/en-us/windows/connect-to-a-wi-fi-network-in-windows-1f881677-b569-0cd5-010d-e3cd3579d263), accessible from Settings → Network & Internet → Wi-Fi. DZMAC is not a replacement for that feature and does not conflict with it, but the two serve different purposes. The built-in option is persistent, profile-scoped, and limited to Wi-Fi. DZMAC works across adapter types — including Ethernet — and is useful when you need a specific address, a quick one-off change, a known preset, or CLI-driven automation rather than a system-managed random value.
 
-When DZMAC generates a random address, it sets the locally administered (LAA) bit — the second-least-significant bit of the first octet — to 1. That marks the address as locally administered rather than vendor-assigned, which is the expected behavior for a generated MAC address. The practical side effect is that any system using the LAA bit as a detection signal — some NAC platforms, certain wireless controllers — will recognize the address as locally administered and may treat it differently from a hardware-burned address. That is expected behavior, not a failure.
+When DZMAC generates a random address, it sets the locally administered (LAA) bit — the second-least-significant bit of the first octet — to 1. That marks the address as locally administered rather than vendor-assigned, which is the expected behaviour for a generated MAC address. The practical side effect is that any system using the LAA bit as a detection signal — some NAC platforms, certain wireless controllers — will recognise the address as locally administered and may treat it differently from a hardware-burned address. That is expected behaviour, not a failure.
 
 A normal DZMAC workflow is uncomplicated. Run it as Administrator, select the adapter, review the original and active MAC values, check the current IP and gateway state, apply a generated or manual address, and verify the result. When the work is finished, restore the original address.
 
-The GUI is the better interface when the adapter choice is not obvious. On a modern Windows machine there may be Ethernet, Wi-Fi, Bluetooth PAN, Hyper-V, VPN, WSL, security product filters, and stale interfaces. Changing the wrong adapter is easier than people admit. DZMAC defaults toward usable physical interfaces and keeps the rest available when needed.
+The GUI is the better interface when the adapter choice is not obvious. On a modern Windows machine there may be Ethernet, Wi-Fi, Bluetooth PAN, Hyper-V, VPN, WSL, security product filters, and stale interfaces. Changing the wrong adapter is easier than people admit. DZMAC defaults towards usable physical interfaces and keeps the rest available when needed.
 
 The CLI is there when the target is already known and the action needs to be repeated. Typical examples look like this:
 
@@ -84,7 +84,7 @@ Presets are useful in the less glamorous cases: lab work, travel networks, troub
 
 ## dznetcut
 
-dznetcut is different. It is a Windows offensive Layer 2 tool, and it should only be used on networks you own or have explicit written authorization to test.
+dznetcut is different. It is a Windows offensive Layer 2 tool, and it should only be used on networks you own or have explicit written authorisation to test.
 
 It discovers local hosts and runs targeted ARP disruption sessions. I do not see value in hiding that behind softer language. The technique is ARP poisoning. The tool sends forged ARP replies so a selected target and the gateway receive incorrect IP-to-MAC mappings. The practical result is that traffic between them can be interrupted while the session is active.
 
@@ -125,13 +125,13 @@ dznetcut cut `
   --duration 30
 ```
 
-ARP protection is enabled by default. In this context, that means dznetcut adds a local gateway binding for the operator machine while the test is running. It protects the operator's own gateway mapping; it does not protect the entire LAN. There is also a `--no-arp-protection` option when the operator explicitly wants to disable that behavior.
+ARP protection is enabled by default. In this context, that means dznetcut adds a local gateway binding for the operator machine while the test is running. It protects the operator's own gateway mapping; it does not protect the entire LAN. There is also a `--no-arp-protection` option when the operator explicitly wants to disable that behaviour.
 
-A minimal lab is enough to understand the tool. Put an operator machine, a target, and a gateway on the same Layer 2 network. Run a scan, identify the target IP and MAC, identify the gateway IP and MAC, then run a short cut session. During the session, observe the target, the gateway, and any monitoring or packet capture you care about. Since dznetcut poisons both sides but does not forward traffic, the expected effect is disruption rather than transparent interception. When the duration ends or the operator stops the session, dznetcut stops sending the forged ARP replies. The poisoned entries in the target's and gateway's ARP caches will persist until they expire naturally — on Windows hosts, that transition to stale state happens between 15 and 45 seconds of inactivity — so a brief disruption tail after the session ends is expected behavior, not a bug.
+A minimal lab is enough to understand the tool. Put an operator machine, a target, and a gateway on the same Layer 2 network. Run a scan, identify the target IP and MAC, identify the gateway IP and MAC, then run a short cut session. During the session, observe the target, the gateway, and any monitoring or packet capture you care about. Since dznetcut poisons both sides but does not forward traffic, the expected effect is disruption rather than transparent interception. When the duration ends or the operator stops the session, dznetcut stops sending the forged ARP replies. The poisoned entries in the target's and gateway's ARP caches will persist until they expire naturally — on Windows hosts, that transition to stale state happens between 15 and 45 seconds of inactivity — so a brief disruption tail after the session ends is expected behaviour, not a bug.
 
 Two environmental factors will limit or eliminate the tool's effect. First, managed switches with Dynamic ARP Inspection (DAI) enabled will validate ARP packets against the DHCP snooping binding table and silently drop any reply that does not match a known IP-to-MAC entry. On a network segment running DAI, dznetcut's forged replies will not reach their targets. Second, hosts with statically bound ARP entries for the gateway will not update their cache regardless of what dznetcut sends.
 
-That is what dznetcut does. It is an offensive ARP disruption tool with host discovery, explicit target selection, bounded execution, and a Windows GUI/CLI workflow. It is useful in lab environments and authorized penetration tests on unmanaged or lightly managed Layer 2 segments. On properly hardened infrastructure, it will have no effect.
+That is what dznetcut does. It is an offensive ARP disruption tool with host discovery, explicit target selection, bounded execution, and a Windows GUI/CLI workflow. It is useful in lab environments and authorised penetration tests on unmanaged or lightly managed Layer 2 segments. On properly hardened infrastructure, it will have no effect.
 
 ## Why I built them
 

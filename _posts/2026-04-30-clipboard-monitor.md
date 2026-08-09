@@ -37,7 +37,7 @@ The final push came after reading this excellent write-up on chained social-engi
 
 ClipboardMonitor 2.0 keeps the same general philosophy as the first release: small, auditable code, direct use of platform APIs, and minimal abstraction where it adds no value. The project remains intentionally narrow in scope, but the internal pipeline is now more layered.
 
-The current flow combines several lightweight controls. Clipboard changes are tracked through `WM_CLIPBOARDUPDATE`, browser-origin text is scanned for suspicious command patterns and submitted to AMSI, PAN-like values are identified and masked, and a short-lived correlation layer now watches for risky follow-up behavior after suspicious clipboard activity.
+The current flow combines several lightweight controls. Clipboard changes are tracked through `WM_CLIPBOARDUPDATE`, browser-origin text is scanned for suspicious command patterns and submitted to AMSI, PAN-like values are identified and masked, and a short-lived correlation layer now watches for risky follow-up behaviour after suspicious clipboard activity.
 
 In practical terms, browser-origin clipboard text is checked for command-oriented patterns such as `powershell`, `pwsh`, `cmd`, `mshta`, or `msiexec`. Matching content is then submitted to AMSI for provider-backed scanning. If the content is flagged, ClipboardMonitor overwrites the clipboard and displays a warning toast. PAN-like values continue to be detected through validation and masking logic, with the clipboard scrubbed or replaced as appropriate.
 
@@ -51,11 +51,11 @@ To be clear, this does **not** attempt to become a full anti-phishing or anti-so
 
 ## Execution Correlation Guard
 
-One of the more notable additions in 2.0 is a short-lived execution correlation guard. After suspicious browser-origin clipboard content is detected, ClipboardMonitor tracks a risk window of **30 seconds**. Within that period, it monitors for common shortcut paths associated with rapid command execution, specifically **Win+R** for the Run dialog and **Win+X, I** for the elevated shell path.
+One of the more notable additions in 2.0 is a short-lived execution correlation guard. After suspicious browser-origin clipboard content is detected, ClipboardMonitor tracks a risk window of **30 seconds**. Within that period, it monitors for common shortcut paths associated with rapid command execution, specifically **Win+R** for the Run dialogue and **Win+X, I** for the elevated shell path.
 
-If that sequence occurs within the active risk window, the tool raises a warning and presents sanitized context so the user can understand why the action was flagged or blocked.
+If that sequence occurs within the active risk window, the tool raises a warning and presents sanitised context so the user can understand why the action was flagged or blocked.
 
-The logic here is intentionally heuristic. It is not trying to prove maliciousness. It is simply recognizing that suspicious clipboard content followed immediately by privileged execution shortcuts is often worth surfacing.
+The logic here is intentionally heuristic. It is not trying to prove maliciousness. It is simply recognising that suspicious clipboard content followed immediately by privileged execution shortcuts is often worth surfacing.
 
 {% include gallery id="galleryScreenshotRisk" caption="Screenshot of risk correlation with Run / elevated-shell shortcuts" %}
 
@@ -63,7 +63,7 @@ The logic here is intentionally heuristic. It is not trying to prove maliciousne
 
 ClipboardMonitor now writes incidents into the **Windows Event Log**, using the standard `Application` log under the source name `ClipboardMonitor`.
 
-This serves several purposes. First, it makes debugging easier when testing behavioral differences between hosts. Second, it provides visibility into AMSI or AV-provider variance, which can differ substantially depending on the installed stack and policy configuration. Third, it gives users a basic audit trail for false-positive triage.
+This serves several purposes. First, it makes debugging easier when testing behavioural differences between hosts. Second, it provides visibility into AMSI or AV-provider variance, which can differ substantially depending on the installed stack and policy configuration. Third, it gives users a basic audit trail for false-positive triage.
 
 {% include gallery id="galleryLogs" caption="Screenshot of event logs" %}
 
@@ -97,8 +97,8 @@ For PAN testing, use test-card numbers only.
 
 ## Scope and Limits
 
-ClipboardMonitor remains intentionally narrow in scope, and it is important to be explicit about that. It focuses on text clipboard paths only. It is not attempting broad DLP coverage, rich-content inspection, or deep enterprise-grade policy enforcement. Hook and interception behavior may vary depending on endpoint hardening and enterprise restrictions, and AMSI outcomes remain dependent on the installed antimalware provider and local policy.
+ClipboardMonitor remains intentionally narrow in scope, and it is important to be explicit about that. It focuses on text clipboard paths only. It is not attempting broad DLP coverage, rich-content inspection, or deep enterprise-grade policy enforcement. Hook and interception behaviour may vary depending on endpoint hardening and enterprise restrictions, and AMSI outcomes remain dependent on the installed antimalware provider and local policy.
 
 Accordingly, this should be viewed as a local defensive utility and research project rather than a serious enterprise DLP replacement. Its value lies primarily in visibility, experimentation, and exploring what small defensive controls can still achieve in user mode when applied thoughtfully.
 
-If you test it, and especially if you encounter false positives, crashes, provider-specific AMSI quirks, or behavioral inconsistencies across hosts, feel free to open an issue or PR. Feedback of that kind is usually what improves these projects fastest.
+If you test it, and especially if you encounter false positives, crashes, provider-specific AMSI quirks, or behavioural inconsistencies across hosts, feel free to open an issue or PR. Feedback of that kind is usually what improves these projects fastest.

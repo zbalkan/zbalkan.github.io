@@ -43,7 +43,7 @@ A workaround I tried is using a batch script that starts on boot: it runs `tail 
 
 There is no chance to reload the daemon with a new configuration or ruleset. If you add a custom rule or modify a rule, you have to restart the cluster. If you change the `ossec.conf`, you must restart the specific `wazuh-manager` instance. And, of course, if you do a configuration change affecting the cluster, you must change the configuration on each node and restart them one by one.
 
-The only exception is about the centralized configuration, aka `shared.conf` for agents. When you change the shared configuration, agents do not need to be restarted. The agents periodically check for `shared.conf` changes, like a group policy or any other configuration management tool. It is called Groups and it is confusing when the term Groups is also used for rules ([issue](https://github.com/wazuh/wazuh/issues/15227)).
+The only exception is about the centralised configuration, aka `shared.conf` for agents. When you change the shared configuration, agents do not need to be restarted. The agents periodically check for `shared.conf` changes, like a group policy or any other configuration management tool. It is called Groups and it is confusing when the term Groups is also used for rules ([issue](https://github.com/wazuh/wazuh/issues/15227)).
 
 What happens during a service restart? **Logs are lost forever**, depending on your load-balancer setup.
 
@@ -106,7 +106,7 @@ When an agent enrolls itself in a Wazuh server environment, it uses the `hostnam
 
 ### Agent ID issue
 
-Agent IDs are (or should be) the unique identifiers for agents. After you remove an agent, a new agent might get an ID number that was previously used by another machine. It is possible that there is a mistake made during uninstallation and re-enrollment, and one has to query logs by `agent.id` and find the previous agent name and/or IP address.
+Agent IDs are (or should be) the unique identifiers for agents. After you remove an agent, a new agent might get an ID number that was previously used by another machine. It is possible that there is a mistake made during uninstallation and re-enrolment, and one has to query logs by `agent.id` and find the previous agent name and/or IP address.
 
 This would not occur if GUID/UUID or ULID was used for agent identities.
 
@@ -114,7 +114,7 @@ This would not occur if GUID/UUID or ULID was used for agent identities.
 
 When network devices start to send syslog, it is collected by the `wazuh-manager`, then every log will be collected under Agent ID 000, even if you have dozens of different devices. This is not helpful when it comes to correlation. It would be great if Wazuh could provide virtual agent IDs per syslog source.
 
-Just like Windows SIDs, it can be possible to have two parts: A Windows SID has a domain ID and relative ID. So that it can be guaranteed to have unique IDs per domain. For Wazuh, it can be simpler: virtual agents and real agents. Then it will be also possible to have a segregation without labeling the incoming logs. It also can provide non-conflicting IDs.
+Just like Windows SIDs, it can be possible to have two parts: A Windows SID has a domain ID and relative ID. So that it can be guaranteed to have unique IDs per domain. For Wazuh, it can be simpler: virtual agents and real agents. Then it will be also possible to have a segregation without labelling the incoming logs. It also can provide non-conflicting IDs.
 
 Having IDs for agentless setup also helps better management for agentless configuration.
 
@@ -168,13 +168,13 @@ The `admin` account is the initial administrator account in the OpenSearch Secur
 
 ### No integrity control for alerts
 
-Log archiving with plain text logs generally utilizes checksums for the integrity of the old logs. It is the same with archive logs. But if you need integrity of the alerts to ensure a malicious actor cannot delete the alerts, then it is a bit complicated.
+Log archiving with plain text logs generally utilises checksums for the integrity of the old logs. It is the same with archive logs. But if you need integrity of the alerts to ensure a malicious actor cannot delete the alerts, then it is a bit complicated.
 
 It is possible to update Wazuh alerts using the REST API. You can tamper the logs, inject data, modify fields, basically anything. Because you are connected to the database directly. It is also possible to delete. Since Wazuh uses OpenSearch for alert storage, it is possible to delete the data by bulk using a simple query like `POST /<index name>/_delete_by_query {<query>}`, just like `rm -rf /var/ossec/logs/archive` for. With the lack of proper audit logging, it is not possible to get notified that the **alerts are lost forever** or **alerts are tampered with**.
 
 As mentioned, a malicious actor can remove or tamper alerts partially or as a whole, and we might have no idea that logs are tampered with. After a forensic analysis, it can be found later, yet it is hard to guarantee the integrity. Using index management, it is possible to set a 1 day for the hot state period and X days for the cold state before deleting, which might help tampering and deleting. But it can be cumbersome if you have a disaster scenario and you want to recover old logs. You need to first make the correct indexes writable, recover the logs, and convert back to read-only.
 
-It is possible to utilize the immutable indices capability of OpenSearch in `wazuh-indexer` which is also an undocumented feature ([issue 1](https://github.com/wazuh/wazuh/issues/15020) and [issue 2](https://github.com/opensearch-project/documentation-website/issues/1436)). That is the best way to provide integrity. But the side effect, just like any immutable storage, is you can **never** delete anything. Consider this scenario which an application accidentally enabled debug logs and leaked PII or credit card numbers into logs. It is a low probability incident and you have to accept the risk if you use immutable indexes.
+It is possible to utilise the immutable indices capability of OpenSearch in `wazuh-indexer` which is also an undocumented feature ([issue 1](https://github.com/wazuh/wazuh/issues/15020) and [issue 2](https://github.com/opensearch-project/documentation-website/issues/1436)). That is the best way to provide integrity. But the side effect, just like any immutable storage, is you can **never** delete anything. Consider this scenario which an application accidentally enabled debug logs and leaked PII or credit card numbers into logs. It is a low probability incident and you have to accept the risk if you use immutable indexes.
 
 Therefore, the integrity of alerts is not guaranteed by default within Wazuh. For your DFIR, you need to save the archive logs locally somewhere and ensure integrity based on logs, not alerts.
 
@@ -182,7 +182,7 @@ Therefore, the integrity of alerts is not guaranteed by default within Wazuh. Fo
 
 The only hardening advice is to [change the passwords](https://documentation.wazuh.com/current/deployment-options/offline-installation.html#securing-your-wazuh-installation). Nothing for permissions, account usage, etc. It is hard to secure Wazuh after you install it.
 
-Another hardening measure is using an agent enrollment password, yet it is not mentioned in hardening measures. It is presented as an optional feature. The risk there is when an attacker uses arbitrary packages with a fake agent, it is possible to DoS by sending logs in high volume (likelihood=high, severity=medium). The secondary risk occurs when there is a vulnerability in the Wazuh manager: an attacker can send malicious data to the vulnerable server using an unauthenticated, fake agent.
+Another hardening measure is using an agent enrolment password, yet it is not mentioned in hardening measures. It is presented as an optional feature. The risk there is when an attacker uses arbitrary packages with a fake agent, it is possible to DoS by sending logs in high volume (likelihood=high, severity=medium). The secondary risk occurs when there is a vulnerability in the Wazuh manager: an attacker can send malicious data to the vulnerable server using an unauthenticated, fake agent.
 
 It would be great if the docs specifically mention that *the `wazuh-manager` service acts as an agent but for `wazuh-indexer`, you need to install `wazuh-agent` explicitly on the server(s)*. A warning or note on the central component installation guide, and cluster architecture would suffice.
 
@@ -192,9 +192,9 @@ Edit: The documentation includes a warning now.
 
 Due to the variety of security mechanisms, it is hard to harden Wazuh without interrupting the workflow. Unfortunately, Wazuh does not provide methods to harden Wazuh daemons for AppArmor, SELinux, or PolKit setups. It would be great if there's documentation for `systemd-analyze security <Wazuh service name>` command results.
 
-### No authentication & authorization for agent install-uninstall
+### No authentication & authorisation for agent install-uninstall
 
-Any user with enough privileges on the target computer, provided through either legitimate or malicious manners, can uninstall Wazuh agents on a compromised system. There is no extra step for authentication and authorization.
+Any user with enough privileges on the target computer, provided through either legitimate or malicious manners, can uninstall Wazuh agents on a compromised system. There is no extra step for authentication and authorisation.
 
 ### Vulnerability management is a feature hard to maintain
 
@@ -218,14 +218,14 @@ For compliance with regulations, there is no possibility to archive the alerts o
 
 The only proper way for archiving currently is to write alert logs locally on each `wazuh-manager` node, then move them to a network share. Even though there is a possibility of mounting an NFS share on `/var/ossec/logs/` path, it is not the best option due to network latency.
 
-The optimal way of archiving logs is to keep them for a short time on a Wazuh server node for up to 3 days. Then, using a bash script or a synchronization tool, the compressed and signed logs can be copied to the network share. However, since each Wazuh server instance will create separate log files, there will be a separate log file per each node depending on the registered node. Because the server collecting the log for that agent can change in a cluster environment, there is no separation of data sources per archive log file. There may occur two problems for the files on a file share:
+The optimal way of archiving logs is to keep them for a short time on a Wazuh server node for up to 3 days. Then, using a bash script or a synchronisation tool, the compressed and signed logs can be copied to the network share. However, since each Wazuh server instance will create separate log files, there will be a separate log file per each node depending on the registered node. Because the server collecting the log for that agent can change in a cluster environment, there is no separation of data sources per archive log file. There may occur two problems for the files on a file share:
 
-- If there is a lock on a file/folder from another node, the synchronization may fail.
+- If there is a lock on a file/folder from another node, the synchronisation may fail.
 - When a node copies a log to a network share, the naming includes the date. Another agent can overwrite the log files on the target because the name is the same: `ossec-archive-xx.log.gz`.
 
 To solve both, we can create separate directories per each Wazuh server node. Even though this solves both problems, it adds a layer of complexity: an agent can change the Wazuh server node to send the logs any time in a day, and several times in the long term, logs are distributed between separate folders. If one wants the logs from the last 9 months for a device, the only solution is to run `zgrep` or better `ugrep` on all files. The is no way to consolidate the logs without breaking the built-in cryptographic signature.
 
-What I could find is to disable Wazuh-managed compression and signing and utilize a custom workflow:
+What I could find is to disable Wazuh-managed compression and signing and utilise a custom workflow:
 
 - Copy the log files to network share.
 - Use a consolidation tool like [logmerge](https://github.com/microsoft/logmerge) from Microsoft, to create a separate file based on both logs.
@@ -265,7 +265,7 @@ To make CrowdSec work with Wazuh, I needed to create a [plugin](https://github.c
 
 ### Community support issues
 
-Sometimes, community support on Slack looks like a documentation search by dialogs. Yes, most end users do not read the docs and many problems are low-hanging fruits. But if one asks a complicated question, it is unsatisfactory when you get a link to docs, which generally is not the answer. I can understand that level 1 support positions do not require an IT background but many times the Slack community responses give the impression that the support people have no idea on what Wazuh does.
+Sometimes, community support on Slack looks like a documentation search by dialogues. Yes, most end users do not read the docs and many problems are low-hanging fruits. But if one asks a complicated question, it is unsatisfactory when you get a link to docs, which generally is not the answer. I can understand that level 1 support positions do not require an IT background but many times the Slack community responses give the impression that the support people have no idea on what Wazuh does.
 
 ### No community repository/hub/store for rules and decoders
 

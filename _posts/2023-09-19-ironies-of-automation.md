@@ -32,7 +32,7 @@ I would like to mention an article under the "Back to basics in IT" category in 
 
 * **Design Challenges:** Designing automated systems that effectively support human operators is a complex task that requires understanding both technical and human factors.
 
-* **Training and Adaptation:** Operators need specialized training to work effectively with automated systems, including how to handle failures and unexpected events.
+* **Training and Adaptation:** Operators need specialised training to work effectively with automated systems, including how to handle failures and unexpected events.
 
 * **Ethical and Legal Concerns:** Automation raises questions about responsibility and accountability, especially in high-stakes environments.
 
@@ -62,13 +62,13 @@ One of the most significant hurdles in automation is designing systems that are 
 
 ### Training and Adaptation
 
-The Microsoft incident highlights the need for specialized training for operators who interact with automated systems. Such training should not only cover routine operations but also how to handle system failures and unexpected events. In the absence of such training, even seasoned operators can find themselves ill-equipped to manage crises, leading to incidents like the Microsoft leak. While I believe the goal is creating smooth user experiences in products that will not require user training, in complex environments like these, proper training may be needed.
+The Microsoft incident highlights the need for specialised training for operators who interact with automated systems. Such training should not only cover routine operations but also how to handle system failures and unexpected events. In the absence of such training, even seasoned operators can find themselves ill-equipped to manage crises, leading to incidents like the Microsoft leak. While I believe the goal is creating smooth user experiences in products that will not require user training, in complex environments like these, proper training may be needed.
 
 ## What's your take?
 
-I tried to explain and used a great resource to draw parallels with an incident. Let me summarize my two cents:
+I tried to explain and used a great resource to draw parallels with an incident. Let me summarise my two cents:
 
-The Microsoft data leak serves as a cautionary tale that underscores the need for a balanced approach to automation and human oversight. As we continue to embrace the conveniences of cloud computing and automation, it's crucial to remain vigilant about the associated risks. This incident serves as a practical example of the principles outlined in "Ironies of Automation," emphasizing the need for human aspects of automation to be understood, and reminded often in the context of IT and cybersecurity.
+The Microsoft data leak serves as a cautionary tale that underscores the need for a balanced approach to automation and human oversight. As we continue to embrace the conveniences of cloud computing and automation, it's crucial to remain vigilant about the associated risks. This incident serves as a practical example of the principles outlined in "Ironies of Automation," emphasising the need for human aspects of automation to be understood, and reminded often in the context of IT and cybersecurity.
 
 I suggest people around me to go back to basics to solve the complex problems. Many of those problems are already solved by great minds, years or even decades ago. Most of the time, the same problems just reappear in the same or similar forms, because it is a human problem, not a technology problem. Dear Lisanne Bainbridge's "Ironies of Automation" is one of those basics every person in IT and cybersecurity needs to read, again and again. And if you like, you can read her newer works from [her blog](https://www.complexcognition.co.uk/) too!
 
