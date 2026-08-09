@@ -39,7 +39,7 @@ Threat hunting and incident response require timely, flexible access to logs - e
 <img src="/assets/images/duckdb-pipeline.png" width="800" alt="A sample diagram for 3 targets of logs">
 
 1. **Raw Logs to Cheap Storage**: Logs are written as-is to a low-cost location: NFS, SMB share, or object storage (e.g., S3). This supports long-term retention and full-fidelity replay.
-2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalized to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
+2. **Structured Data Lake for Hunting**: Logs are parsed, transformed, normalised to schema, and stored in an efficient format like Parquet. This enables fast, large-scale querying, enrichment, and threat hunting.
 3. **SIEM Pipeline**: High-value events are filtered, aggregated, and pushed to a SIEM. This supports real-time detection, alerting, and correlation.
 
 This guide assumes familiarity with command‐line tools and SQL
@@ -49,9 +49,9 @@ This guide assumes familiarity with command‐line tools and SQL
 
 Have you ever noticed how most companies only think about log storage because of compliance—never for actual investigations? Those logs usually sit in cold, compressed archives on NFS or S3 buckets for years. Sure, they tick the regulatory boxes, but when it's time to hunt threats or enrich data, they feel useless—like a dusty filing cabinet you're afraid to open.
 
-Lately, though, there's a newer approach: building organized "data lakes" that parse and normalize logs into formats analysts can query in seconds. But let's be real—that takes a lot of work: you need parsing pipelines, strict schema governance, powerful query layers, and a healthy budget. Most teams simply don't have all that. It's nothing personal—it just shows how early we are as an industry.
+Lately, though, there's a newer approach: building organised "data lakes" that parse and normalise logs into formats analysts can query in seconds. But let's be real—that takes a lot of work: you need parsing pipelines, strict schema governance, powerful query layers, and a healthy budget. Most teams simply don't have all that. It's nothing personal—it just shows how early we are as an industry.
 
-Instead, lots of organizations stick to the old-school method:
+Instead, lots of organisations stick to the old-school method:
 
 - Gather logs from everywhere.
 - Send any "alert-worthy" events off to a SIEM.
@@ -78,7 +78,7 @@ In your `ossec.conf`, if you have `<logall_json>yes<\logall_json>`, it means you
 First of all, we have an assumption that you use JSON logs for the log archival process. If you do not have `<logall_json>yes<\logall_json>` set, the rest is not helpful for you. Neither DuckDB nor Wazuh Indexer can help there. This is a strict requirement.
 {: .notice--info}
 
-Organizations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access that I will define below.
+Organisations commonly rotate and compress these logs into `.log.gz` or `.json.gz` files for storage and retention. This creates two common approaches to historical access that I will define below.
 
 ### Option 1: Push Archives to Wazuh Indexer (OpenSearch)
 
@@ -120,7 +120,7 @@ In [benchmark tests](https://duckdb.org/2024/06/20/cli-data-processing-using-duc
 | pcregrep 8.45      | 3.1s                 | 2.9s                   |
 | DuckDB 1.0.0       | 4.2s                 | 1.2s                   |
 
-On uncompressed data, DuckDB can fully parallelize queries, resulting in significant speedups. As queries grow more complex - involving joins, filtering, regex, or date logic - DuckDB's performance and maintainability become even more valuable.
+On uncompressed data, DuckDB can fully parallelise queries, resulting in significant speedups. As queries grow more complex - involving joins, filtering, regex, or date logic - DuckDB's performance and maintainability become even more valuable.
 
 ## Our Approach: Case-Oriented Analysis with DuckDB
 
@@ -136,7 +136,7 @@ Our approach starts with an assumption that we store large amount of data for a 
 ./create_view.sh "SI-801" "2025-04-0*"
 ```
 
-This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there is the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/archives/2025-04-0*-siem*.log.gz`, where the view name is normalized ticket number and the file path pattern is hard coded.
+This is a very opinionated script. It assumes the user wants to track the case via a ticket number. Inside the script, there is the location of the logs with a naming convention. Creates a view named `si_801` pointing to `/archives/2025-04-0*-siem*.log.gz`, where the view name is normalised ticket number and the file path pattern is hard coded.
 
 The view exposes:
 
@@ -273,7 +273,7 @@ ORDER BY event_count DESC;
 
 {% include gallery id="gallery7" caption="Parent-child process relationships" %}
 
-You can use different ways to understand the behaviors. You can have hourly buckets for analysis:
+You can use different ways to understand the behaviours. You can have hourly buckets for analysis:
 
 ```sql
 -- Bucket Process-Create (EventID=1) timestamps by the hour

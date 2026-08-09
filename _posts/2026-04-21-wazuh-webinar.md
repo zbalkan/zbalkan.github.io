@@ -14,7 +14,7 @@ tags:
 
 On 11 February 2026, I gave a webinar for [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) together with another [Wazuh ambassador](https://wazuh.com/ambassadors-program/utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) [Kevin Branch](https://www.linkedin.com/in/bluewolfninja?utm_source=share_via&utm_content=profile&utm_medium=member_android): [**From Rule to Reality: Detection as Code in Action with Wazuh**](https://wazuh.com/events-webinars/). It was the first webinar in the planned series, and more than 120 people joined the session. That was encouraging, but the more important part was the level of interest in the subject itself. Detection engineering clearly resonates with practitioners who want something more rigorous than writing rules and hoping for the best.
 
-The main point of the webinar was simple: A detection is not "engineering" merely because it produces an alert. It becomes engineering when it is treated as a maintainable artifact: versioned, tested, reviewed, and improved over time. That sounds obvious when stated that way, but in practice many teams still treat detections as isolated logic fragments. A rule fires, maybe gets tuned once or twice, and then quietly turns into legacy content. Over time, that creates a ruleset nobody fully trusts.
+The main point of the webinar was simple: A detection is not "engineering" merely because it produces an alert. It becomes engineering when it is treated as a maintainable artefact: versioned, tested, reviewed, and improved over time. That sounds obvious when stated that way, but in practice many teams still treat detections as isolated logic fragments. A rule fires, maybe gets tuned once or twice, and then quietly turns into legacy content. Over time, that creates a ruleset nobody fully trusts.
 
 This is also why I keep returning to the phrase *detection as code*. It is not branding. It is a reminder that detections live in the same world as the rest of engineering. They break when assumptions change. They accumulate technical debt. They need regression testing. They need structure. If a team cannot explain why a rule exists, how it should behave, and how changes are validated, then the problem is usually not with the platform. The problem is a missing engineering discipline around detection content.
 
@@ -32,4 +32,4 @@ On a final note, please check the [events calendar](https://wazuh.com/events-cal
 - [wazuh-devenv repository](https://github.com/zbalkan/wazuh-devenv)
 - [My Detection as Code article](https://zaferbalkan.com/detection-engineering/)
 - [My Wazuh development environment article](https://zaferbalkan.com/wazuh-devenv/)
-- [My article on log replay for behavioral testing](https://zaferbalkan.com/log-replay/)
+- [My article on log replay for behavioural testing](https://zaferbalkan.com/log-replay/)

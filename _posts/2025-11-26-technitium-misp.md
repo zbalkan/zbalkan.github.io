@@ -44,9 +44,9 @@ last_modified_at: 2026-05-12
 
 Technitium DNS Server started as a simple home-lab resolver but has matured into something I’d now place between AdGuard Home and AdGuard Enterprise. It remains self-hosted and lightweight but has grown into a capable platform thanks to its clustering, structured logging, and app-based extensibility. While it was never built as a Protective DNS (PDNS)[^1] service—and PDNS is typically offered as SaaS—its deterministic resolver and flexible architecture make PDNS-style filtering easy to achieve when paired with curated intelligence.
 
-In my earlier article on [Technitium and Wazuh](https://zaferbalkan.com/technitium/), I described DNS as both a behavioral signal and an enforcement point. DNS queries appear early in the attack chain, often long before C2 traffic stabilizes. That same idea led agencies like [CISA](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and the [NCSC](https://www.ncsc.gov.uk/information/pdns) to define what we now call *Protective DNS (PDNS)* — resolvers that check queries against curated intelligence and block malicious domains with predictable, transparent logic. The recent improvements in Technitium make this PDNS-style model practical for self-hosted environments, though it’s not meant to replace global-scale DNS firewalls or CDN-backed resolvers such as Akamai or Cloudflare.
+In my earlier article on [Technitium and Wazuh](https://zaferbalkan.com/technitium/), I described DNS as both a behavioural signal and an enforcement point. DNS queries appear early in the attack chain, often long before C2 traffic stabilises. That same idea led agencies like [CISA](https://media.defense.gov/2025/Mar/24/2003675043/-1/-1/0/CSI-Selecting-a-Protective-DNS-Service-v1.3.PDF) and the [NCSC](https://www.ncsc.gov.uk/information/pdns) to define what we now call *Protective DNS (PDNS)* — resolvers that check queries against curated intelligence and block malicious domains with predictable, transparent logic. The recent improvements in Technitium make this PDNS-style model practical for self-hosted environments, though it’s not meant to replace global-scale DNS firewalls or CDN-backed resolvers such as Akamai or Cloudflare.
 
-The term may sound new, but DNS firewalling isn’t. Paul Vixie described the idea back in 2010 in *Taking Back the DNS*, where he introduced [Response Policy Zones (RPZ)](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) as a way for resolvers to apply reputation data. He later followed up with the [first IETF draft](https://datatracker.ietf.org/doc/html/draft-vixie-dns-rpz-00). Years later, Xavier Mertens showed a working MISP-to-RPZ workflow in his [SANS Internet Storm Center diary](https://isc.sans.edu/diary/24556), using Bind, a few shell scripts, and RPZ zone files — the same concept that inspired this article’s title. Whether we call it DNS firewalling or PDNS, the principle is well over a decade old. Technitium DNS doesn’t yet support RPZ (it’s on the roadmap), but its filtering pipeline already achieves similar results through native mechanisms.
+The term may sound new, but DNS firewalling isn’t. Paul Vixie described the idea back in 2010 in *Taking Back the DNS*, where he introduced [Response Policy Zones (RPZ)](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) as a way for resolvers to apply reputation data. He later followed up with the [first IETF draft](https://datatracker.ietf.org/doc/html/draft-vixie-dns-rpz-00). Years later, Xavier Mertens showed a working MISP-to-RPZ workflow in his [SANS Internet Storm Centre diary](https://isc.sans.edu/diary/24556), using Bind, a few shell scripts, and RPZ zone files — the same concept that inspired this article’s title. Whether we call it DNS firewalling or PDNS, the principle is well over a decade old. Technitium DNS doesn’t yet support RPZ (it’s on the roadmap), but its filtering pipeline already achieves similar results through native mechanisms.
 
 {% include gallery id="galleryGraph" caption="Technitium DNS server has a sleek web UI that you can monitor the DNS requests" %}
 
@@ -68,7 +68,7 @@ For collecting EDE information in DNS response, the DNS query must send EDNS fir
 
 ## MISP Connector App: How It Works
 
-This article assumes familiarity with recursive resolvers and the [MISP](https://www.misp-project.org/) data model. The operating philosophy remains simple: intelligence is curated upstream in MISP, enforced deterministically at the resolver, and analyzed downstream through logs or SIEMs.
+This article assumes familiarity with recursive resolvers and the [MISP](https://www.misp-project.org/) data model. The operating philosophy remains simple: intelligence is curated upstream in MISP, enforced deterministically at the resolver, and analysed downstream through logs or SIEMs.
 
 {% include gallery id="galleryMispFeeds" caption="You are expected to curate your feeds properly on MISP" %}
 
@@ -201,7 +201,7 @@ You can simply use `dig` command for testing as well:
 
 {% include gallery id="galleryDig" caption="dig command showing EDE" %}
 
-This new set of behaviors matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
+This new set of behaviours matches the architectural core of PDNS guidance: enforcement must be deterministic, explainable, and consistent.
 
 ## Telemetry: Log Exporter and SIEM Integration
 
@@ -216,11 +216,11 @@ This closes the loop between intelligence, enforcement, and visibility. Tools li
 
 {% include gallery id="galleryMispWazuh" caption="MISP, TDNS and Wazuh connection" %}
 
-## Technitium + MISP in Threat-Informed Defense
+## Technitium + MISP in Threat-Informed Defence
 
-DNS activity appears early in most intrusions—before data exfiltration, payload retrieval, or a stable C2 channel forms. This makes it one of the best points to observe and disrupt attacker behavior.
+DNS activity appears early in most intrusions—before data exfiltration, payload retrieval, or a stable C2 channel forms. This makes it one of the best points to observe and disrupt attacker behaviour.
 
-MISP, in turn, curates indicators from multiple upstream sources such as CIRCL, ISACs, Abuse.ch, and organizational feeds. When a resolver enforces those indicators, it gives defenders a deterministic way to block known infrastructure before the attack chain progresses.
+MISP, in turn, curates indicators from multiple upstream sources such as CIRCL, ISACs, Abuse.ch, and organisational feeds. When a resolver enforces those indicators, it gives defenders a deterministic way to block known infrastructure before the attack chain progresses.
 
 In David Bianco’s [Pyramid of Pain](https://detect-respond.blogspot.com/2013/03/the-pyramid-of-pain.html), domains sit on the simplest layer. They’re easy to detect and low-cost to act on—but they still carry operational value. By pairing MISP with Technitium DNS, we can reliably address that layer, closing off much of the opportunistic and commodity attack traffic that still dominates real-world telemetry.
 
@@ -234,15 +234,15 @@ Use MISP’s native controls to keep it meaningful: apply confidence levels, tax
 
 Technitium’s transparency then makes that quality visible. When a block event includes an EDNS tag tied to a specific MISP attribute, you can trace exactly why a domain was blocked and decide if the source deserves trust. That clarity turns threat intelligence from an abstract feed into an auditable control point.
 
-And as always, PDNS has limits. It protects the resolver path, not the authoritative servers. Attacks like reflection, amplification, or TCP exhaustion bypass the resolver completely. Misconfigurations such as zone-transfer leaks or DNSSEC enumeration originate on the authoritative side and remain outside PDNS scope. A protective resolver reduces noise and prevents known bad traffic, but it’s not a shield for upstream infrastructure — that still depends on sound architecture and layered defenses.
+And as always, PDNS has limits. It protects the resolver path, not the authoritative servers. Attacks like reflection, amplification, or TCP exhaustion bypass the resolver completely. Misconfigurations such as zone-transfer leaks or DNSSEC enumeration originate on the authoritative side and remain outside PDNS scope. A protective resolver reduces noise and prevents known bad traffic, but it’s not a shield for upstream infrastructure — that still depends on sound architecture and layered defences.
 
 ## Conclusion
 
 Technitium DNS with MISP integration offers a simple, transparent way to bring PDNS-style prevention into a self-hosted environment. It follows the model described by CISA and NCSC — intelligence curated upstream, enforcement handled predictably in the middle, and telemetry shared downstream. It’s not meant to compete with commercial PDNS platforms; it just makes the same idea approachable for those who prefer to keep things under their own control.
 
-This work continues what I explored in my [earlier article on Wazuh and Technitium](https://zaferbalkan.com/technitium/): DNS as both an enforcement point and an early signal. It’s a small step toward a “shift-left” mindset — preventing what we can, before we have to detect it. Adding a preventive layer at the resolver doesn’t take much effort, but it can stop problems before they ever reach your SIEM.
+This work continues what I explored in my [earlier article on Wazuh and Technitium](https://zaferbalkan.com/technitium/): DNS as both an enforcement point and an early signal. It’s a small step towards a “shift-left” mindset — preventing what we can, before we have to detect it. Adding a preventive layer at the resolver doesn’t take much effort, but it can stop problems before they ever reach your SIEM.
 
-I’m grateful to [Shreyas Zare](https://github.com/ShreyasZare), the creator of Technitium DNS, and to everyone who contributes to the [MISP project](https://github.com/MISP/MISP/graphs/contributors). The same thanks go to those who laid the foundation: [Paul Vixie](https://www.linkedin.com/in/paulvixie/) for his [RPZ work](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) and [Xavier Mertens](https://www.linkedin.com/in/xme/) and the [SANS Internet Storm Center](https://isc.sans.edu/diary/24556) for showing how MISP could drive DNS enforcement long before this integration existed.
+I’m grateful to [Shreyas Zare](https://github.com/ShreyasZare), the creator of Technitium DNS, and to everyone who contributes to the [MISP project](https://github.com/MISP/MISP/graphs/contributors). The same thanks go to those who laid the foundation: [Paul Vixie](https://www.linkedin.com/in/paulvixie/) for his [RPZ work](https://web.archive.org/web/20250711145552/https://circleid.com/posts/20100728_taking_back_the_dns/) and [Xavier Mertens](https://www.linkedin.com/in/xme/) and the [SANS Internet Storm Centre](https://isc.sans.edu/diary/24556) for showing how MISP could drive DNS enforcement long before this integration existed.
 
 The *MISP Connector* and *Log Exporter Apps* are just small pieces of glue code that made sense to build and share. They’re not polished or perfect, but they close a gap I ran into, and if they help someone else, that’s reason enough. Prevention doesn’t have to be big or complex — sometimes it’s just about putting the right control in the right place, a little earlier in the chain.
 

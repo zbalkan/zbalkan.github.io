@@ -34,7 +34,7 @@ The task of converting Sigma rules to Wazuh rules involves several key steps:
 1. **Parsing Sigma Rules:** The Python script to parse the YAML-based Sigma rules is not Sigma-specific. It just reads them as YALML files and we use it as a dictionary internally. This script extracts essential components such as detection patterns, log sources, and conditions.
 2. **Mapping to Wazuh Syntax:** Translate the parsed Sigma components into Wazuh's XML-based rule syntax. This does not require a 100% understanding of both Sigma's and Wazuh's rule structures, since we are using almost a uniform Sigma ruleset. Still, it needs some care. I used the Sigma docs to find the known Sigma log sources for Windows to event log sources.
 3. **Sysmon vs. FIM:** While many rules can be solved by just relying on Sysmon, file events are handled by File Integrity Monitoring (FIM). Therefore, we have a check that separates the Sysmon rules from the FIM rules.
-4. **Exceptional cases:** The exceptional cases left are those lacking static Indicators of Compromise (IOCs). The rules labeled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you would like to use those rules, you have to write your rules manually with the proper domain names.
+4. **Exceptional cases:** The exceptional cases left are those lacking static Indicators of Compromise (IOCs). The rules labelled as "user_managed" for Remote Monitoring and Management (RMM) tools using custom domains may not have static IOCs, so there are no Wazuh rules generated. If you would like to use those rules, you have to write your rules manually with the proper domain names.
 5. **Rule ID:** Rule ID is an [abstraction leak](https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/) for Wazuh. Rule IDs are not meaningful for the users. This should have been handled internally. However, until/unless the Wazuh team decides to remove this property in 5.x, we must use the existing syntax. That is why I have a variable there for the first ID of the rules. I prefer using prefixes to help me understand the rule ID and rule file name mapping. So if the custom rule file name is `5500-rmm_rules.xml`, I know that the rule IDs start from 550000. In the script, the default value is 100000, you will get `1000-rmm_rules.xml` as an output.
 
 ## Generating rules
@@ -346,7 +346,7 @@ if __name__ == "__main__":
 To implement the converted rules in Wazuh:
 
 1. Ensure you have Sysmon deployed on endpoints.
-2. Create an endpoint group for testing. Add these lines below to your group's centralized configuration.
+2. Create an endpoint group for testing. Add these lines below to your group's centralised configuration.
 3. Ensure Wazuh is able to collect Sysmon logs.
 4. Add your custom rule file.
 5. Test it on the test computers. You don't have to actually install an RMM. Just create a file in the correct location with the correct name. Or use `Invoke-WebRequest "https://cloud.acronis.com" | Out-Null` command to test the Acronis RMM rule. We don't need to check if it succeeded. We only need an application to make the request.
@@ -354,8 +354,8 @@ To implement the converted rules in Wazuh:
 
 ## Conclusion
 
-Out of 457 Sigma rules analyzed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. Therefore, you can write your detections based on the generated rules.
+Out of 457 Sigma rules analysed, 418 new rules were successfully converted into Wazuh-compatible rules. The remaining rules are not suitable for conversion so the script gives you a warning. Therefore, you can write your detections based on the generated rules.
 
 <img src="/assets/images/converter-result.png" width="800" alt="WDAC Wizard is your friend!">
 
-LOLRMM is a great resource. However, importing bulk detections in your environment is not a good way to improve your defenses. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.
+LOLRMM is a great resource. However, importing bulk detections in your environment is not a good way to improve your defences. Use your hardening measures to block these if they are not used in your environment. It is better to consider detection as a validation for your prevention control.

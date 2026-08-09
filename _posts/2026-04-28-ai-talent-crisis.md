@@ -11,13 +11,13 @@ header:
   caption: "Photo credit: [The domino effect](https://www.flickr.com/photos/testlab/21496317363) by [Kurt:S](https://www.flickr.com/photos/testlab/). [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en)"
 ---
 
-If you have spent enough time in software engineering, cybersecurity, IT, or adjacent technical fields, you have likely heard the familiar joke that companies want a junior with ten years of experience. The joke survives because it reflects something real. Many organizations have long wanted entry-level hires who arrive partially trained, useful from day one, and still cheap enough to classify as junior. The economics are obvious enough: training people costs money, mentoring consumes senior time, and building apprenticeship capacity usually slows teams down before it speeds them up. If someone else can absorb those costs first, the individual firm benefits.
+If you have spent enough time in software engineering, cybersecurity, IT, or adjacent technical fields, you have likely heard the familiar joke that companies want a junior with ten years of experience. The joke survives because it reflects something real. Many organisations have long wanted entry-level hires who arrive partially trained, useful from day one, and still cheap enough to classify as junior. The economics are obvious enough: training people costs money, mentoring consumes senior time, and building apprenticeship capacity usually slows teams down before it speeds them up. If someone else can absorb those costs first, the individual firm benefits.
 
-None of this is new. The underinvestment in junior talent predates the current AI wave by many years, and most practitioners already understand the pattern intuitively. They may not describe it formally, but they recognize the symptoms: unrealistic requirements for junior roles, shrinking entry-level opportunities, inflated “entry-level” expectations, and organizations quietly hoping the labor market will keep producing experienced practitioners they did not have to develop themselves.
+None of this is new. The underinvestment in junior talent predates the current AI wave by many years, and most practitioners already understand the pattern intuitively. They may not describe it formally, but they recognise the symptoms: unrealistic requirements for junior roles, shrinking entry-level opportunities, inflated “entry-level” expectations, and organisations quietly hoping the labor market will keep producing experienced practitioners they did not have to develop themselves.
 
 What AI changes is not the existence of this dynamic, but the economics and intensity of it.
 
-A significant portion of the post-2022 contraction is more plausibly explained by pandemic-era overhiring, macroeconomic tightening, and general normalization after an unusually expansionary labor market. Broad IT employment data does not support the claim that AI has already caused a general collapse in technical employment. But aggregate employment can remain stable while the underlying structure deteriorates. A system may look healthy in headline numbers while the composition of hiring shifts in ways that weaken its future.
+A significant portion of the post-2022 contraction is more plausibly explained by pandemic-era overhiring, macroeconomic tightening, and general normalisation after an unusually expansionary labor market. Broad IT employment data does not support the claim that AI has already caused a general collapse in technical employment. But aggregate employment can remain stable while the underlying structure deteriorates. A system may look healthy in headline numbers while the composition of hiring shifts in ways that weaken its future.
 
 The claim is narrower: current incentives, now amplified by AI, risk further degrading the apprenticeship pipeline over time.
 
@@ -47,7 +47,7 @@ These archetypes describe the same system at different levels: firm-level decisi
 
 ### Tragedy of the Commons
 
-The **Tragedy of the Commons** describes systems where individually rational actions degrade a shared resource. In this case, the shared resource is the industry-wide apprenticeship pipeline. Every organization benefits from experienced practitioners existing in the labor market, but producing experienced practitioners requires someone to hire and train inexperienced ones.
+The **Tragedy of the Commons** describes systems where individually rational actions degrade a shared resource. In this case, the shared resource is the industry-wide apprenticeship pipeline. Every organisation benefits from experienced practitioners existing in the labor market, but producing experienced practitioners requires someone to hire and train inexperienced ones.
 
 Training juniors is expensive, and avoiding that expense is individually rational. If AI increases the leverage of already-experienced personnel, the economic case for avoiding junior hiring strengthens further. Each firm can conclude that it is more efficient to buy talent later than to develop it internally. No single company intends to degrade the labor market. Yet if enough firms behave that way, the future supply of experienced talent declines anyway.
 
@@ -63,15 +63,15 @@ flowchart LR
     SCARCITY -->|+| AVOID
 ```
 
-At the macro level, this is the central structural problem. The remaining archetypes describe how it manifests inside organizations.
+At the macro level, this is the central structural problem. The remaining archetypes describe how it manifests inside organisations.
 
 ### Success to the Successful
 
 The **Success to the Successful** archetype describes systems where competing activities receive unequal resources, causing advantage to compound over time. Here, the relevant competition is between investment in senior-augmented execution and investment in junior capability development.
 
-Some AI productivity studies suggest less-experienced workers can benefit substantially from AI assistance when given access and support. [Brynjolfsson, Li, and Raymond](https://www.nber.org/papers/w31161), for example, found novice workers benefited more from AI assistance than experienced ones in customer support. Organizations, however, allocate resources based on trust, perceived execution certainty, and risk tolerance.
+Some AI productivity studies suggest less-experienced workers can benefit substantially from AI assistance when given access and support. [Brynjolfsson, Li, and Raymond](https://www.nber.org/papers/w31161), for example, found novice workers benefited more from AI assistance than experienced ones in customer support. Organisations, however, allocate resources based on trust, perceived execution certainty, and risk tolerance.
 
-As AI increases the leverage of already-trusted senior staff, organizations direct more work, tooling, and budget toward senior-augmented execution. The more resources flow in that direction, the fewer remain for structured junior development.
+As AI increases the leverage of already-trusted senior staff, organisations direct more work, tooling, and budget towards senior-augmented execution. The more resources flow in that direction, the fewer remain for structured junior development.
 
 ```mermaid
 flowchart LR
@@ -88,11 +88,11 @@ flowchart LR
 
 ### Shifting the Burden
 
-The **Shifting the Burden** archetype appears when organizations rely on symptomatic fixes instead of addressing structural causes.
+The **Shifting the Burden** archetype appears when organisations rely on symptomatic fixes instead of addressing structural causes.
 
 Many firms struggle with junior productivity not because juniors are inherently ineffective, but because their internal systems for developing them are weak. Poor onboarding, inconsistent mentorship, inadequate documentation, and weak engineering discipline all make capability development harder than it needs to be.
 
-AI is not the problem here. The issue arises when organizations use AI as a substitute for building the human systems required to develop capability.
+AI is not the problem here. The issue arises when organisations use AI as a substitute for building the human systems required to develop capability.
 
 ```mermaid
 flowchart LR
@@ -131,7 +131,7 @@ flowchart LR
 
 The **Growth and Underinvestment** archetype describes systems where performance improvements are pursued without proportional investment in the capacity required to sustain them.
 
-Training capacity is not merely headcount. It depends on mentorship bandwidth, documentation quality, onboarding processes, and engineering discipline. If organizations use AI to expand output without reinvesting part of those gains into apprenticeship infrastructure, they may achieve short-term performance while eroding the capacity needed to sustain it.
+Training capacity is not merely headcount. It depends on mentorship bandwidth, documentation quality, onboarding processes, and engineering discipline. If organisations use AI to expand output without reinvesting part of those gains into apprenticeship infrastructure, they may achieve short-term performance while eroding the capacity needed to sustain it.
 
 ```mermaid
 flowchart LR
@@ -152,14 +152,14 @@ Each individual decision appears rational in isolation. Hiring fewer juniors imp
 
 AI does not need to replace junior roles outright. It only needs to shift the economics enough to further weaken already-fragile apprenticeship incentives. The likely outcome is not immediate displacement, but reduced formation of future expertise.
 
-The quieter risk is that this erosion remains mostly invisible while it is happening. Organizations may continue meeting delivery targets for years, especially while drawing from talent developed under earlier market conditions. Structural degradation often becomes obvious only after the pipeline has already weakened.
+The quieter risk is that this erosion remains mostly invisible while it is happening. Organisations may continue meeting delivery targets for years, especially while drawing from talent developed under earlier market conditions. Structural degradation often becomes obvious only after the pipeline has already weakened.
 
 ## Conclusion
 
 The junior talent crisis in technical fields is not new, and AI did not create it. AI strengthens many of the incentives that produced it.
 
-If organizations continue optimizing for present throughput while externalizing the cost of talent development, the apprenticeship pipeline weakens.
+If organisations continue optimising for present throughput while externalising the cost of talent development, the apprenticeship pipeline weakens.
 
 Technical capability is not produced instantly. It accumulates over years through supervised exposure, repetition, failure, correction, and gradual transfer of judgment from experienced practitioners to new ones. Once that pipeline degrades, rebuilding it is neither quick nor cheap.
 
-The most dangerous systemic failures are often not dramatic. They emerge through slow erosion of the processes that sustain the system. If AI is used primarily to reduce training, the industry risks optimizing away part of the mechanism that produces future expertise.
+The most dangerous systemic failures are often not dramatic. They emerge through slow erosion of the processes that sustain the system. If AI is used primarily to reduce training, the industry risks optimising away part of the mechanism that produces future expertise.

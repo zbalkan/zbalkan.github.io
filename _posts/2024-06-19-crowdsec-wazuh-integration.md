@@ -31,7 +31,7 @@ Last but not least, I loved that CrowdSec had a marketplace from the start. It i
 
 ## Comparing with Wazuh -or any other SIEM, HIDS, HIPS
 
-When you read the CrowdSec introduction above, you may think it is not so different than any other  host-based intrusion detection system (HIDS) or prevention system (HIPS). That's the first thing that came to my mind as well. According to the [duck test](https://en.wikipedia.org/wiki/Duck_test), I believe it is yet another HIDS/HIPS.
+When you read the CrowdSec introduction above, you may think it is not so different from any other host-based intrusion detection system (HIDS) or prevention system (HIPS). That's the first thing that came to my mind as well. According to the [duck test](https://en.wikipedia.org/wiki/Duck_test), I believe it is yet another HIDS/HIPS.
 
 Technically, whatever you can do with CrowdSec can be done with Wazuh as well. You can trigger rules and use `active response` scripts to block IP addresses. The difference is in the details. CrowdSec is minimal, it does not require a central instance. The rules are processed locally, not on a dedicated server. The action is taken immediately. So, the load is distributed to agents. That might remind you [Ossec](https://www.ossec.net/), [Samhain](https://www.la-samhna.de/samhain/), [Sagan](https://github.com/quadrantsec/sagan) or others. What about EDRs?
 
@@ -39,7 +39,7 @@ On the other hand, Wazuh has thousands of rules, yet adding new rules requires w
 
 ## Scenario
 
-Here, I created an integration scenario. Your organization is making use of Apache as load balancers and using ModSecurity as the WAF solution. Your organization likes open source stack and uses Wazuh as SIEM. Your team has already set up Wazuh agent on the servers, started to collect logs. In order for Wazuh to trigger rules, you need a level of verbosity. Since this is a load balancer cluster, both the Apache and ModSecurity logs are bombarded. Wazuh has a buffer to keep 1000 message by default. Your team then updates the buffer capacity to 10.000 but the buffer still gets flooded. The leaky bucket algorithm tries to save memory and protect your server's integrity. So, you are losing logs which may or may not be valuable. At the same time, Wazuh server is also bombarded by this noise wih the hope that the logs managed to arrive at the log collector would be the ones that matter. The SIEM is supposed to be your [common operational picture (COP)](https://en.wikipedia.org/wiki/Common_operational_picture), but your loss of valuable data in random noise, prevents you to evaluate the situation accurately.
+Here, I created an integration scenario. Your organisation is making use of Apache as load balancers and using ModSecurity as the WAF solution. Your organisation likes open source stack and uses Wazuh as SIEM. Your team has already set up Wazuh agent on the servers, started to collect logs. In order for Wazuh to trigger rules, you need a level of verbosity. Since this is a load balancer cluster, both the Apache and ModSecurity logs are bombarded. Wazuh has a buffer to keep 1000 message by default. Your team then updates the buffer capacity to 10.000 but the buffer still gets flooded. The leaky bucket algorithm tries to save memory and protect your server's integrity. So, you are losing logs which may or may not be valuable. At the same time, Wazuh server is also bombarded by this noise wih the hope that the logs managed to arrive at the log collector would be the ones that matter. The SIEM is supposed to be your [common operational picture (COP)](https://en.wikipedia.org/wiki/Common_operational_picture), but your loss of valuable data in random noise, prevents you to evaluate the situation accurately.
 
 Since you saw that this is not the most optimal way to solve this, you decided to handle alerting at the source. You decided to add another layer between your WAF and SIEM. Here comes your CrowdSec agent in place. You started your evaluation by recreating your system.
 
@@ -169,7 +169,7 @@ labels:
   type: modsecurity
 ```
 
-- You saw the same logs are labeled as both `apache2` and `modsecurity`, but that is for parsers. We need them there.
+- You saw the same logs are labelled as both `apache2` and `modsecurity`, but that is for parsers. We need them there.
 - You then downloaded the remediation component called [cs-firewall-bouncer](https://app.crowdsec.net/hub/author/crowdsecurity/remediation-components/cs-firewall-bouncer) in order to make use of the local firewall to be used by CrowdSec to block IPs. However, you don't configure it because you only need alerts during the test. It is possible to configure the remediation component afterwards.
 - Next steps are about Wazuh. You start with downloading [the all-in-one (AIO) OVA file](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) based on Amazon Linux 2.
 - You updated all the packages, check that everything is just working. You ensured you have access to the dashboard over `http://<server IP>`.
@@ -187,7 +187,7 @@ systemctl enable wazuh-agent
 systemctl start wazuh-agent
 ```
 
-- You needed to ensure the agent reads the logs defined in the plugin configuration. By default, it is `/tmp/crowdsec_alerts.json`. Instead of using local configuration, you wanted to make use of [centralized configuration](https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html) to manage this change centrally, which makes it more maintainable. On Wazuh dashboard, you clicked the *Endpoint Groups* on the left-hand side. Then, you hit the button *Add new group* to create a new group called `crowdsec-clients`.
+- You needed to ensure the agent reads the logs defined in the plugin configuration. By default, it is `/tmp/crowdsec_alerts.json`. Instead of using local configuration, you wanted to make use of [centralised configuration](https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html) to manage this change centrally, which makes it more maintainable. On Wazuh dashboard, you clicked the *Endpoint Groups* on the left-hand side. Then, you hit the button *Add new group* to create a new group called `crowdsec-clients`.
 - After the group was created, you clicked the pencil icon to edit the configuration. Groups are explicit policy scopes. Therefore, when you update the configuration, it will be applied to the agents which are members of this group. In the empty configuration page, you created this configuration to read the CrowdSec alerts:
 
 ```xml

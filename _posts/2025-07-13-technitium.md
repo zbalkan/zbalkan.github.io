@@ -36,15 +36,15 @@ What makes DNS filtering useful isn’t just the blocking. It’s the visibility
 
 ## Choosing a Resolver: RPZ, Technitium, and Logging Considerations
 
-There are several well-established ways to enforce DNS-layer policy. One of the most widely supported mechanisms is [RPZ (Response Policy Zones)](https://dnsrpz.info/), available in BIND, Unbound, PowerDNS, and many more. RPZ details are explained in the related [IETF Draft](https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-dns-rpz-00). RPZ allows administrators to define custom DNS zones that override normal resolution behavior. These zones can block, redirect, or modify DNS responses based on known malicious or unwanted domains. It integrates well with curated feeds and scales to large deployments. RPZ is flexible and proven, but managing it requires zone file handling, feed syncing, and in some cases, custom response logic.
+There are several well-established ways to enforce DNS-layer policy. One of the most widely supported mechanisms is [RPZ (Response Policy Zones)](https://dnsrpz.info/), available in BIND, Unbound, PowerDNS, and many more. RPZ details are explained in the related [IETF Draft](https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-dns-rpz-00). RPZ allows administrators to define custom DNS zones that override normal resolution behaviour. These zones can block, redirect, or modify DNS responses based on known malicious or unwanted domains. It integrates well with curated feeds and scales to large deployments. RPZ is flexible and proven, but managing it requires zone file handling, feed syncing, and in some cases, custom response logic.
 
 {% include gallery id="galleryGraph" caption="Technitium DNS server has a sleek web UI that you can monitor the DNS requests" %}
 
-[Technitium DNS](https://technitium.com/dns/) takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customization, Technitium’s method is fast to deploy and operationally lightweight.
+[Technitium DNS](https://technitium.com/dns/) takes a simpler but effective approach. It does not implement RPZ, but it provides a native filtering mechanism built around curated and custom blocklists. Domain filtering is enforced without the complexity of managing policy zones, and can be configured through the web interface or JSON configuration files. While less flexible than RPZ in terms of response customisation, Technitium’s method is fast to deploy and operationally lightweight.
 
 {% include gallery id="galleryBlocklist" caption="DNS Blocklisting is simple: Pick one of the feeds from the list or add your own" %}
 
-What tipped the balance for me in this case was Technitium’s **logging**. Well, technically, I built it since I loved the product. Logs were stored locally, and they were easily queried on the UI, but for a corporate environment, at least syslog forwarding was a must. So, I developed the [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/pull/1056), and [Shreyas Zare](https://github.com/ShreyasZare) completed it with his attention to detail, focus on conventions, and great professionalism. After this *not-so-humble* brag, I can say that Technitium DNS can log DNS events to syslog collectors, and HTTP targets like Elasticsearch if provided the payload. But I built the JSON file logging specifically for Wazuh because reading logs in JSON Lines format is such an easy solution. Yes, it is not aligning with any schema like ECS or OCSF, but it is very flexible. With this capability, the resolver not only blocks domains, it also produces structured telemetry about each query: what was requested, who requested it, and what happened. That data can be consumed by Wazuh directly, without external syslog daemons, log shippers, or custom parsing. This makes the combination practical for setups that prioritize visibility and local control.
+What tipped the balance for me in this case was Technitium’s **logging**. Well, technically, I built it since I loved the product. Logs were stored locally, and they were easily queried on the UI, but for a corporate environment, at least syslog forwarding was a must. So, I developed the [Log Exporter App](https://github.com/TechnitiumSoftware/DnsServer/pull/1056), and [Shreyas Zare](https://github.com/ShreyasZare) completed it with his attention to detail, focus on conventions, and great professionalism. After this *not-so-humble* brag, I can say that Technitium DNS can log DNS events to syslog collectors, and HTTP targets like Elasticsearch if provided the payload. But I built the JSON file logging specifically for Wazuh because reading logs in JSON Lines format is such an easy solution. Yes, it is not aligning with any schema like ECS or OCSF, but it is very flexible. With this capability, the resolver not only blocks domains, it also produces structured telemetry about each query: what was requested, who requested it, and what happened. That data can be consumed by Wazuh directly, without external syslog daemons, log shippers, or custom parsing. This makes the combination practical for setups that prioritise visibility and local control.
 
 At this point, I need to specify that this is not a tutorial to teach users to install and configure Technitium DNS; therefore, the assumption is that the user has already completed their setup for integration.
 {: .notice--info}
@@ -78,11 +78,11 @@ Technitium’s Log Exporter is configured either via the administrative UI or a 
 }
 ```
 
-Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for `http` and `syslog` targets easily. The `http` target is designed for ElasticSearch, OpenSearch, and similar products, and it uploads logs as batches of logs. With the `syslog` target, you can achieve similar results with `json` target as well, but if you already have an agent on the DNS server, why not use JSON logs? But if you use containerization, you may consider `syslog` instead.
+Each log entry is a single JSON object containing query metadata. No additional formatting or transformation is required for ingestion. You can see the sample configuration for `http` and `syslog` targets easily. The `http` target is designed for ElasticSearch, OpenSearch, and similar products, and it uploads logs as batches of logs. With the `syslog` target, you can achieve similar results with `json` target as well, but if you already have an agent on the DNS server, why not use JSON logs? But if you use containerisation, you may consider `syslog` instead.
 
 ### Wazuh Agent Configuration
 
-The Wazuh agent reads the JSON log file directly, as I have mentioned before. For this integration, it is better to use the [centralized configuration](https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html). First, we must create a new group for the DNS servers, and put the configuration below inside the agent.conf file. Then add your DNS servers as members to this group.
+The Wazuh agent reads the JSON log file directly, as I have mentioned before. For this integration, it is better to use the [centralised configuration](https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html). First, we must create a new group for the DNS servers, and put the configuration below inside the agent.conf file. Then add your DNS servers as members to this group.
 
 ```xml
 <localfile>
@@ -170,7 +170,7 @@ Visit Wazuh documentation for more information on writing [custom rules](https:/
 </group>
 ```
 
-This ruleset isn’t comprehensive, but it’s built around patterns I’ve found meaningful in actual environments. Each rule is there for a reason: not because it fills a coverage checklist, but because it surfaces behaviors that either indicate compromise or misconfiguration, or both.
+This ruleset isn’t comprehensive, but it’s built around patterns I’ve found meaningful in actual environments. Each rule is there for a reason: not because it fills a coverage checklist, but because it surfaces behaviours that either indicate compromise or misconfiguration, or both.
 
 The first rule (ID: 100001) is a catch-all. It ensures that any log ingested as JSON and has the field `dns.type` -the field value is always `dns`- gets grouped and handled properly by Wazuh’s rule engine. This is useful for downstream matching and for maintaining logical separation in dashboards and alerts. The level is set to 2. If you want to build more rules on top of it, update it to level 3 to collect all the logs, so that you can have enough samples to build your rules.
 
@@ -200,7 +200,7 @@ Now, you can do more analysis, write new detection rules, and start investigatio
 
 ## Wazuh and Technitium DNS integration using Syslog
 
-For those who use Technitium DNS containerized, it is better to stick to the `syslog` target for the `LogExporterApp`. You do not need the `localfile` configuration like JSON logs.
+For those who use Technitium DNS containerised, it is better to stick to the `syslog` target for the `LogExporterApp`. You do not need the `localfile` configuration like JSON logs.
 
 Start by configuring the container networking and syslog target properly. Below you can find the default configuration with two changes: the syslog server address and the `enabled` boolean field.
 
