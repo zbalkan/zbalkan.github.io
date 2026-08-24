@@ -35,7 +35,7 @@ When you read the CrowdSec introduction above, you may think it is not so differ
 
 Technically, whatever you can do with CrowdSec can be done with Wazuh as well. You can trigger rules and use `active response` scripts to block IP addresses. The difference is in the details. CrowdSec is minimal, it does not require a central instance. The rules are processed locally, not on a dedicated server. The action is taken immediately. So, the load is distributed to agents. That might remind you [Ossec](https://www.ossec.net/), [Samhain](https://www.la-samhna.de/samhain/), [Sagan](https://github.com/quadrantsec/sagan) or others. What about EDRs?
 
-On the other hand, Wazuh has thousands of rules, yet adding new rules requires writing your own rules manually within the pseudo-XML rule syntax. It also applies to the decoders -the ones named as `parser` in CrowdSec terminology. It would be amazing if there was a marketplace for community where we could download Wazuh decoders, rules, active response scripts, etc. I have already mentioned this on an earlier [blog post on Wazuh](https://zaferbalkan.com/2023/08/08/wazuh-pain-points.html#no-community-repositoryhubstore-for-rules-and-decoders).
+On the other hand, Wazuh has thousands of rules, yet adding new rules requires writing your own rules manually within the pseudo-XML rule syntax. It also applies to the decoders -the ones named as `parser` in CrowdSec terminology. It would be amazing if there was a marketplace for community where we could download Wazuh decoders, rules, active response scripts, etc. I have already mentioned this on an earlier [blog post on Wazuh](https://zaferbalkan.com/wazuh-pain-points/#no-community-repositoryhubstore-for-rules-and-decoders).
 
 ## Scenario
 
