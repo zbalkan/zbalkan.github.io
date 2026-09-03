@@ -1,6 +1,6 @@
 ---
 
-title: "Testing Wazuh 4.x regular expressions locally"
+title: "Testing Wazuh 4.x regular expressions locally with `wazuhrehex`"
 tags:
   - Wazuh
   - Detection engineering
@@ -39,7 +39,7 @@ timeline
     2021 : User requests OS_Regex and OS_Match testing together
          : Separate OS_Match validation request opened
 
-    2021–2024 : Wazuh rules can use OS_Regex, OS_Match and PCRE2
+    2021-2024 : Wazuh rules can use OS_Regex, OS_Match and PCRE2
 
     2025 : Deprecated 4.x CLI components reviewed for Wazuh 5.0
          : wazuh-regex included in the cleanup
@@ -140,7 +140,7 @@ I kept these interfaces separate because I can see uses for the comparison logic
 
 My own workflow starts with logs rather than the expression. I collect a few positive and negative examples, run the candidate pattern locally, inspect which engines accept it and what they actually match, then look at any alternative representations the comparer can produce. If an alternative is simpler or easier to understand, I can consider it. If there is no safe conversion, I leave the expression in the engine that can represent it correctly.
 
-Once the pattern behaves the way I expect, I still test the complete rule in Wazuh. `wazuhregex` is a compatibility implementation, not the original runtime. OS_Regex expressions are translated before being compiled through the Python `pcre2` backend, which is more capable than Wazuh's original C implementation, so sufficiently complex edge cases can behave differently. OS_Match has its own limitations as well. For anything that will become production detection logic, the Wazuh version that executes the rule remains the reference.
+After I confirm the pattern works as expected, I test the full rule within Wazuh. The `wazuhregex` tool is a compatibility implementation rather than the original runtime. OS_Regex expressions are translated and then compiled using the Python `pcre2` backend. This backend has more capabilities than the original C implementation used by Wazuh, which means complex edge cases may behave differently. OS_Match also has specific limitations. For any logic intended for production detection, the version of Wazuh that runs the rule is the final reference.
 
 I am a [Wazuh Ambassador](https://wazuh.com/ambassadors-program/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program), but this is my own project rather than an official Wazuh utility. I wrote it because I work with Wazuh rules and wanted a local tool for a workflow I repeat frequently. That is also how I treat its results: useful during development, but subordinate to the actual Wazuh implementation when there is a difference.
 
