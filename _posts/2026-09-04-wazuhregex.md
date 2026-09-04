@@ -9,7 +9,7 @@ tags:
   - Open Source
 header:
   image: /assets/images/wazuhregex-beta.png
-  caption: "Wazuh 5 Beta 5 is released already."
+  caption: "Wazuh 5 Beta 5 is [released](https://documentation.wazuh.com/5.0-beta/index.html) already."
 ---
 
 While working on [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) rules, I kept repeating the same task: testing regular expressions locally without returning to a manager for every change. Wazuh 4.x uses [three pattern engines](https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/regex.html), `OS_Regex`, `OS_Match` and `PCRE2`. Their syntax and semantics overlap, but a match in a generic PCRE2 tester does not show how the condition will behave in the two simpler Wazuh engines.
