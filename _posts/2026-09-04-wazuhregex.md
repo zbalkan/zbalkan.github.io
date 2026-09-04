@@ -68,9 +68,9 @@ Both forms accept one pattern and read records from standard input. Version `0.2
 As a result, I can use the same basic workflow whether I am typing a few lines interactively, redirecting a sample file, or piping data from another command. A minimal example looks like this:
 
 ```bash
-printf '%s\n' \\
-  'sshd: error found in log' \\
-  'info: all good' \\
+printf '%s\n' \
+  'sshd: error found in log' \
+  'info: all good' \
   | wazuhregex 'error'
 ```
 
