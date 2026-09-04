@@ -128,7 +128,7 @@ Once installed, the main matcher exposes the three implementations:
 from wazuhregex import WazuhRegex
 
 tool = WazuhRegex(r"(\d+)")
-is_match, spans = tool.os_regex("30 Agustos 2020")
+is_match, spans = tool.os_regex(r"\d+")
 
 if is_match:
     print(spans)
