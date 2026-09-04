@@ -14,7 +14,8 @@ Below is a curated list of small utilities I have developed. They are either und
 | [wazuhevtx](https://github.com/zbalkan/wazuhevtx) | A Python tool that parses EVTX files and converts them into JSON formatted logs mimicking Wazuh agent behaviour in version 4.x. wazuhevtx is designed as a helper for wazuh-logtest tool. | Python |
 | [rulevis](https://github.com/zbalkan/rulevis) | A simple tool to visualise the Wazuh ruleset for analysis of connections. It may help find loops, duplicates, and redundant rules. | Python |
 | [wresult](https://github.com/zbalkan/wresult) | wresult provides the running configuration of a Wazuh agent by reconstructing how it applies ossec.conf and agent.conf. | Python |
-| [sca_guide](https://github.com/zbalkan/sca_guide) | A helper for Wazuh Security Configuration Assessment (SCA) to create a custom SCA based on loosening. | Python |
+| [wazuhscatune](https://github.com/zbalkan/wazuhscatune) | A helper for Wazuh Security Configuration Assessment (SCA) to create a custom SCA based on loosening | Python |
+| [wazuhregex](https://github.com/zbalkan/wazuhregex) | wazuhregex is a Python package and command-line tool for testing expressions against the regex behavior used by Wazuh 4.x. It lets you validate one pattern against all three regex engines supported by Wazuh rules in one run | Python |
 
 ## Sysadmin tools
 
