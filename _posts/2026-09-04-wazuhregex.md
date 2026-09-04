@@ -10,6 +10,9 @@ tags:
 header:
   image: /assets/images/wazuhregex-beta.png
   caption: "Wazuh 5 Beta 5 is [released](https://documentation.wazuh.com/5.0-beta/index.html) already."
+galleryTerminal:
+  - url: /assets/images/wazuhregex-terminal.png
+    image_path: /assets/images/wazuhregex-terminal.png
 ---
 
 While working on [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) rules, I kept repeating the same task: testing regular expressions locally without returning to a manager for every change. Wazuh 4.x uses [three pattern engines](https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/regex.html), `OS_Regex`, `OS_Match` and `PCRE2`. Their syntax and semantics overlap, but a match in a generic PCRE2 tester does not show how the condition will behave in the two simpler Wazuh engines.
@@ -67,6 +70,8 @@ python -m wazuhregex '<PATTERN>'
 ```
 
 Both forms accept one pattern and read records from standard input. Version `0.2.0` accepts at most 20 physical input lines per run and gives each non-empty line 100 ms to complete. Blank and whitespace-only lines are skipped, while leading and trailing whitespace in other records is preserved. The fixed limits are also shown by `wazuhregex --help`.
+
+{% include gallery id="galleryTerminal" caption="Testing sample regex data extraction" %}
 
 As a result, I can use the same basic workflow whether I am typing a few lines interactively, redirecting a sample file, or piping data from another command. A minimal example looks like this:
 
