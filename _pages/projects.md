@@ -39,6 +39,7 @@ Below is a curated list of small utilities I have developed. They are either und
 | [PANHunt](https://github.com/zbalkan/PANhunt) | PANhunt searches for credit card numbers (PANs) in directories. Fork of [dionach/PANhunt](https://github.com/dionach/PANhunt). Supports more file types and regardless of file extensions, ti can scan the target. | Python |
 | [vmwarelog](https://github.com/zbalkan/vmwarelog) | vmwarelog is a tool to pull vmware logs based on time and type filters. It is better than collecting syslog with all of the noise. | Python |
 | [ClipboardMonitor](https://github.com/zbalkan/ClipboardMonitor) | ClipboardMonitor is an application running in the background that tracks clipboard usage to detect PAN data. | C# |
+| [WinFIMLog](https://github.com/zbalkan/WinFIMLog) | WinFIMLog is a Windows service for monitoring critical directories and Registry keys. | C# |
 
 ## Others
 
