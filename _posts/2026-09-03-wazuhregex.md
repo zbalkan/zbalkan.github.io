@@ -17,7 +17,7 @@ I wrote [`wazuhregex`](https://github.com/zbalkan/wazuhregex) for that purpose. 
 
 ## Why this is specific to Wazuh 4.x
 
-The three engines solve somewhat different problems. `OS_Regex` is Wazuh's relatively small C regex implementation. `OS_Match`, based on `sregex`, is closer to a substring-and-anchor matcher than a general regular-expression engine. `PCRE2` provides the richer syntax most people will recognise from modern regex tooling. A literal may behave identically in all three, while grouping, escaping, character classes, anchors and more advanced constructs can behave differently or simply be unavailable in one of them.
+These three engines solve somewhat different problems. `OS_Regex` is Wazuh's relatively small C regex implementation. `OS_Match`, based on `sregex`, is closer to a substring-and-anchor matcher than a general regular-expression engine. `PCRE2` provides the richer syntax most people will recognise from modern regex tooling. A literal may behave identically in all three, while grouping, escaping, character classes, anchors and more advanced constructs can behave differently or simply be unavailable in one of them.
 
 This inconvenience is not new. [PCRE support was proposed in 2017](https://github.com/wazuh/wazuh/issues/205), while [issue #7280](https://github.com/wazuh/wazuh/issues/7280) requested combined `OS_Regex` and `OS_Match` testing in 2021. Wazuh acknowledged the limitation and opened [#7288](https://github.com/wazuh/wazuh/issues/7288) for `OS_Match` validation.
 
@@ -142,7 +142,7 @@ I kept these interfaces separate because the comparison logic may be useful in o
 
 After I confirm the pattern works as expected, I test the full rule within Wazuh. The `wazuhregex` tool is a compatibility implementation rather than the original runtime. `OS_Regex` expressions are translated and then compiled using the Python `pcre2` backend. This backend has more capabilities than the original C implementation used by Wazuh, which means complex edge cases may behave differently. `OS_Match` also has specific limitations. For any logic intended for production detection, the version of Wazuh that runs the rule is the final reference.
 
-I am a [Wazuh Ambassador](https://wazuh.com/ambassadors-program/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program), but this is my own project, not an official Wazuh utility. I use it during development while treating the actual Wazuh implementation as authoritative when the two differ.
+I am a [Wazuh Ambassador](https://wazuh.com/ambassadors-program/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program), but this is my own project and not an official Wazuh utility. I use it during development and treat the actual Wazuh implementation as authoritative if the two differ.
 
 ## The current alpha release
 
