@@ -46,7 +46,7 @@ timeline
          : wazuh-regex documentation removed from the 5.0 toolset
          : Remaining wazuh-regex source and installation removed
 
-    2026 : wazuhregex 0.1.0 published
+    2026 : wazuhregex published
          : Local testing and comparison for Wazuh 4.x expressions
 ```
 
@@ -144,7 +144,7 @@ I am a [Wazuh Ambassador](https://wazuh.com/ambassadors-program/?utm_source=amba
 
 ## The first public version
 
-The current release is `0.1.0`, and I am treating it as an alpha. The test suite includes cases based on Wazuh's C test coverage, but real rulesets inevitably contain expressions I would not think to write myself. Rules accumulate syntax through copying, inheritance, old documentation, previous versions and years of incremental changes. Some of the most useful compatibility tests are likely to come from those existing rules rather than from synthetic examples.
+The current release is `0.2.0`, and I am treating it as an alpha. The test suite includes cases based on Wazuh's C test coverage, but real rulesets inevitably contain expressions I would not think to write myself. Rules accumulate syntax through copying, inheritance, old documentation, previous versions and years of incremental changes. Some of the most useful compatibility tests are likely to come from those existing rules rather than from synthetic examples.
 
 If a pattern behaves differently in Wazuh and `wazuhregex`, a useful issue contains the expression, representative input, expected and observed behaviour, and the Wazuh version used for comparison. The same applies when the comparer generates an incorrect alternative, fails to generate one that should be possible, or identifies the likely source engine incorrectly. Those are specific behaviours I can reproduce and turn into tests.
 
