@@ -10,24 +10,24 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28780** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21144** | 4 | [#987](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/987) merged 2026-09-06 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16796** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16299** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14782** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9837** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28782** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21154** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16800** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16303** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14790** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9848** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
 | [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5407** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
-| [`dotnet/docs`](https://github.com/dotnet/docs) | **4762** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
+| [`dotnet/docs`](https://github.com/dotnet/docs) | **4765** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3673** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
-| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3128** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
-| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3089** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
+| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3129** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
+| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3090** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | [`duffn/dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | **3022** | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
-| [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1831** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
+| [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1832** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
 | [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1347** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
 | [`HavenDV/H.Pipes`](https://github.com/HavenDV/H.Pipes) | **366** | 3 | [#12](https://github.com/HavenDV/H.Pipes/pull/12) merged 2022-03-07 |
 | [`wazuh/wazuh-documentation`](https://github.com/wazuh/wazuh-documentation) | **267** | 1 | [#5499](https://github.com/wazuh/wazuh-documentation/pull/5499) merged 2022-11-04 |
 | [`ryanries/ADReplStatus`](https://github.com/ryanries/ADReplStatus) | **260** | 1 | [#26](https://github.com/ryanries/ADReplStatus/pull/26) merged 2026-06-17 |
-| [`apache/maven-wrapper`](https://github.com/apache/maven-wrapper) | **255** | 1 | [#157](https://github.com/apache/maven-wrapper/pull/157) merged 2024-12-14 |
+| [`apache/maven-wrapper`](https://github.com/apache/maven-wrapper) | **254** | 1 | [#157](https://github.com/apache/maven-wrapper/pull/157) merged 2024-12-14 |
 | [`MicrosoftDocs/SupportArticles-docs`](https://github.com/MicrosoftDocs/SupportArticles-docs) | **247** | 1 | [#652](https://github.com/MicrosoftDocs/SupportArticles-docs/pull/652) merged 2022-07-20 |
 | [`reactos/rapps-db`](https://github.com/reactos/rapps-db) | **118** | 2 | [#131](https://github.com/reactos/rapps-db/pull/131) merged 2021-10-08 |
 | [`wazuh/wazuh-packages`](https://github.com/wazuh/wazuh-packages) | **116** | 3 | [#1775](https://github.com/wazuh/wazuh-packages/pull/1775) merged 2022-09-23 |
@@ -35,7 +35,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **110** | 3 | [#23](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/23) merged 2026-02-21 |
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **59** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **52** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
-| **Total shown** |  | **43** | **25 repositories shown / 26 total repositories, 44 total merged PRs found** |
+| **Total shown** |  | **45** | **25 repositories shown / 26 total repositories, 46 total merged PRs found** |
 
 ## Pull Requests by Repository
 
@@ -49,6 +49,8 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | PR | Title | Merged |
 |---:|---|---|
+| [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) | Updated MSTest dependencies | 2026-09-07 |
+| [#988](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/988) | CI: Pin Actions and Publish Windows Test Results | 2026-09-07 |
 | [#987](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/987) | Uninstall: Execute the Confirmed Directory Entry | 2026-09-06 |
 | [#985](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/985) | Fixed and cleaned up tests | 2026-09-06 |
 | [#986](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/986) | Installer: verify current .NET runtime bootstrap | 2026-09-06 |
