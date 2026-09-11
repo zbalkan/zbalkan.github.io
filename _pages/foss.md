@@ -10,20 +10,20 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28786** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21188** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16827** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16310** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14809** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9863** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
-| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5405** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28790** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21227** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16837** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16317** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14822** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9867** | 4 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) merged 2026-04-18 |
+| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5406** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
 | [`dotnet/docs`](https://github.com/dotnet/docs) | **4764** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
-| [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3673** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
-| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3129** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
-| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3089** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
+| [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3674** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
+| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3130** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
+| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3088** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | [`duffn/dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | **3022** | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
 | [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1835** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
-| [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1347** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
+| [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1348** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
 | [`HavenDV/H.Pipes`](https://github.com/HavenDV/H.Pipes) | **366** | 3 | [#12](https://github.com/HavenDV/H.Pipes/pull/12) merged 2022-03-07 |
 | [`wazuh/wazuh-documentation`](https://github.com/wazuh/wazuh-documentation) | **267** | 1 | [#5499](https://github.com/wazuh/wazuh-documentation/pull/5499) merged 2022-11-04 |
 | [`ryanries/ADReplStatus`](https://github.com/ryanries/ADReplStatus) | **260** | 1 | [#26](https://github.com/ryanries/ADReplStatus/pull/26) merged 2026-06-17 |
@@ -35,7 +35,8 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **110** | 3 | [#23](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/23) merged 2026-02-21 |
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **59** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **52** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
-| **Total shown** |  | **45** | **25 repositories shown / 26 total repositories, 46 total merged PRs found** |
+| [`wazuh/integrations`](https://github.com/wazuh/integrations) | **19** | 1 | [#114](https://github.com/wazuh/integrations/pull/114) merged 2026-09-10 |
+| **Total shown** |  | **46** | **26 repositories shown / 27 total repositories, 47 total merged PRs found** |
 
 ## Pull Requests by Repository
 
@@ -188,6 +189,12 @@ This page summarizes merged pull requests I have contributed to third-party open
 | PR | Title | Merged |
 |---:|---|---|
 | [#389](https://github.com/themepark-dev/theme.park/pull/389) | Fixed color issue with links in Groups tab under Settings | 2022-06-27 |
+
+### [wazuh/integrations](https://github.com/wazuh/integrations)
+
+| PR | Title | Merged |
+|---:|---|---|
+| [#114](https://github.com/wazuh/integrations/pull/114) | Clarify LogExporter options and prerequisites | 2026-09-10 |
 
 ### [wazuh/wazuh](https://github.com/wazuh/wazuh)
 
