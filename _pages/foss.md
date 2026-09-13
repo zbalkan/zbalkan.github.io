@@ -11,13 +11,14 @@ This page summarizes merged pull requests I have contributed to third-party open
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
 | [`getredash/redash`](https://github.com/getredash/redash) | **28793** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21255** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16844** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16318** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14824** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9873** | 5 | [#2142](https://github.com/TechnitiumSoftware/DnsServer/pull/2142) merged 2026-09-12 |
-| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5406** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
-| [`dotnet/docs`](https://github.com/dotnet/docs) | **4764** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **21278** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **16856** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16322** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **14829** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **9881** | 5 | [#2142](https://github.com/TechnitiumSoftware/DnsServer/pull/2142) merged 2026-09-12 |
+| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9465** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
+| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5405** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
+| [`dotnet/docs`](https://github.com/dotnet/docs) | **4763** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3674** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
 | [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3130** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
 | [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3088** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
@@ -36,7 +37,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **59** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **52** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
 | [`wazuh/integrations`](https://github.com/wazuh/integrations) | **19** | 1 | [#114](https://github.com/wazuh/integrations/pull/114) merged 2026-09-10 |
-| **Total shown** |  | **47** | **26 repositories shown / 27 total repositories, 48 total merged PRs found** |
+| **Total shown** |  | **48** | **27 repositories shown / 28 total repositories, 49 total merged PRs found** |
 
 ## Pull Requests by Repository
 
@@ -125,6 +126,12 @@ This page summarizes merged pull requests I have contributed to third-party open
 | PR | Title | Merged |
 |---:|---|---|
 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) | Added PSTelegramAPI | 2019-02-18 |
+
+### [litedb-org/LiteDB](https://github.com/litedb-org/LiteDB)
+
+| PR | Title | Merged |
+|---:|---|---|
+| [#2771](https://github.com/litedb-org/LiteDB/pull/2771) | .NET 10 migration | 2026-09-13 |
 
 ### [MicrosoftDocs/SupportArticles-docs](https://github.com/MicrosoftDocs/SupportArticles-docs)
 
