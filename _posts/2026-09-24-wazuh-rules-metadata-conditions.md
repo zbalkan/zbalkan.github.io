@@ -400,7 +400,7 @@ Sigma gives event selection and correlation separate syntax, whereas Wazuh 4.x u
 
 In Google SecOps YARA-L, a [multiple event rule](https://docs.cloud.google.com/chronicle/docs/yara-l/yara-l-2-0-examples) can put event predicates, a match window, and a threshold together:
 
-```yaral
+```json
 rule failed_logins {
   events:
     $e.metadata.event_type = "USER_LOGIN"
