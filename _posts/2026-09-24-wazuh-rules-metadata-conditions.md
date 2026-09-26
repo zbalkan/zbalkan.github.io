@@ -7,6 +7,7 @@ tags:
   - Detection engineering
   - Detection-as-Code
   - Sigma
+last_modified_at: 2026-09-26
 ---
 
 When I wrote [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/) last year, I deliberately skipped part of the rule syntax. That article was about how rules relate to each other: `if_sid`, `if_group`, `if_matched_sid`, and `if_matched_group`, and the parent-child relationships they create. It argued that a [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) ruleset is easier to understand as a graph than as a flat collection of independent rules. I briefly mentioned the conditions that inspect individual events, then left them aside because they were not the subject of the article.
@@ -32,7 +33,7 @@ Because the split follows state rather than technique, it differs from the vocab
 In detection engineering, an atomic alert on its own is usually a weak signal, because it reports one matching event and rarely describes attacker behaviour by itself. Atomics on high-fidelity data remain useful when the behaviour is dangerous in isolation, but, as Naglieri notes, they can also produce many alerts that are security-relevant without being malicious. Wazuh 4.x adds a constraint here. Rules are building blocks, as I described in [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/), and a frequency rule counts matches of another rule through `if_matched_sid` or `if_matched_group`. That temporal rule therefore needs an atomic rule beneath it, even when the atomic rule's own alert has little value. Other SIEMs, such as Google SecOps with YARA-L, can correlate normalised events directly without an intermediate rule match.
 {: .notice--warning}
 
-This article covers Wazuh 4.x rule syntax, using the `4.14.9` branch of the official repository. The most recent release at the time of writing is [4.14.7](https://documentation.wazuh.com/current/release-notes/release-4-14-7.html), so at least two further patch releases are expected on that line. Wazuh 5.0 is already in [beta](https://documentation.wazuh.com/5.0-beta/index.html) and replaces XML detection rules with YAML rules based on Sigma, as the [4.x to 5.x migration guide](https://github.com/wazuh/wazuh/blob/main/docs/guide/migration/rules-4x-to-5x.md) describes. Nothing below should be read as documentation for the next major version.
+This article covers Wazuh 4.x rule syntax, using the `4.14.10` branch of the official repository. The most recent release at the time of writing is [4.14.8](https://documentation.wazuh.com/current/release-notes/release-4-14-8.html), so at least two further patch releases are expected on that line. Wazuh 5.0 is already in [beta](https://documentation.wazuh.com/5.0-beta/index.html) and replaces XML detection rules with YAML rules based on Sigma, as the [4.x to 5.x migration guide](https://github.com/wazuh/wazuh/blob/main/docs/guide/migration/rules-4x-to-5x.md) describes. Nothing below should be read as documentation for the next major version.
 {: .notice--info}
 
 ## Two rules from the official ruleset
@@ -138,7 +139,7 @@ The Type column applies the atomic and temporal split defined above. Wazuh resol
 | `same_agent`, `not_same_*` | tag | Temporal | Older spellings of the same constraints |
 | `check_diff` | tag | Temporal | Fires when a value differs from the one stored last time |
 | `if_fts` | tag | Temporal | Fires the first time a combination is seen |
-| `global_frequency` | tag | Temporal | Lets matches from different agents on one manager count together; despite the name it is not cluster-wide ([source](https://github.com/wazuh/wazuh/blob/4.14.9/src/analysisd/eventinfo.c#L148-L156)) |
+| `global_frequency` | tag | Temporal | Lets matches from different agents on one manager count together; despite the name it is not cluster-wide ([source](https://github.com/wazuh/wazuh/blob/4.14.10/src/analysisd/eventinfo.c#L148-L156)) |
 
 Some XML constructs sit outside these tables. `noalert` lets a rule participate in further processing without emitting its own alert. The rule attribute `ignore` suppresses repeated alerts for a period after a trigger. Values in `options`, such as `no_full_log`, change alert content. The 4.14.8 parser also accepts field-list `<ignore>` and `<check_if_ignored>` elements, which differ from the `ignore` cooldown attribute. `overwrite` tells the loader to replace an existing rule, while `accuracy` affects evaluation priority. These behaviours matter, but they do not describe event predicates, so I leave them to the official [rule syntax reference](https://documentation.wazuh.com/4.14/user-manual/ruleset/ruleset-xml-syntax/rules.html), which documents them in detail.
 
