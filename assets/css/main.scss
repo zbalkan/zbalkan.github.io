@@ -147,3 +147,75 @@ button.mermaid-viewer__button:focus-visible {
     min-height: 2.25rem;
   }
 }
+
+
+/* Framed code snippets with a compact language header. */
+div.highlighter-rouge.code-snippet {
+  overflow: hidden;
+  border: 1px solid rgba(127, 127, 127, 0.45);
+  border-radius: 0.5rem;
+}
+
+div.highlighter-rouge.code-snippet::before {
+  content: attr(data-code-language);
+  display: block;
+  box-sizing: border-box;
+  min-height: 2rem;
+  padding: 0.45rem 5rem 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.35);
+  color: $base04;
+  background: rgba(255, 255, 255, 0.035);
+  font-family: $monospace;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+div.highlighter-rouge.code-snippet > .highlight,
+div.highlighter-rouge.code-snippet pre.highlight {
+  border-radius: 0;
+}
+
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button {
+  top: 0.25rem;
+  inset-inline-end: 0.4rem;
+  width: auto;
+  min-width: 4rem;
+  height: 1.5rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  color: $base04;
+  background: transparent;
+  font: inherit;
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button i {
+  display: none;
+}
+
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button::after {
+  content: "Copy";
+  position: relative;
+  z-index: 1;
+}
+
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button.copied::after {
+  content: "Copied";
+}
+
+div.highlighter-rouge.code-snippet:hover pre .clipboard-copy-button,
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
+  opacity: 1;
+}
+
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button:hover,
+div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
+  border-color: rgba(127, 127, 127, 0.55);
+  color: $base05;
+  background: rgba(255, 255, 255, 0.06);
+}
