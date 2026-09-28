@@ -14,6 +14,9 @@
     sunrise: "default"
   }["{{ site.minimal_mistakes_skin }}"] || "default";
 
+  const MIN_ZOOM = 0.35;
+  const MAX_ZOOM = 12;
+
   const iconPaths = {
     out: "M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5z",
     in: "M8 3a.75.75 0 0 1 .75.75v3.5h3.5a.75.75 0 0 1 0 1.5h-3.5v3.5a.75.75 0 0 1-1.5 0v-3.5h-3.5a.75.75 0 0 1 0-1.5h3.5v-3.5A.75.75 0 0 1 8 3z",
@@ -67,6 +70,133 @@
     if (!copied) throw new Error("Unable to copy Mermaid source.");
   };
 
+  const createViewerEvents = () => {
+    let svg;
+    let wheelFrame = 0;
+    let wheelPoint;
+    let wheelZoom;
+    let pinch;
+
+    const getPinch = (touches) => {
+      const first = touches[0];
+      const second = touches[1];
+
+      return {
+        distance: Math.hypot(
+          second.clientX - first.clientX,
+          second.clientY - first.clientY
+        ),
+        point: {
+          x: (first.clientX + second.clientX) / 2,
+          y: (first.clientY + second.clientY) / 2
+        }
+      };
+    };
+
+    return {
+      haltEventListeners: [
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "touchleave",
+        "touchcancel"
+      ],
+
+      init({ svgElement, instance }) {
+        svg = svgElement;
+
+        const animateWheel = () => {
+          const current = instance.getZoom();
+          const remaining = Math.log(wheelZoom / current);
+
+          if (Math.abs(remaining) < 0.002) {
+            instance.zoomAtPoint(wheelZoom, wheelPoint);
+            wheelFrame = 0;
+            return;
+          }
+
+          instance.zoomAtPoint(
+            current * Math.exp(remaining * 0.2),
+            wheelPoint
+          );
+          wheelFrame = requestAnimationFrame(animateWheel);
+        };
+
+        this.onWheel = (event) => {
+          event.preventDefault();
+
+          const unit =
+            event.deltaMode === 1
+              ? 16
+              : event.deltaMode === 2
+                ? window.innerHeight
+                : 1;
+          const delta = Math.max(
+            -120,
+            Math.min(120, event.deltaY * unit)
+          );
+          const base = wheelFrame ? wheelZoom : instance.getZoom();
+
+          wheelPoint = { x: event.clientX, y: event.clientY };
+          wheelZoom = Math.max(
+            MIN_ZOOM,
+            Math.min(MAX_ZOOM, base * Math.exp(-delta * 0.0015))
+          );
+
+          if (!wheelFrame) {
+            wheelFrame = requestAnimationFrame(animateWheel);
+          }
+        };
+
+        this.onTouchStart = (event) => {
+          if (event.touches.length !== 2) return;
+
+          event.preventDefault();
+          pinch = {
+            ...getPinch(event.touches),
+            zoom: instance.getZoom()
+          };
+        };
+
+        this.onTouchMove = (event) => {
+          if (!pinch || event.touches.length !== 2) return;
+
+          event.preventDefault();
+          const next = getPinch(event.touches);
+
+          instance.zoomAtPoint(
+            pinch.zoom * (next.distance / pinch.distance),
+            next.point
+          );
+          instance.panBy({
+            x: next.point.x - pinch.point.x,
+            y: next.point.y - pinch.point.y
+          });
+          pinch.point = next.point;
+        };
+
+        this.onTouchEnd = (event) => {
+          if (event.touches.length < 2) pinch = null;
+        };
+
+        svg.addEventListener("wheel", this.onWheel, { passive: false });
+        svg.addEventListener("touchstart", this.onTouchStart, { passive: false });
+        svg.addEventListener("touchmove", this.onTouchMove, { passive: false });
+        svg.addEventListener("touchend", this.onTouchEnd);
+        svg.addEventListener("touchcancel", this.onTouchEnd);
+      },
+
+      destroy() {
+        cancelAnimationFrame(wheelFrame);
+        svg.removeEventListener("wheel", this.onWheel);
+        svg.removeEventListener("touchstart", this.onTouchStart);
+        svg.removeEventListener("touchmove", this.onTouchMove);
+        svg.removeEventListener("touchend", this.onTouchEnd);
+        svg.removeEventListener("touchcancel", this.onTouchEnd);
+      }
+    };
+  };
+
   const attachViewer = (svg, mermaidSource) => {
     if (svg.dataset.panZoomReady === "true") return;
     svg.dataset.panZoomReady = "true";
@@ -89,12 +219,13 @@
     const panZoom = svgPanZoom(svg, {
       panEnabled: true,
       zoomEnabled: true,
-      mouseWheelZoomEnabled: true,
+      mouseWheelZoomEnabled: false,
       dblClickZoomEnabled: true,
       controlIconsEnabled: false,
+      customEventsHandler: createViewerEvents(),
       zoomScaleSensitivity: 0.25,
-      minZoom: 0.35,
-      maxZoom: 12,
+      minZoom: MIN_ZOOM,
+      maxZoom: MAX_ZOOM,
       fit: false,
       center: true,
       contain: false
