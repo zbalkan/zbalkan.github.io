@@ -9,8 +9,8 @@ Below is a curated list of small utilities I have developed. They are either und
 
 | Application | Description | Language |
 | --- | --- | --- |
-| [wazuh-devenv](https://github.com/zbalkan/wazuh-devenv) | The project utilises of a wazuh-manager installed on WSL or a Linux machine, allowing testing custom rules locally before moving to production. | Python |
-| [wazuh-testgen](https://github.com/zbalkan/wazuh-testgen) | A tool to help detection engineers generate Wazuh rule tests either derived from INI test files from Wazuh repository, Windows Event Log (EVTX) files, or Wazuh rule files. | Python |
+| [wazuhdevenv](https://github.com/zbalkan/wazuhdevenv) | The project utilises of a wazuh-manager installed on WSL or a Linux machine, allowing testing custom rules locally before moving to production. | Python |
+| [wazuhtestgen](https://github.com/zbalkan/wazuhtestgen) | A tool to help detection engineers generate Wazuh rule tests either derived from INI test files from Wazuh repository, Windows Event Log (EVTX) files, or Wazuh rule files. | Python |
 | [wazuhevtx](https://github.com/zbalkan/wazuhevtx) | A Python tool that parses EVTX files and converts them into JSON formatted logs mimicking Wazuh agent behaviour in version 4.x. wazuhevtx is designed as a helper for wazuh-logtest tool. | Python |
 | [rulevis](https://github.com/zbalkan/rulevis) | A simple tool to visualise the Wazuh ruleset for analysis of connections. It may help find loops, duplicates, and redundant rules. | Python |
 | [wresult](https://github.com/zbalkan/wresult) | wresult provides the running configuration of a Wazuh agent by reconstructing how it applies ossec.conf and agent.conf. | Python |
