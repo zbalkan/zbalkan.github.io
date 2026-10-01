@@ -27,7 +27,7 @@ Delivery is also the wrong thing to measure in an incident. A delivered email te
 
 ## This incident will be reported
 
-{% include gallery id="galleryXkcd" caption="[xkcd 838: "Incident"](https://xkcd.com/838/) by Randall Munroe, licensed under [CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/)." %}
+{% include gallery id="galleryXkcd" caption="xkcd 838: Incident, by Randall Munroe, licensed under CC BY-NC 2.5" %}
 
 sudo has been promising us for decades that "this incident will be reported". Randall Munroe asked who it reports to, and the [sudoers manual](https://man7.org/linux/man-pages/man5/sudoers.5.html) answers plainly. Mail goes to "the proper authorities", which by default means `root`, through whatever local mailer the box happens to have. The same manual says every attempt is logged whether or not mail is sent, and since version 1.9 sudo can ship those logs to a remote log server. Even sudo's own authors put the real record in the logs and treated the email as a courtesy.
 
