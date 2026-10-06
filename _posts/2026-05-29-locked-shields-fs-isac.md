@@ -11,7 +11,7 @@ tags:
 - Public-private partnership
 - Locked Shields
 - FS-ISAC
-- Community contribution
+- Community Contribution
 galleryLS26:
   - url: https://www.youtube.com/watch?v=SiqHAuJGXaY
     image_path: /assets/images/lockedshields.png

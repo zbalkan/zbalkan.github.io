@@ -9,7 +9,7 @@ tags:
   - Offensive Security
   - Network Testing
   - Utility
-  - Community contribution
+  - Community Contribution
   - Open Source
 header:
   image: https://images.pexels.com/photos/2881227/pexels-photo-2881227.jpeg
