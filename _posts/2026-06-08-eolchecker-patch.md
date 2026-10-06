@@ -6,7 +6,7 @@ tags:
 - eos
 - Asset management
 - Utility
-- Community contribution
+- Community Contribution
 - Open Source
 ---
 
