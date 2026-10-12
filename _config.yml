@@ -109,6 +109,9 @@ footer:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/zbalkan"
+    - label: "Legal & Privacy"
+      icon: "fas fa-fw fa-scale-balanced"
+      url: "/legal/"
 
 after_footer_scripts:
   - https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js
