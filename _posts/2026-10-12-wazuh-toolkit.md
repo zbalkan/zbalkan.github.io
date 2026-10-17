@@ -12,7 +12,7 @@ Over time I have published a small tool whenever my Wazuh work hit a gap. [`wazu
 
 The walkthrough follows the model from my two articles on reading rules. [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/) described a [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) 4.x ruleset as a graph. Users build that graph themselves through `if_sid`, `if_group` and their temporal counterparts. [Part II](https://zaferbalkan.com/wazuh-rules-metadata-conditions/) opened one node of the graph and split the rule into metadata, which gives a match its identity and severity, and conditions, which decide whether the match happens. It also divided conditions into atomic and temporal, by the state they need. Part II ended where this post starts. Reading a rule tells you what it should do, while only a test tells you what it does. The conditions define the test input, and the metadata defines the expected outcome.
 
-Everything here targets Wazuh 4.x. As part II notes, Wazuh 5.0 is in beta and [replaces the XML rules with Sigma-based YAML](https://github.com/wazuh/wazuh/blob/main/docs/guide/migration/rules-4x-to-5x.md), so none of this carries over to 5.0 unchanged.
+Everything here targets Wazuh 4.x, including the [4.14.9 release](https://documentation.wazuh.com/current/release-notes/release-4-14-9.html). As part II notes, Wazuh 5.0 is in beta and [replaces the XML rules with Sigma-based YAML](https://github.com/wazuh/wazuh/blob/main/docs/guide/migration/rules-4x-to-5x.md), so none of this carries over to 5.0 unchanged.
 
 ## The toolkit follows the parts of a rule
 
@@ -153,8 +153,7 @@ The walkthrough needs a Linux host with a Wazuh manager that you can change free
 # init expects a fresh Wazuh installation and refuses to adopt existing custom rules.
 pipx install "git+https://github.com/zbalkan/wazuhdevenv.git@main"
 mkdir my-wazuh-rules && cd my-wazuh-rules
-wazuhdevenv init --wazuh-version 4.14.8
-# init fails if no corpus matches the installed version; add --skip-corpus to proceed without one.
+wazuhdevenv init --wazuh-version 4.14.9
 # Log out and back in afterwards so your shell picks up the wazuh group.
 ```
 
@@ -243,12 +242,14 @@ Part II reduced a test to two sides. The input side covers which events, how man
 
 ### Generate templates with wazuhtestgen
 
-`wazuhtestgen` writes pytest modules. It has three modes, for Wazuh's INI regression tests, for rule XML and for EVTX files. The rule mode writes one skipped template per rule. Each template carries the rule ID from the XML and a placeholder log, because the XML says what would match but not which log you intend to match. The engineer supplies the log, reviews the expectations and removes the skip marker.
+The released `wazuhtestgen` 0.4.1 writes pytest modules in three modes: Wazuh's INI regression tests, rule XML, and EVTX files. The rule mode writes one skipped template per rule. Each template carries the rule ID from the XML and a placeholder log, because the XML says what would match but not which log you intend to match. The engineer supplies the log, reviews the expectations and removes the skip marker.
 
 ```bash
 pipx install wazuhtestgen
 wazuhtestgen rule --input_dir rules --output_dir tests/generated
 ```
+
+The repository's development branch also contains an experimental `sigma` mode. It is not included in the 0.4.1 release used here, so this walkthrough covers the three released modes.
 
 The generator never invents a matching log, an expected detection or an ATT&CK technique. An invented expectation would turn a template into false evidence. INI and rule generation run on any operating system. The INI mode is the one that built the regression corpus from Wazuh's upstream tests, and `wazuhtestgen ini --input_dir INPUT_DIR --output_dir OUTPUT_DIR` converts any directory of INI files in the same format.
 
@@ -301,11 +302,12 @@ The session model is where part II's atomic and temporal split matters. `send_lo
 
 Most custom rules hang from built-in parents, as 100100 hangs from 5710. A change in a parent between Wazuh versions changes which events reach every child. The [4.14.8 release](https://documentation.wazuh.com/current/release-notes/release-4-14-8.html) is an example. It fixed the Fortigate and FortiAuth decoders, which changes the fields available to every rule below them. It also replaced ATT&CK tactic IDs with technique IDs in the Microsoft Graph rules, which changes metadata without touching a single condition. A custom rule below either change can behave differently after an upgrade, even though its own XML is unchanged.
 
-`wazuh-rule-tests` is the regression corpus for that base. It holds Wazuh's upstream INI tests, converted by `wazuhtestgen` and corrected by hand where generated expectations disagreed with actual Wazuh behaviour. The inventory records 107 upstream INI files, of which 94 became rule-test modules and 13 are documented exclusions. Each release names the Wazuh version it passes on, and corpora exist for 4.14.7 and 4.14.8. The release workflow installs that Wazuh version and runs the extracted archive against `wazuh-logtest` before it publishes anything.
+`wazuh-rule-tests` is the regression corpus for that base. It holds Wazuh's upstream INI tests, converted by `wazuhtestgen` and corrected by hand where generated expectations disagreed with actual Wazuh behaviour. The 4.14.9 corpus inventory records 107 upstream INI files, of which 93 became rule-test modules and 14 are documented exclusions. Corpora target the exact Wazuh version they are qualified against, including 4.14.7, 4.14.8 and the [qualified 4.14.9 release](https://github.com/zbalkan/wazuh-rule-tests/releases/tag/4.14.9). The release workflow installs that Wazuh version and runs the extracted archive against `wazuh-logtest` before publishing.
 
-Each release also pins its provenance to an immutable upstream commit and the exact generator commit, recorded independently of the version. The 4.14.8 corpus, for example, draws its INI files from the 4.14.10 development line and passes on a 4.14.8 manager. The version names the manager the tests pass on, and the commit names where the test content came from. Run both suites together, so a failure in a built-in parent shows up next to the custom rule it affects.
+Each release also pins its provenance to an immutable upstream commit and the exact generator commit, recorded independently of the version. The 4.14.9 source corpus, for example, pins upstream Wazuh commit `bed556db3f4f535cb3a585f3d9e7f35a6acf0f58` and generator commit `b2c38d0c41b9e3792bab2eed61f1ec130fe8beb1`. The corpus version identifies the manager on which its release is qualified, while those commits identify the source of its test content. Run both suites together, so a failure in a built-in parent shows up next to the custom rule it affects.
 
 ```bash
+# Run custom tests and the matching Wazuh 4.14.9 corpus together.
 .venv/bin/python -m pytest \
   tests \
   "${WAZUHDEVENV_HOME:-$HOME/.wazuhdevenv}/current-corpus/tests" \
@@ -407,7 +409,7 @@ The value is a piece of evidence for each part of a rule, and you can attach eac
 
 The catch starts with operating systems. `wazuhevtx` and the EVTX mode of `wazuhtestgen` need Windows. Every tool that talks to the logtest daemon (`wazuhtester`, `wazuhdevenv`, the corpus and `wazuhcoverage`) needs Linux, because the socket exists only where the manager runs. An EVTX-to-test pipeline therefore spans Windows and Linux, either as two machines or as one Windows host running a Linux distribution under WSL.
 
-The rule 60000 change means the development environment proves the Windows chain for JSON input only. The corpus is exact-version, so every Wazuh patch release waits for a matching corpus before `wazuhdevenv` will select it. Until then, a manager upgraded ahead of that release needs `--skip-corpus` and runs without a built-in regression suite. Maturity also varies across the set.
+The rule 60000 change means the development environment proves the Windows chain for JSON input only. The corpus is exact-version, so every Wazuh patch release waits for a matching corpus before `wazuhdevenv` will select it. The 4.14.9 corpus follows this exact-version requirement. Maturity also varies across the set.
 
 | Tool | Version | Distribution | OS support |
 |---|---|---|---|
@@ -415,8 +417,8 @@ The rule 60000 change means the development environment proves the Windows chain
 | `rulevis` | 1.0.5 | PyPI | Windows, macOS, Linux |
 | `wazuhevtx` | 1.2.0 | PyPI | Windows |
 | `wazuhtester` | 0.1.1 | PyPI | Linux |
-| `wazuhtestgen` | 0.4.1 | PyPI | Windows, macOS, Linux; EVTX mode on Windows only |
-| `wazuh-rule-tests` | 4.14.7, 4.14.8 | GitHub releases | Linux, with a running manager |
+| `wazuhtestgen` | [0.4.1](https://pypi.org/project/wazuhtestgen/0.4.1/) | PyPI | Windows, macOS, Linux; EVTX mode on Windows only |
+| `wazuh-rule-tests` | 4.14.7, 4.14.8, [4.14.9](https://github.com/zbalkan/wazuh-rule-tests/releases/tag/4.14.9) | GitHub releases | Linux, with a running manager |
 | `wazuhdevenv` | 0.4.0.dev0 | Git `main` | Linux (APT, DNF or YUM) |
 | `wazuhcoverage` | 0.10.0 | PyPI | Linux |
 | `wresult` | 1.1.2 | PyPI | Windows, Linux |
