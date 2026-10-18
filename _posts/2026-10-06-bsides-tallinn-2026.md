@@ -16,6 +16,8 @@ toc: false
 header:
   overlay_image: /assets/images/bsides-tallinn.jpg
   caption: "Photo credit: [Helen Tulp](https://www.instagram.com/helentulpfoto)"
+  overlay_filter: 0.5
+  excerpt: ""
 ---
 
 On September 25, I spoke at [BSides Tallinn 2026](https://tallinn.bsides.ee). My talk was *Detection in Technicolour: Finding the Gaps Your Dashboard Cannot See*[^1], and the organisers have put the [recording on YouTube](https://youtu.be/kpjNKX6p8Qg). I opened with an apology: my slides had no cat pictures, no AI and very few buzzwords, and I was about to spend forty minutes on logs.
