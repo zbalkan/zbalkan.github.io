@@ -87,6 +87,8 @@ plugins:
   - jemoji
   - jekyll-include-cache
   - jekyll-redirect-from
+  - jekyll-archives
+  - jekyll-seo-tag
 
 author:
   name   : "Zafer Balkan"
