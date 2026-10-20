@@ -375,7 +375,23 @@ table, th, td, blockquote, hr {
 /* Reset all Rouge token spans before assigning semantic syntax colors.
    The original Minimal Mistakes/Base16 skin emits light token colors for
    classes our initial palette did not enumerate (notably Python names). */
-.page__content .highlight span {
+/* Rouge uses additional token classes for names, punctuation and
+   PowerShell commands. Map them explicitly so the theme skin cannot
+   leave light text on a light code background. */
+.page__content .highlight .n,
+.page__content .highlight .nx,
+.page__content .highlight .ni,
+.page__content .highlight .nl,
+.page__content .highlight .py,
+.page__content .highlight .p,
+.page__content .highlight .w,
+.page__content .highlight .l,
+.page__content .highlight .err,
+.page__content .highlight .vc,
+.page__content .highlight .vg,
+.page__content .highlight .vi,
+.page__content .highlight .gt,
+.page__content .highlight .go {
   color: var(--code-text);
 }
 .page__content .highlight .c,
@@ -417,7 +433,7 @@ table, th, td, blockquote, hr {
 .page__content .highlight .nd,
 .page__content .highlight .ne,
 .page__content .highlight .nn,
-.page__content .highlight .nt { color: var(--code-function); }
+.page__content .highlight .nt,\n.page__content .highlight .nb { color: var(--code-function); }
 .page__content .highlight .na,
 .page__content .highlight .nb,
 .page__content .highlight .nv,
