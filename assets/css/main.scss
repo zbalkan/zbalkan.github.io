@@ -372,6 +372,12 @@ table, th, td, blockquote, hr {
   border: 0;
   font: inherit;
 }
+/* Reset all Rouge token spans before assigning semantic syntax colors.
+   The original Minimal Mistakes/Base16 skin emits light token colors for
+   classes our initial palette did not enumerate (notably Python names). */
+.page__content .highlight span {
+  color: var(--code-text);
+}
 .page__content .highlight .c,
 .page__content .highlight .c1,
 .page__content .highlight .cm,
