@@ -1,16 +1,6 @@
 (() => {
-  const mermaidTheme = {
-    air: "default",
-    aqua: "default",
-    contrast: "default",
-    dark: "dark",
-    default: "default",
-    dirt: "default",
-    mint: "mint",
-    neon: "dark",
-    plum: "dark",
-    sunrise: "default"
-  }["{{ site.minimal_mistakes_skin }}"] || "default";
+  // The theme is established in head/custom.html before scripts execute.
+  const mermaidTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "default";
 
   const MIN_ZOOM = 0.35;
   const MAX_ZOOM = 12;
