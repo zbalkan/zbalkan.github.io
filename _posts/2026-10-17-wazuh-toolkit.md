@@ -418,7 +418,7 @@ The catch starts with operating systems. `wazuhevtx` and the EVTX mode of `wazuh
 The rule 60000 change means the development environment proves the Windows chain for JSON input only. The corpus is exact-version, so every Wazuh patch release waits for a matching corpus before `wazuhdevenv` will select it. Maturity also varies across the set.
 
 | Tool | Version | Distribution | OS support |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `wazuhregex` | 0.3.0 (alpha) | PyPI | Windows, macOS, Linux |
 | `rulevis` | 1.1.0 | PyPI | Windows, macOS, Linux |
 | `wazuhevtx` | 1.2.0 | PyPI | Windows |
