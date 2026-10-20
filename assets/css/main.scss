@@ -271,9 +271,20 @@ table, th, td, blockquote, hr {
 .page__content { font-size: 1.075rem; line-height: 1.76; }
 .page__content p { margin-bottom: 1.3em; }
 .page__title { font-size: clamp(2rem, 4vw, 2.75rem); }
-.archive { float: none; width: 100%; max-width: 76ch; margin-inline: auto; padding-inline: 0; }
-.archive__item { padding-block: 0.75rem; border-bottom: 1px solid var(--site-border); }
-.archive__item-title { font-size: 1.4rem; }
+.layout--home #main { display: block; }
+.layout--home .archive {
+  float: none;
+  width: min(100%, 76ch);
+  max-width: 100%;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+.layout--home .archive__item,
+.layout--home .list__item { clear: both; width: 100%; }
+.layout--home .archive__item-title a { color: var(--site-text); }
+.layout--home .archive__item-title a:hover { color: var(--site-link); }
+.layout--home .archive__item { padding-block: 0.75rem; border-bottom: 1px solid var(--site-border); }
+.layout--home .archive__item-title { font-size: 1.4rem; }
 /* Code uses independent tokens; Rouge spans must retain syntax colors. */
 :root {
   --code-text: #273449;
@@ -413,7 +424,7 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
 }
 :focus-visible { outline: 2px solid var(--site-link); outline-offset: 3px; }
 @media (max-width: 768px) {
-  .page__inner-wrap, .archive { width: 100%; }
+  .page__inner-wrap, .layout--home .archive { width: 100%; }
   .page__content { font-size: 1.025rem; }
   .page__title { font-size: 2rem; }
 }
