@@ -23,7 +23,7 @@ email: "zafer@zaferbalkan.com"
 github_username: "zbalkan"
 linkedin_username: "zbalkan"
 
-minimal_mistakes_skin: dark
+minimal_mistakes_skin: default
 enable_copy_code_button: true
 search: false
 
@@ -49,7 +49,7 @@ comments:
     category_id       : "DIC_kwDOCcfrcs4C0LJo" # Shown during giscus setup at https://giscus.app
     discussion_term   : "pathname" # "pathname" (default), "url", "title", "og:title"
     reactions_enabled : "1" # '1' for enabled (default), '0' for disabled
-    theme             : "dark" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
+    theme             : "preferred_color_scheme" # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
     crossorigin       : "anonymous"
 
 # Build settings
@@ -118,6 +118,7 @@ footer:
 after_footer_scripts:
   - https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js
   - https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js
+  - /assets/js/theme.js
   - /assets/js/code-snippets.js
   - /assets/js/mermaid.js
   - /assets/js/konami.js
@@ -129,7 +130,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
       comments: true
       share: false
@@ -145,7 +146,7 @@ defaults:
       type: pages
     values:
       layout: single
-      author_profile: true
+      author_profile: false
 
 tag_archive:
   type: liquid
