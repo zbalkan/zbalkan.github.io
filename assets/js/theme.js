@@ -18,8 +18,10 @@
     document.documentElement.style.colorScheme = theme;
     const button = document.querySelector("[data-theme-toggle]");
     if (button) {
-      button.textContent = "Theme: " + read();
-      button.setAttribute("aria-label", "Color theme: " + read() + ". Change theme");
+      const mode = read();
+      button.textContent = { system: "◐", light: "☀", dark: "☾" }[mode] || "◐";
+      button.setAttribute("aria-label", "Color theme: " + mode + ". Activate next mode");
+      button.title = "Theme: " + mode + " (click to change)";
     }
     document.dispatchEvent(new CustomEvent("site-theme-change", { detail: { theme } }));
     document.querySelectorAll("iframe.giscus-frame").forEach((frame) => {
@@ -27,7 +29,7 @@
     });
   }
   function init() {
-    const masthead = document.querySelector(".masthead__menu");
+    const masthead = document.querySelector(".masthead__menu .greedy-nav");
     if (masthead && !document.querySelector("[data-theme-toggle]")) {
       const button = document.createElement("button");
       button.type = "button";
