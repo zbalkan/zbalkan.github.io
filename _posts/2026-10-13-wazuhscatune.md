@@ -8,7 +8,7 @@ tags:
 - Compliance
 - Python
 - Open Source
-
+last_modified_at: 2026-10-21
 ---
 
 The CIS Red Hat Enterprise Linux 9 policy that ships with [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) 4.14 contains 159 checks and implements v1.0.0 of the [CIS Red Hat Enterprise Linux 9 Benchmark](https://www.cisecurity.org/benchmark/red_hat_linux). CIS has since published v2.0.0 and v3.0.0, and recommendation numbers move between editions, so the numbers below are v1.0.0's.
@@ -187,9 +187,9 @@ The tailored policy is enabled by path, and the original policy needs to be disa
 </sca>
 ```
 
-Both paths are relative to the Wazuh installation directory. Using the wrong path for the shipped policy can therefore leave it enabled while the tailored copy is loaded as well. The agent startup log is the final check, because it shows which policies were loaded or disabled.
+Both paths are relative to the Wazuh installation directory. Using the wrong path for the shipped policy can therefore leave it enabled alongside the tailored copy, and the duplicate-ID check described below then decides which of the two runs. The agent startup log is the final check, because it shows which policies were loaded or disabled.
 
-Disabling the original is a correctness requirement. Wazuh requires policy and check IDs to be unique across policy files, while the tailored copy deliberately retains the IDs inherited from its baseline, so loading both breaks that requirement, and the documentation does not say what the agent does in that case. The safe deployment invariant is therefore simple: load the tailored policy and explicitly disable the baseline it replaces.
+Disabling the original is a correctness requirement. Wazuh requires policy and check IDs to be unique across policy files, and the tailored copy deliberately keeps the check IDs it inherited from its baseline. In Wazuh 4.14.8, the agent rejects a policy file that duplicates an ID already loaded, logs a warning and skips that file. Wazuh's own shipped policies hit the same check when the Windows Server 2025 policy reused IDs from the 2022 policy ([wazuh/wazuh#29174](https://github.com/wazuh/wazuh/issues/29174)). If the baseline loads first, the agent skips the tailored policy and evaluates only the original checks, so the tailoring has no effect until the baseline is explicitly disabled.
 
 Distributing the file through configuration management or a golden image keeps the SCA policy local to the endpoint and avoids the remote-command question entirely. Enabling `sca.remote_commands` permits `c:` command rules in centrally distributed SCA policies to execute on the endpoint. Wazuh disables that capability by default because it increases what a compromised or misused manager can cause agents to execute.
 
