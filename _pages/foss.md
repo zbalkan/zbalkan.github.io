@@ -10,12 +10,12 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28845** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22014** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17374** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16534** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15270** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10201** | 5 | [#2142](https://github.com/TechnitiumSoftware/DnsServer/pull/2142) merged 2026-09-12 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28850** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22030** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17394** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16542** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15283** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10208** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
 | [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9488** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
 | [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5410** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
 | [`dotnet/docs`](https://github.com/dotnet/docs) | **4772** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
@@ -33,12 +33,12 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`reactos/rapps-db`](https://github.com/reactos/rapps-db) | **118** | 2 | [#131](https://github.com/reactos/rapps-db/pull/131) merged 2021-10-08 |
 | [`wazuh/wazuh-packages`](https://github.com/wazuh/wazuh-packages) | **117** | 3 | [#1775](https://github.com/wazuh/wazuh-packages/pull/1775) merged 2022-09-23 |
 | [`wazuh/wazuh-agent`](https://github.com/wazuh/wazuh-agent) | **116** | 1 | [#180](https://github.com/wazuh/wazuh-agent/pull/180) merged 2024-12-13 |
-| [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **112** | 3 | [#23](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/23) merged 2026-02-21 |
+| [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **112** | 6 | [#66](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/66) merged 2026-10-24 |
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **59** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **53** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
 | [`wazuh/integrations`](https://github.com/wazuh/integrations) | **28** | 1 | [#114](https://github.com/wazuh/integrations/pull/114) merged 2026-09-10 |
 | [`kunai-project/gene-rs`](https://github.com/kunai-project/gene-rs) | **5** | 2 | [#30](https://github.com/kunai-project/gene-rs/pull/30) merged 2026-10-09 |
-| **Total shown** |  | **50** | **28 repositories shown / 29 total repositories, 51 total merged PRs found** |
+| **Total shown** |  | **54** | **28 repositories shown / 29 total repositories, 55 total merged PRs found** |
 
 ## Pull Requests by Repository
 
@@ -186,6 +186,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | PR | Title | Merged |
 |---:|---|---|
+| [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) | Fix RFC5424 syslog formatting in LogExporter | 2026-10-24 |
 | [#2142](https://github.com/TechnitiumSoftware/DnsServer/pull/2142) | Fixed additional space breaking EDE logging | 2026-09-12 |
 | [#1704](https://github.com/TechnitiumSoftware/DnsServer/pull/1704) | Added README for Apps | 2026-04-18 |
 | [#1403](https://github.com/TechnitiumSoftware/DnsServer/pull/1403) | Added `MispConnectorApp` for Cyber Threat Intelligence-based blocking | 2025-11-22 |
@@ -196,6 +197,9 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | PR | Title | Merged |
 |---:|---|---|
+| [#66](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/66) | Enforce RFC 9520 failure cache TTL bounds | 2026-10-24 |
+| [#67](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/67) | Use fixed-time TSIG MAC comparison | 2026-10-24 |
+| [#65](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/65) | Fix TSIG time-validation overflow and enforce zero Error field on requests | 2026-10-24 |
 | [#23](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/23) | Added suppression for Windows-specific code | 2026-02-21 |
 | [#48](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/48) | Fixed typo in the TransparentProxyServer ctor | 2026-02-21 |
 | [#54](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/54) | Fixed typo in the ctor that would throw NullReferenceException for un… | 2026-02-21 |
