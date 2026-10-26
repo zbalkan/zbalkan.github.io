@@ -1,5 +1,5 @@
 ---
-title: "New release: `wazuhevtx` 1.1.0, the Wazuh event log converter"
+title: "New release: wazuhevtx 1.1.0, the Wazuh event log converter"
 tags:
   - Wazuh
   - SIEM

@@ -1,5 +1,5 @@
 ---
-title: "(Re)Introducing my Wazuh 4.x toolkit"
+title: "Re-introducing my Wazuh 4.x toolkit"
 tags:
   - Wazuh
   - Detection engineering

@@ -1,5 +1,5 @@
 ---
-title: "Testing Wazuh 4.x regular expressions locally with `wazuhregex`"
+title: "Testing Wazuh 4.x regular expressions locally with wazuhregex"
 tags:
   - Wazuh
   - Detection engineering

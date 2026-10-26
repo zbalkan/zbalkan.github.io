@@ -1,5 +1,5 @@
 ---
-title: "Enhancing Wazuh Rule Testing with `wazuhevtx`: A Solution for Windows Event Logs"
+title: "Enhancing Wazuh Rule Testing with wazuhevtx: A Solution for Windows Event Logs"
 tags:
   - Wazuh
   - SIEM
