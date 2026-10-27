@@ -40,48 +40,67 @@
 
   const copyText = async (text) => {
     if (navigator.clipboard?.writeText && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return;
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // Some browsers expose the API but deny clipboard permission.
+      }
     }
 
+    const focused = document.activeElement;
     const textarea = document.createElement("textarea");
     textarea.value = text;
     textarea.setAttribute("readonly", "");
     textarea.style.position = "fixed";
     textarea.style.opacity = "0";
     document.body.appendChild(textarea);
-    textarea.select();
-
-    const copied = document.execCommand("copy");
-    textarea.remove();
-
-    if (!copied) throw new Error("Unable to copy Mermaid source.");
+    try {
+      textarea.select();
+      if (!document.execCommand("copy")) throw new Error("Unable to copy Mermaid source.");
+    } finally {
+      textarea.remove();
+      focused?.focus({ preventScroll: true });
+    }
   };
 
-  const createViewerEvents = () => {
+  const createViewerEvents = (canPanTouch, getZoomLimits) => {
     let svg;
     let wheelFrame = 0;
     let wheelPoint;
     let wheelZoom;
     let pinch;
+    let drag;
+
+    const svgPoint = (touch) => {
+      const point = svg.createSVGPoint();
+      point.x = touch.clientX;
+      point.y = touch.clientY;
+      return point.matrixTransform(svg.getScreenCTM().inverse());
+    };
+    const cancelWheel = () => {
+      cancelAnimationFrame(wheelFrame);
+      wheelFrame = 0;
+    };
 
     const getPinch = (touches) => {
-      const first = touches[0];
-      const second = touches[1];
+      const first = svgPoint(touches[0]);
+      const second = svgPoint(touches[1]);
 
       return {
         distance: Math.hypot(
-          second.clientX - first.clientX,
-          second.clientY - first.clientY
+          second.x - first.x,
+          second.y - first.y
         ),
         point: {
-          x: (first.clientX + second.clientX) / 2,
-          y: (first.clientY + second.clientY) / 2
+          x: (first.x + second.x) / 2,
+          y: (first.y + second.y) / 2
         }
       };
     };
 
     return {
+      cancelWheel,
       haltEventListeners: [
         "touchstart",
         "touchmove",
@@ -125,11 +144,9 @@
           );
           const base = wheelFrame ? wheelZoom : instance.getZoom();
 
-          wheelPoint = { x: event.clientX, y: event.clientY };
-          wheelZoom = Math.max(
-            MIN_ZOOM,
-            Math.min(MAX_ZOOM, base * Math.exp(-delta * 0.0015))
-          );
+          wheelPoint = svgPoint(event);
+          const { min, max } = getZoomLimits();
+          wheelZoom = Math.max(min, Math.min(max, base * Math.exp(-delta * 0.0015)));
 
           if (!wheelFrame) {
             wheelFrame = requestAnimationFrame(animateWheel);
@@ -137,6 +154,14 @@
         };
 
         this.onTouchStart = (event) => {
+          cancelWheel();
+          drag = null;
+          pinch = null;
+          if (event.touches.length === 1 && canPanTouch()) {
+            event.preventDefault();
+            drag = svgPoint(event.touches[0]);
+            return;
+          }
           if (event.touches.length !== 2) return;
 
           event.preventDefault();
@@ -147,6 +172,13 @@
         };
 
         this.onTouchMove = (event) => {
+          if (drag && event.touches.length === 1) {
+            event.preventDefault();
+            const next = svgPoint(event.touches[0]);
+            instance.panBy({ x: next.x - drag.x, y: next.y - drag.y });
+            drag = next;
+            return;
+          }
           if (!pinch || event.touches.length !== 2) return;
 
           event.preventDefault();
@@ -154,7 +186,7 @@
 
           instance.zoomAtPoint(
             pinch.zoom * (next.distance / pinch.distance),
-            next.point
+            pinch.point
           );
           instance.panBy({
             x: next.point.x - pinch.point.x,
@@ -165,22 +197,34 @@
 
         this.onTouchEnd = (event) => {
           if (event.touches.length < 2) pinch = null;
+          drag = event.touches.length === 1 && canPanTouch()
+            ? svgPoint(event.touches[0]) : null;
         };
+        this.onTouchCancel = () => { pinch = null; drag = null; };
 
+        this.onMouseDown = (event) => {
+          if (event.button !== 0) {
+            event.stopImmediatePropagation();
+            return;
+          }
+          cancelWheel();
+        };
+        svg.addEventListener("mousedown", this.onMouseDown, true);
         svg.addEventListener("wheel", this.onWheel, { passive: false });
         svg.addEventListener("touchstart", this.onTouchStart, { passive: false });
         svg.addEventListener("touchmove", this.onTouchMove, { passive: false });
         svg.addEventListener("touchend", this.onTouchEnd);
-        svg.addEventListener("touchcancel", this.onTouchEnd);
+        svg.addEventListener("touchcancel", this.onTouchCancel);
       },
 
       destroy() {
-        cancelAnimationFrame(wheelFrame);
+        cancelWheel();
+        svg.removeEventListener("mousedown", this.onMouseDown, true);
         svg.removeEventListener("wheel", this.onWheel);
         svg.removeEventListener("touchstart", this.onTouchStart);
         svg.removeEventListener("touchmove", this.onTouchMove);
         svg.removeEventListener("touchend", this.onTouchEnd);
-        svg.removeEventListener("touchcancel", this.onTouchEnd);
+        svg.removeEventListener("touchcancel", this.onTouchCancel);
       }
     };
   };
@@ -204,13 +248,35 @@
     svg.style.height = "100%";
     svg.style.maxWidth = "none";
 
-    const panZoom = svgPanZoom(svg, {
+    let panZoom;
+    let fittedZoom;
+    const canPanTouch = () => panZoom && panZoom.getZoom() > fittedZoom * 1.001;
+    const syncTouchAction = () => { svg.style.touchAction = canPanTouch() ? "none" : "pan-y"; };
+    const getZoomLimits = () => ({ min: fittedZoom * MIN_ZOOM, max: fittedZoom * MAX_ZOOM });
+    const syncZoomBounds = () => {
+      const { width, height, realZoom, viewBox } = panZoom.getSizes();
+      // resize() rebases the library's relative zoom; derive fit from actual SVG units.
+      const referenceZoom = realZoom / panZoom.getZoom();
+      fittedZoom = Math.min(width / viewBox.width, height / viewBox.height) / referenceZoom;
+      const { min, max } = getZoomLimits();
+      panZoom.setMinZoom(min);
+      panZoom.setMaxZoom(max);
+      syncTouchAction();
+    };
+    const fitDiagram = () => {
+      panZoom.zoom(fittedZoom);
+      panZoom.center();
+      syncTouchAction();
+    };
+    const viewerEvents = createViewerEvents(canPanTouch, getZoomLimits);
+    panZoom = svgPanZoom(svg, {
+      onZoom: syncTouchAction,
       panEnabled: true,
       zoomEnabled: true,
       mouseWheelZoomEnabled: false,
       dblClickZoomEnabled: true,
       controlIconsEnabled: false,
-      customEventsHandler: createViewerEvents(),
+      customEventsHandler: viewerEvents,
       zoomScaleSensitivity: 0.25,
       minZoom: MIN_ZOOM,
       maxZoom: MAX_ZOOM,
@@ -223,24 +289,31 @@
     toolbar.className = "mermaid-viewer__toolbar";
     toolbar.setAttribute("role", "group");
     toolbar.setAttribute("aria-label", "Diagram controls");
+    let copyTimer;
+    const status = document.createElement("p");
+    status.className = "mermaid-viewer__status";
+    status.setAttribute("role", "status");
+    viewer.appendChild(status);
+    const fullscreenSupported = document.fullscreenEnabled && viewer.requestFullscreen;
     toolbar.append(
       makeButton("out", "Zoom out"),
       makeButton("in", "Zoom in"),
       makeButton("fit", "Fit diagram to viewer"),
       makeButton("reset", "Reset zoom"),
-      makeButton("copy", "Copy Mermaid source"),
-      makeButton("fullscreen", "Open fullscreen")
+      makeButton("copy", "Copy Mermaid source")
     );
+    if (fullscreenSupported) toolbar.appendChild(makeButton("fullscreen", "Open fullscreen"));
     viewer.appendChild(toolbar);
 
     // Mermaid diagrams vary considerably in their native dimensions. Start
     // with the whole diagram visible instead of an arbitrary 100% crop.
-    panZoom.fit();
-    panZoom.center();
+    syncZoomBounds();
+    fitDiagram();
 
     toolbar.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-action]");
       if (!button) return;
+      viewerEvents.cancelWheel();
 
       switch (button.dataset.action) {
         case "out":
@@ -250,15 +323,12 @@
           panZoom.zoomIn();
           break;
         case "fit":
-          panZoom.fit();
-          panZoom.center();
-          break;
         case "reset":
-          panZoom.resetZoom();
-          panZoom.center();
+          fitDiagram();
           break;
         case "copy": {
-          const title = button.title;
+          clearTimeout(copyTimer);
+          const title = "Copy Mermaid source";
           try {
             await copyText(mermaidSource || "");
             button.title = "Copied";
@@ -267,25 +337,37 @@
             button.title = "Copy failed";
             button.setAttribute("aria-label", "Copy failed");
           }
-          window.setTimeout(() => {
+          copyTimer = window.setTimeout(() => {
             button.title = title;
             button.setAttribute("aria-label", title);
           }, 1500);
           break;
         }
         case "fullscreen":
-          if (document.fullscreenElement === viewer) {
-            await document.exitFullscreen();
-          } else {
-            await viewer.requestFullscreen();
+          try {
+            if (document.fullscreenElement === viewer) await document.exitFullscreen();
+            else await viewer.requestFullscreen();
+          } catch {
+            status.textContent = "Fullscreen is unavailable in this browser.";
           }
           break;
       }
     });
 
-    const refresh = () => panZoom.resize();
+    const refresh = () => {
+      viewerEvents.cancelWheel();
+      panZoom.resize();
+      syncZoomBounds();
+    };
     new ResizeObserver(refresh).observe(viewer);
-    document.addEventListener("fullscreenchange", () => {
+    viewer.addEventListener("fullscreenchange", () => {
+      viewerEvents.cancelWheel();
+      const button = toolbar.querySelector('[data-action="fullscreen"]');
+      if (button) {
+        const title = document.fullscreenElement === viewer ? "Exit fullscreen" : "Open fullscreen";
+        button.title = title;
+        button.setAttribute("aria-label", title);
+      }
       window.setTimeout(refresh, 0);
     });
   };

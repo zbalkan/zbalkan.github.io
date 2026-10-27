@@ -121,7 +121,21 @@ button.mermaid-viewer__button:focus-visible {
   pointer-events: none;
 }
 
+.mermaid-viewer__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .mermaid-viewer:fullscreen {
+  background: var(--site-bg);
+  color: var(--site-text);
   width: 100vw;
   height: 100vh;
   border: 0;
@@ -433,7 +447,7 @@ table, th, td, blockquote, hr {
 .page__content .highlight .nd,
 .page__content .highlight .ne,
 .page__content .highlight .nn,
-.page__content .highlight .nt,\n.page__content .highlight .nb { color: var(--code-function); }
+.page__content .highlight .nt { color: var(--code-function); }
 .page__content .highlight .na,
 .page__content .highlight .nb,
 .page__content .highlight .nv,
