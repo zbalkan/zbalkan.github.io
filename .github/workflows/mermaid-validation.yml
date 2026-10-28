@@ -33,17 +33,35 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      - name: Validate article PDFs in current Chrome
-        env:
-          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
-          PRINT_BROWSER_CHANNEL: chrome
-        run: node .ci/mermaid-article-print.cjs
       - name: Validate viewer
         env:
           TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
         run: |
           node --check assets/js/mermaid.js
           node --test .ci/mermaid-viewer.test.cjs
+      - name: Validate failed browser launch cleanup
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+          PRINT_BROWSER_CHANNEL: mermaid-invalid-channel
+        run: |
+          mkdir -p test-results
+          set +e
+          timeout 20s node .ci/mermaid-article-print.cjs > test-results/launch-failure.log 2>&1
+          status=$?
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('test-results/launch-failure.log').read_text()
+          assert 'unsupported chromium channel "mermaid-invalid-channel"' in text.lower(), text
+          PY
+      - name: Validate article PDFs in current Chrome
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+          PRINT_BROWSER_CHANNEL: chrome
+        run: node .ci/mermaid-article-print.cjs
       - name: Validate actual article layout
         if: always()
         env:
@@ -65,3 +83,4 @@ jobs:
         with:
           name: mermaid-viewer-validation
           path: test-results/
+
