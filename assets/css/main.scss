@@ -38,7 +38,7 @@ html {
 .mermaid-viewer {
   position: relative;
   box-sizing: border-box;
-  height: clamp(22rem, 70vh, 42rem);
+  height: 18rem;
   padding: 3.5rem 0.75rem 0.75rem;
   overflow: hidden;
   isolation: isolate;
@@ -282,6 +282,25 @@ table, th, td, blockquote, hr {
 #main { max-width: 1180px; }
 .page { float: none; width: 100%; padding-inline: 0; }
 .page__inner-wrap { max-width: 76ch; margin-inline: auto; }
+/* Keep the TOC inside a dedicated column instead of the theme's negative gutter. */
+@include breakpoint($large) {
+  .page__inner-wrap:has(.sidebar__right) {
+    max-width: none;
+  }
+  .page__content:has(> .sidebar__right) {
+    display: flow-root;
+    padding-inline-end: 13rem;
+  }
+  .page__content > .sidebar__right,
+  .page__content > .sidebar__right.sticky {
+    position: sticky;
+    float: right;
+    inset-inline-end: auto;
+    width: 12rem;
+    margin-inline-end: -13rem;
+    padding-inline-start: 1rem;
+  }
+}
 .page__content { font-size: 1.075rem; line-height: 1.76; }
 .page__content p { margin-bottom: 1.3em; }
 .page__title { font-size: clamp(2rem, 4vw, 2.75rem); }
