@@ -3,12 +3,17 @@ const fs = require('node:fs/promises');
 const { createServer } = require('node:http');
 const { join, resolve, extname } = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { createHash } = require('node:crypto');
 const dep = require('node:module').createRequire(join(process.env.TEST_DEPENDENCIES, 'package.json'));
 const { chromium, devices } = dep('playwright');
 
 (async () => {
   const site = resolve('_site');
+  const iconUrl = 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css';
+  const iconCss = await fs.readFile(join(process.env.TEST_DEPENDENCIES, 'node_modules/@fortawesome/fontawesome-free/css/all.min.css'));
+  const iconIntegrity = 'sha384-' + createHash('sha384').update(iconCss).digest('base64');
   const vendor = {
+    [iconUrl]: iconCss,
     'https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.min.js': await fs.readFile(join(process.env.TEST_DEPENDENCIES, 'node_modules/mermaid/dist/mermaid.min.js')),
     'https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js': await fs.readFile(dep.resolve('svg-pan-zoom'))
   };
@@ -39,7 +44,7 @@ const { chromium, devices } = dep('playwright');
         await context.addInitScript(dark => localStorage.setItem('site-theme', dark ? 'dark' : 'light'), dark);
         await context.route('**/*', route => {
           const url = route.request().url();
-          if (vendor[url]) return route.fulfill({ contentType: 'text/javascript', body: vendor[url] });
+          if (vendor[url]) return route.fulfill({ contentType: url === iconUrl ? 'text/css' : 'text/javascript', headers: { 'access-control-allow-origin': '*' }, body: vendor[url] });
           if (url.startsWith(base) || url.startsWith('https://fonts.googleapis.com/') || url.startsWith('https://fonts.gstatic.com/')) return route.continue();
           return route.abort();
         });
@@ -47,6 +52,16 @@ const { chromium, devices } = dep('playwright');
         const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(base + '/wazuhscatune/');
+        const icons = await page.evaluate(() => {
+          const link = document.querySelector('link[href*="@fortawesome/fontawesome-free@"]');
+          const noscript = [...document.querySelectorAll('noscript')].find(node => node.textContent.includes('@fortawesome/fontawesome-free@'));
+          const fallback = new DOMParser().parseFromString(noscript.textContent, 'text/html').querySelector('link');
+          const attributes = node => ({ url: node.href, integrity: node.integrity, crossOrigin: node.crossOrigin });
+          return { link: attributes(link), fallback: attributes(fallback), loaded: link.sheet !== null };
+        });
+        assert.deepEqual(icons.link, { url: iconUrl, integrity: iconIntegrity, crossOrigin: 'anonymous' });
+        assert.deepEqual(icons.fallback, icons.link);
+        assert.ok(icons.loaded, 'The pinned icon stylesheet must pass browser integrity checks');
         const assets = await page.evaluate(() => ({
           css: document.querySelector('link[href*="/assets/css/main.css"]').href,
           js: document.querySelector('script[src*="/assets/js/mermaid.js"]').src
