@@ -28,7 +28,9 @@ const { chromium, devices } = dep('playwright');
   await fs.mkdir('test-results', { recursive: true });
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const base = 'http://127.0.0.1:' + server.address().port;
-  const browser = await chromium.launch();
+  const channel = process.env.PRINT_BROWSER_CHANNEL;
+  const browser = await chromium.launch(channel ? { channel } : {});
+  console.log(`Article PDF engine: ${channel || 'chromium'} ${browser.version()}`);
   try {
     for (const mobile of [false, true]) for (const dark of [false, true]) {
       const context = await browser.newContext(mobile ? devices['Pixel 7'] : { viewport: { width: 1280, height: 900 } });
@@ -58,7 +60,7 @@ const { chromium, devices } = dep('playwright');
         });
         await page.emulateMedia({ media: 'print' });
         assert.equal(await page.locator('.page__content p').first().evaluate(p => getComputedStyle(p).color), 'rgb(0, 0, 0)');
-        const prefix = `test-results/article-${mobile ? 'mobile' : 'desktop'}-${dark ? 'dark' : 'light'}`;
+        const prefix = `test-results/article-${channel || 'chromium'}-${mobile ? 'mobile' : 'desktop'}-${dark ? 'dark' : 'light'}`;
         const layout = await page.locator('.mermaid-viewer-host').evaluateAll(hosts => hosts.map(host => ({
           tag: host.tagName, parent: host.parentElement.tagName,
           width: host.getBoundingClientRect().width,

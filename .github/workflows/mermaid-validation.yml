@@ -33,6 +33,11 @@ jobs:
         with:
           source: ./
           destination: ./_site
+      - name: Validate article PDFs in current Chrome
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+          PRINT_BROWSER_CHANNEL: chrome
+        run: node .ci/mermaid-article-print.cjs
       - name: Validate viewer
         env:
           TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
