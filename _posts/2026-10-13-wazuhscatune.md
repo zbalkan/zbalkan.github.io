@@ -64,6 +64,7 @@ A check begins unreviewed and must end in one of three decision states before ex
 
 ```mermaid
 stateDiagram-v2
+    direction LR
     [*] --> Unreviewed
     Unreviewed --> Accepted: retained
     Unreviewed --> NotApplicable: removed, does not apply

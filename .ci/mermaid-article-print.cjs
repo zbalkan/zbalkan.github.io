@@ -58,6 +58,18 @@ const { chromium, devices } = dep('playwright');
           await document.fonts.ready;
           await Promise.all([...document.querySelectorAll('.mermaid-print')].map(image => image.decode()));
         });
+        const transitionLabels = await page.locator('.mermaid-viewer > svg').first().evaluate(svg =>
+          [...svg.querySelectorAll('g.edgeLabel')].filter(e => e.textContent.trim()).map(e => ({
+            text: e.textContent, box: e.getBoundingClientRect().toJSON()
+          }))
+        );
+        assert.ok(transitionLabels.length > 1, 'The review diagram must expose its transition labels');
+        for (let i = 0; i < transitionLabels.length; i++) for (let j = i + 1; j < transitionLabels.length; j++) {
+          const a = transitionLabels[i], b = transitionLabels[j];
+          const width = Math.min(a.box.right, b.box.right) - Math.max(a.box.left, b.box.left);
+          const height = Math.min(a.box.bottom, b.box.bottom) - Math.max(a.box.top, b.box.top);
+          assert.ok(width <= 0.1 || height <= 0.1, `Overlapping review transitions: ${a.text} / ${b.text}`);
+        }
         await page.emulateMedia({ media: 'print' });
         assert.equal(await page.locator('.page__content p').first().evaluate(p => getComputedStyle(p).color), 'rgb(0, 0, 0)');
         const prefix = `test-results/article-${channel || 'chromium'}-${mobile ? 'mobile' : 'desktop'}-${dark ? 'dark' : 'light'}`;
