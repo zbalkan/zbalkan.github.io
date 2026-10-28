@@ -231,6 +231,17 @@
 
   const attachViewer = (svg, mermaidSource) => {
     if (svg.dataset.panZoomReady === "true") return;
+    const bounds = svg.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) {
+      const observer = new ResizeObserver(() => {
+        const visible = svg.getBoundingClientRect();
+        if (!visible.width || !visible.height) return;
+        observer.disconnect();
+        requestAnimationFrame(() => attachViewer(svg, mermaidSource));
+      });
+      observer.observe(svg);
+      return;
+    }
     svg.dataset.panZoomReady = "true";
 
     const previousParent = svg.parentElement;
@@ -242,6 +253,9 @@
     viewer.appendChild(svg);
     previousParent.classList.add("mermaid-viewer-host");
 
+    const nativeBounds = svg.viewBox.baseVal;
+    const aspectRatio = nativeBounds.width / nativeBounds.height;
+
     // svg-pan-zoom removes the SVG viewBox. Explicit dimensions prevent
     // the browser fallback height of 150px described in its documentation.
     svg.style.width = "100%";
@@ -250,27 +264,41 @@
 
     let panZoom;
     let fittedZoom;
+    let zoomLimits;
+    let fitMode = true;
+    let updatingView = false;
+    const markManual = () => { if (!updatingView) fitMode = false; };
     const canPanTouch = () => panZoom && panZoom.getZoom() > fittedZoom * 1.001;
     const syncTouchAction = () => { svg.style.touchAction = canPanTouch() ? "none" : "pan-y"; };
-    const getZoomLimits = () => ({ min: fittedZoom * MIN_ZOOM, max: fittedZoom * MAX_ZOOM });
+    const fittedLimits = () => ({ min: fittedZoom * MIN_ZOOM, max: fittedZoom * MAX_ZOOM });
+    const getZoomLimits = () => zoomLimits;
     const syncZoomBounds = () => {
       const { width, height, realZoom, viewBox } = panZoom.getSizes();
       // resize() rebases the library's relative zoom; derive fit from actual SVG units.
       const referenceZoom = realZoom / panZoom.getZoom();
       fittedZoom = Math.min(width / viewBox.width, height / viewBox.height) / referenceZoom;
-      const { min, max } = getZoomLimits();
+      zoomLimits = fittedLimits();
+      const { min, max } = zoomLimits;
       panZoom.setMinZoom(min);
       panZoom.setMaxZoom(max);
       syncTouchAction();
     };
     const fitDiagram = () => {
+      updatingView = true;
+      zoomLimits = fittedLimits();
+      const { min, max } = zoomLimits;
+      panZoom.setMinZoom(min);
+      panZoom.setMaxZoom(max);
       panZoom.zoom(fittedZoom);
       panZoom.center();
+      updatingView = false;
+      fitMode = true;
       syncTouchAction();
     };
     const viewerEvents = createViewerEvents(canPanTouch, getZoomLimits);
     panZoom = svgPanZoom(svg, {
-      onZoom: syncTouchAction,
+      onZoom: () => { markManual(); syncTouchAction(); },
+      onPan: markManual,
       panEnabled: true,
       zoomEnabled: true,
       mouseWheelZoomEnabled: false,
@@ -356,10 +384,54 @@
 
     const refresh = () => {
       viewerEvents.cancelWheel();
+      const box = viewer.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      if (document.fullscreenElement === viewer) viewer.style.removeProperty("height");
+      if (document.fullscreenElement !== viewer && Number.isFinite(aspectRatio) && aspectRatio > 0) {
+        const styles = getComputedStyle(viewer);
+        const width = viewer.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+        const chrome = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom) + 2;
+        const height = Math.max(160, Math.min(width / aspectRatio, window.innerHeight * 0.7));
+        viewer.style.height = `${height + chrome}px`;
+      }
+      const viewport = svg.getBoundingClientRect();
+      if (!viewport.width || !viewport.height) return;
+      const previous = panZoom.getSizes();
+      const pan = panZoom.getPan();
+      const center = {
+        x: (previous.width / 2 - pan.x) / previous.realZoom,
+        y: (previous.height / 2 - pan.y) / previous.realZoom
+      };
+      updatingView = true;
       panZoom.resize();
       syncZoomBounds();
+      if (fitMode) {
+        fitDiagram();
+      } else {
+        const current = panZoom.getSizes();
+        const zoom = panZoom.getZoom() * previous.realZoom / current.realZoom;
+        const { min, max } = getZoomLimits();
+        // Wheel, mouse controls and touch gestures share the extended limits.
+        zoomLimits = { min: Math.min(min, zoom), max: Math.max(max, zoom) };
+        panZoom.setMinZoom(zoomLimits.min);
+        panZoom.setMaxZoom(zoomLimits.max);
+        panZoom.zoom(zoom);
+        const scale = panZoom.getSizes().realZoom;
+        panZoom.pan({ x: current.width / 2 - center.x * scale, y: current.height / 2 - center.y * scale });
+      }
+      updatingView = false;
     };
-    new ResizeObserver(refresh).observe(viewer);
+    let refreshFrame = 0;
+    const scheduleRefresh = () => {
+      if (refreshFrame) return;
+      refreshFrame = requestAnimationFrame(() => {
+        refreshFrame = 0;
+        refresh();
+      });
+    };
+    new ResizeObserver(scheduleRefresh).observe(viewer);
+    // Viewport height can change without changing the inline viewer's width.
+    window.addEventListener("resize", scheduleRefresh);
     viewer.addEventListener("fullscreenchange", () => {
       viewerEvents.cancelWheel();
       const button = toolbar.querySelector('[data-action="fullscreen"]');
@@ -368,7 +440,7 @@
         button.title = title;
         button.setAttribute("aria-label", title);
       }
-      window.setTimeout(refresh, 0);
+      scheduleRefresh();
     });
   };
 
