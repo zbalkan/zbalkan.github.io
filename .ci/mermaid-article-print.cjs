@@ -73,6 +73,8 @@ const { chromium, devices } = dep('playwright');
           assert.equal(layout[index].viewerDisplay, 'none');
           await page.locator('.mermaid-print').nth(index).screenshot({ path: prefix + `-diagram-${index}.png` });
         }
+        // Exercise the browser's own switch into print media during PDF capture.
+        await page.emulateMedia({ media: null });
         for (const printBackground of [false, true]) {
           const file = prefix + `-backgrounds-${printBackground}.pdf`;
           await page.pdf({ path: file, format: 'Letter', printBackground, margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' } });
