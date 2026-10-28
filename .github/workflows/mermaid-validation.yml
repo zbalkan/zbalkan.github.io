@@ -26,7 +26,7 @@ jobs:
           node-version: '22'
       - name: Install browser dependencies
         run: |
-          npm install --prefix "$RUNNER_TEMP/mermaid-validation" --ignore-scripts --no-audit --no-fund playwright@1.56.1 mermaid@11.12.0 svg-pan-zoom@3.6.2
+          npm install --prefix "$RUNNER_TEMP/mermaid-validation" --ignore-scripts --no-audit --no-fund playwright@1.64.1 mermaid@11.12.0 svg-pan-zoom@3.6.2 @fortawesome/fontawesome-free@6.7.2
           "$RUNNER_TEMP/mermaid-validation/node_modules/.bin/playwright" install --with-deps chromium firefox webkit
           sudo apt-get install -y poppler-utils
       - uses: actions/jekyll-build-pages@v1
@@ -39,6 +39,29 @@ jobs:
         run: |
           node --check assets/js/mermaid.js
           node --test .ci/mermaid-viewer.test.cjs
+      - name: Validate failed browser launch cleanup
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+          PRINT_BROWSER_CHANNEL: mermaid-invalid-channel
+        run: |
+          mkdir -p test-results
+          set +e
+          timeout 20s node .ci/mermaid-article-print.cjs > test-results/launch-failure.log 2>&1
+          status=$?
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('test-results/launch-failure.log').read_text()
+          assert 'unsupported chromium channel "mermaid-invalid-channel"' in text.lower(), text
+          PY
+      - name: Validate article PDFs in current Chrome
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+          PRINT_BROWSER_CHANNEL: chrome
+        run: node .ci/mermaid-article-print.cjs
       - name: Validate actual article layout
         if: always()
         env:
@@ -50,8 +73,14 @@ jobs:
         env:
           TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
         run: node --test .ci/mermaid-print.test.cjs
+      - name: Validate actual article PDFs
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+        run: node .ci/mermaid-article-print.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mermaid-viewer-validation
           path: test-results/
+
