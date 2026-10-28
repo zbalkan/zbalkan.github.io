@@ -35,6 +35,45 @@ html {
   margin: 1.5rem 0;
 }
 
+.mermaid-print {
+  display: none;
+}
+
+@media print {
+  .mermaid-screen,
+  .mermaid-viewer {
+    display: none !important;
+  }
+
+  .mermaid-print {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 80vh;
+    margin-inline: auto;
+    object-fit: contain;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .mermaid-viewer-host {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .page__content:has(> .sidebar__right) {
+    padding-inline-end: 0 !important;
+  }
+
+  .page__content > .sidebar__right {
+    display: none !important;
+  }
+}
+
 .mermaid-viewer {
   position: relative;
   box-sizing: border-box;
@@ -523,4 +562,34 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
+
+/* Print colors follow paper, independently of the screen theme. */
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light !important;
+    --site-bg: #ffffff;
+    --site-surface: #ffffff;
+    --site-text: #000000;
+    --site-muted: #444444;
+    --site-link: #000000;
+    --site-border: #aaaaaa;
+    --site-code: #f5f5f5;
+    --code-text: #273449;
+    --code-muted: #56657a;
+    --code-keyword: #7042a6;
+    --code-string: #176341;
+    --code-number: #a24d16;
+    --code-function: #2455a4;
+    --code-comment: #627186;
+    --code-inline-bg: #f5f5f5;
+  }
 }
