@@ -29,9 +29,10 @@ const { chromium, devices } = dep('playwright');
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const base = 'http://127.0.0.1:' + server.address().port;
   const channel = process.env.PRINT_BROWSER_CHANNEL;
-  const browser = await chromium.launch(channel ? { channel } : {});
-  console.log(`Article PDF engine: ${channel || 'chromium'} ${browser.version()}`);
+  let browser;
   try {
+    browser = await chromium.launch(channel ? { channel } : {});
+    console.log(`Article PDF engine: ${channel || 'chromium'} ${browser.version()}`);
     for (const mobile of [false, true]) for (const dark of [false, true]) {
       const context = await browser.newContext(mobile ? devices['Pixel 7'] : { viewport: { width: 1280, height: 900 } });
       try {
@@ -73,16 +74,42 @@ const { chromium, devices } = dep('playwright');
         await page.emulateMedia({ media: 'print' });
         assert.equal(await page.locator('.page__content p').first().evaluate(p => getComputedStyle(p).color), 'rgb(0, 0, 0)');
         const prefix = `test-results/article-${channel || 'chromium'}-${mobile ? 'mobile' : 'desktop'}-${dark ? 'dark' : 'light'}`;
-        const layout = await page.locator('.mermaid-viewer-host').evaluateAll(hosts => hosts.map(host => ({
+        const layout = await page.locator('.mermaid-viewer-host').evaluateAll(hosts => hosts.map(host => {
+          const clips = [];
+          for (let ancestor = host; ancestor; ancestor = ancestor.parentElement) {
+            const style = getComputedStyle(ancestor), rect = ancestor.getBoundingClientRect();
+            const clipX = /^(auto|scroll|hidden|clip)$/.test(style.overflowX);
+            const clipY = /^(auto|scroll|hidden|clip)$/.test(style.overflowY);
+            if (clipX || clipY) clips.push({
+              tag: ancestor.tagName, clipX, clipY,
+              left: rect.left + ancestor.clientLeft, top: rect.top + ancestor.clientTop,
+              right: rect.left + ancestor.clientLeft + ancestor.clientWidth,
+              bottom: rect.top + ancestor.clientTop + ancestor.clientHeight
+            });
+            if (ancestor.classList.contains('page__content')) break;
+          }
+          return {
           tag: host.tagName, parent: host.parentElement.tagName,
-          width: host.getBoundingClientRect().width,
+          host: host.getBoundingClientRect().toJSON(), clips,
           overflow: getComputedStyle(host.parentElement).overflow,
           image: host.querySelector('.mermaid-print').getBoundingClientRect().toJSON(),
           viewerDisplay: getComputedStyle(host.querySelector('.mermaid-viewer')).display
-        })));
+          };
+        }));
         await fs.writeFile(prefix + '.json', JSON.stringify({ layout, errors }, null, 2));
+        assert.equal(layout.length, 2);
         for (let index = 0; index < 2; index++) {
-          assert.equal(layout[index].viewerDisplay, 'none');
+          const { image, host, clips, viewerDisplay } = layout[index];
+          assert.equal(viewerDisplay, 'none');
+          assert.ok(image.width > 0 && image.height > 0, `Diagram ${index} must have positive dimensions`);
+          assert.ok(image.width <= host.width + 1 && image.left >= host.left - 1 && image.right <= host.right + 1,
+            `Diagram ${index} exceeds its host: ${JSON.stringify(layout[index])}`);
+          for (const clip of clips) {
+            assert.ok(!clip.clipX || (image.left >= clip.left - 1 && image.right <= clip.right + 1),
+              `Diagram ${index} is clipped horizontally by ${clip.tag}`);
+            assert.ok(!clip.clipY || (image.top >= clip.top - 1 && image.bottom <= clip.bottom + 1),
+              `Diagram ${index} is clipped vertically by ${clip.tag}`);
+          }
           await page.locator('.mermaid-print').nth(index).screenshot({ path: prefix + `-diagram-${index}.png` });
         }
         // Exercise the browser's own switch into print media during PDF capture.
@@ -104,7 +131,10 @@ const { chromium, devices } = dep('playwright');
       }
     }
   } finally {
-    await browser.close();
-    await new Promise(r => server.close(r));
+    try {
+      if (browser) await browser.close();
+    } finally {
+      await new Promise(r => server.close(r));
+    }
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });
