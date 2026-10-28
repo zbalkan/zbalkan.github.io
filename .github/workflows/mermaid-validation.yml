@@ -1,0 +1,57 @@
+name: Mermaid viewer validation
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '**/*.js'
+      - '**/*.mjs'
+      - '**/*.cjs'
+      - '**/*.css'
+      - '**/*.scss'
+      - '**/*.sass'
+      # Dependency loading and CI changes also need regression coverage.
+      - '_config.yml'
+      - '_includes/**'
+      - '.github/workflows/mermaid-validation.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/mermaid-validation" --ignore-scripts --no-audit --no-fund playwright@1.56.1 mermaid@11.12.0 svg-pan-zoom@3.6.2
+          "$RUNNER_TEMP/mermaid-validation/node_modules/.bin/playwright" install --with-deps chromium firefox webkit
+          sudo apt-get install -y poppler-utils
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Validate viewer
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+        run: |
+          node --check assets/js/mermaid.js
+          node --test .ci/mermaid-viewer.test.cjs
+      - name: Validate actual article layout
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+        run: |
+          node .ci/mermaid-layout.cjs
+      - name: Validate print layout and PDFs
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+        run: node --test .ci/mermaid-print.test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mermaid-viewer-validation
+          path: test-results/

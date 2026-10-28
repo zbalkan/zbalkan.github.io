@@ -64,6 +64,31 @@
     }
   };
 
+  const makePrintImage = (svg, dark = false) => {
+    const copy = svg.cloneNode(true);
+    const bounds = copy.viewBox.baseVal;
+    copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    copy.setAttribute("width", bounds.width);
+    copy.setAttribute("height", bounds.height);
+    copy.style.removeProperty("width");
+    copy.style.removeProperty("height");
+    copy.style.removeProperty("max-width");
+    // SVG paint survives printing with browser background graphics disabled.
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (const key of ["x", "y", "width", "height"]) background.setAttribute(key, bounds[key]);
+    background.setAttribute("fill", dark ? "#333" : "#fff");
+    copy.prepend(background);
+    const staticStyle = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    staticStyle.textContent = "*, *::before, *::after { animation: none !important; transition: none !important; }";
+    copy.appendChild(staticStyle);
+
+    const image = document.createElement("img");
+    image.className = "mermaid-print";
+    image.alt = svg.querySelector("title")?.textContent || "Mermaid diagram";
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(copy))}`;
+    return image;
+  };
+
   const createViewerEvents = (canPanTouch, getZoomLimits) => {
     let svg;
     let wheelFrame = 0;
@@ -231,6 +256,7 @@
 
   const attachViewer = (svg, mermaidSource) => {
     if (svg.dataset.panZoomReady === "true") return;
+    svg.classList.add("mermaid-screen");
     const bounds = svg.getBoundingClientRect();
     if (!bounds.width || !bounds.height) {
       const observer = new ResizeObserver(() => {
@@ -450,11 +476,12 @@
       return;
     }
 
-    mermaid.initialize({
+    const config = (theme) => ({
       startOnLoad: false,
-      theme: mermaidTheme,
+      theme,
       flowchart: { useMaxWidth: false }
     });
+    mermaid.initialize(config(mermaidTheme));
 
     // Preserve the original fenced source before Mermaid replaces it with SVG.
     const sourceByNode = new Map();
@@ -466,10 +493,30 @@
     // Mermaid v10+ recommends run(), not init(). The existing site syntax
     // renders code fences into elements with the language-mermaid class.
     await mermaid.run({ querySelector: ".language-mermaid" });
-    document.querySelectorAll(".language-mermaid svg").forEach((svg) => {
-      const host = svg.closest(".language-mermaid");
-      attachViewer(svg, host ? sourceByNode.get(host) || "" : "");
-    });
+    const diagrams = [...document.querySelectorAll(".language-mermaid svg")];
+    if (mermaidTheme === "dark") mermaid.initialize(config("default"));
+    try {
+      for (const [index, svg] of diagrams.entries()) {
+        const source = sourceByNode.get(svg.closest(".language-mermaid")) || "";
+        let printSvg = svg;
+        if (mermaidTheme === "dark") {
+          try {
+            const result = await mermaid.render(`mermaid-print-${index}`, source);
+            const template = document.createElement("template");
+            template.innerHTML = result.svg;
+            printSvg = template.content.querySelector("svg");
+          } catch (error) {
+            console.warn("Unable to prepare light Mermaid print image; using the original diagram.", error);
+          }
+        }
+        // Capture the untouched viewBox before svg-pan-zoom changes the SVG.
+        const image = makePrintImage(printSvg, printSvg === svg && mermaidTheme === "dark");
+        svg.after(image);
+        attachViewer(svg, source);
+      }
+    } finally {
+      mermaid.initialize(config(mermaidTheme));
+    }
   };
 
   if (document.readyState === "loading") {
