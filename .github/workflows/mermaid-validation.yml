@@ -50,6 +50,11 @@ jobs:
         env:
           TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
         run: node --test .ci/mermaid-print.test.cjs
+      - name: Validate actual article PDFs
+        if: always()
+        env:
+          TEST_DEPENDENCIES: ${{ runner.temp }}/mermaid-validation
+        run: node .ci/mermaid-article-print.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
