@@ -44,12 +44,20 @@ const { chromium, devices } = dep('playwright');
         const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(base + '/wazuhscatune/');
+        const assets = await page.evaluate(() => ({
+          css: document.querySelector('link[href*="/assets/css/main.css"]').href,
+          js: document.querySelector('script[src*="/assets/js/mermaid.js"]').src
+        }));
+        const cssVersion = new URL(assets.css).searchParams.get('v');
+        assert.ok(cssVersion, 'The stylesheet URL must identify its deployment');
+        assert.equal(new URL(assets.js).searchParams.get('v'), cssVersion, 'Viewer script and stylesheet must use the same deployment');
         await page.waitForFunction(() => document.querySelectorAll('.mermaid-print').length === 2);
         await page.evaluate(async () => {
           await document.fonts.ready;
           await Promise.all([...document.querySelectorAll('.mermaid-print')].map(image => image.decode()));
         });
         await page.emulateMedia({ media: 'print' });
+        assert.equal(await page.locator('.page__content p').first().evaluate(p => getComputedStyle(p).color), 'rgb(0, 0, 0)');
         const prefix = `test-results/article-${mobile ? 'mobile' : 'desktop'}-${dark ? 'dark' : 'light'}`;
         const layout = await page.locator('.mermaid-viewer-host').evaluateAll(hosts => hosts.map(host => ({
           tag: host.tagName, parent: host.parentElement.tagName,
