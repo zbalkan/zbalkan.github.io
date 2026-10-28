@@ -9,6 +9,10 @@ on:
       - '**/*.css'
       - '**/*.scss'
       - '**/*.sass'
+      # Dependency loading and CI changes also need regression coverage.
+      - '_config.yml'
+      - '_includes/**'
+      - '.github/workflows/mermaid-validation.yml'
 permissions:
   contents: read
 jobs:
