@@ -10,18 +10,18 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28860** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22239** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17550** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16617** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15441** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10289** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
-| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9493** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
-| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5420** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
-| [`dotnet/docs`](https://github.com/dotnet/docs) | **4776** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28864** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22258** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17564** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16623** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15456** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10300** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
+| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9491** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
+| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5419** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
+| [`dotnet/docs`](https://github.com/dotnet/docs) | **4778** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3678** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
-| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3183** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
-| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3112** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
+| [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3185** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
+| [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3113** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | [`duffn/dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | **3024** | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
 | [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1839** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
 | [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1370** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
