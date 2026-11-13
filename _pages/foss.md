@@ -10,13 +10,13 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28879** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22431** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17702** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16679** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15566** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10336** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
-| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9493** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28883** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22455** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17715** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16683** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15589** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10347** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
+| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9492** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
 | [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5423** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
 | [`dotnet/docs`](https://github.com/dotnet/docs) | **4779** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3680** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
@@ -35,7 +35,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`wazuh/wazuh-packages`](https://github.com/wazuh/wazuh-packages) | **117** | 3 | [#1775](https://github.com/wazuh/wazuh-packages/pull/1775) merged 2022-09-23 |
 | [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **111** | 7 | [#72](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/72) merged 2026-11-07 |
 | [`schorschii/LAPS4LINUX`](https://github.com/schorschii/LAPS4LINUX) | **100** | 2 | [#66](https://github.com/schorschii/LAPS4LINUX/pull/66) merged 2026-11-02 |
-| [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **59** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
+| [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **58** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **52** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
 | [`wazuh/integrations`](https://github.com/wazuh/integrations) | **29** | 1 | [#114](https://github.com/wazuh/integrations/pull/114) merged 2026-09-10 |
 | [`kunai-project/gene-rs`](https://github.com/kunai-project/gene-rs) | **6** | 2 | [#30](https://github.com/kunai-project/gene-rs/pull/30) merged 2026-10-09 |
