@@ -26,7 +26,8 @@ The example below targets Wazuh v4.14.10 and uses placeholder IDs from the [cust
 
 ## tl;dr
 
-To make rule C fire when rule A matched earlier and rule B matches now, write C as a child of B that searches retained history for A. C is a rule match on B's event, not a third incoming event.
+In Wazuh, you can detect events occurring in a specific order. For example, an event triggers rule A, followed by another event triggering rule B. You can then use rule C to detect this sequence and generate an alert.
+To accomplish this, write C as a child of B that searches retained history for A. C is a rule match on B's event, not a third incoming event.
 
 ```xml
 <!-- C: fires when B matches now and A matched within the last 60 seconds -->
