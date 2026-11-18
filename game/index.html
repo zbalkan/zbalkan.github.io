@@ -104,6 +104,10 @@
       overflow: hidden
     }
 
+    #gameApp:not(.started) {
+      display: none !important
+    }
+
     .obj-bar {
       display: flex;
       align-items: center;
@@ -226,7 +230,11 @@
 
     .locked {
       pointer-events: none;
-      position: relative;
+      position: relative
+    }
+
+    .card.locked,
+    button.locked {
       border-style: dashed
     }
 
@@ -1049,7 +1057,167 @@
       }
     }
 
-    /* Compact landscape layout for phone heights */
+    /* Operations Pulse: blocking decision under time pressure */
+    .pulse-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5vh 2.5vw;
+      background: rgba(17, 24, 39, .8)
+    }
+
+    .pulse-overlay.hidden {
+      display: none
+    }
+
+    .pulse {
+      width: 100%;
+      max-width: 1100px;
+      height: 100%;
+      max-height: 760px;
+      background: var(--bg);
+      border: 3px solid var(--red);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: auto;
+      box-shadow: 0 0 0 6px rgba(185, 28, 28, .25)
+    }
+
+    .pulse-head {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .pulse-kicker {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--red)
+    }
+
+    .pulse .event-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border: 1px solid var(--purple);
+      border-radius: 10px
+    }
+
+    .pulse-timer {
+      margin-left: auto;
+      font-size: 30px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text)
+    }
+
+    .pulse-timer.urgent {
+      color: var(--red)
+    }
+
+    .pulse-track {
+      height: 10px;
+      background: var(--border-lt);
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .pulse-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--amber);
+      transition: width .2s linear
+    }
+
+    .pulse-fill.urgent {
+      background: var(--red)
+    }
+
+    .pulse-live {
+      font-size: 13px;
+      color: var(--dim)
+    }
+
+    .pulse-live b {
+      color: var(--text);
+      font-variant-numeric: tabular-nums
+    }
+
+    .pulse .event-title {
+      font-size: 26px;
+      margin: 4px 0 0
+    }
+
+    .pulse .event-body {
+      font-size: 16px;
+      color: var(--dim);
+      line-height: 1.5;
+      margin: 0;
+      max-width: 70ch
+    }
+
+    .pulse .event-choices {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px
+    }
+
+    .pulse .event-choices button {
+      font-size: 15px;
+      padding: 16px 18px;
+      min-height: 64px;
+      text-align: left;
+      border-width: 2px;
+      margin: 0
+    }
+
+    .pulse-default {
+      font-size: 12.5px;
+      color: var(--red);
+      font-weight: 600
+    }
+
+    @keyframes pulseAlarm {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 6px rgba(185, 28, 28, .25)
+      }
+
+      50% {
+        box-shadow: 0 0 0 16px rgba(185, 28, 28, .5)
+      }
+    }
+
+    .pulse.urgent {
+      animation: pulseAlarm 1s ease-in-out infinite
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .pulse.urgent {
+        animation: none
+      }
+
+      .pulse-fill {
+        transition: none
+      }
+    }
+
+    /* Mobile section rail (desktop: hidden) */
+    .mtabs {
+      display: none
+    }
+
+    /* Compact landscape layout for phone heights: one section at a time */
     @media (pointer:coarse) and (orientation:landscape) and (max-height:540px) {
       html {
         font-size: 12px
@@ -1059,33 +1227,57 @@
         padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left)
       }
 
+      #gameApp.started {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        grid-template-rows: auto auto auto minmax(0, 1fr)
+      }
+
+      .obj-bar,
+      .sla-bar,
+      .dashboard {
+        grid-column: 1/-1
+      }
+
+      /* Header: essentials only */
       .progress-strip,
       .obj-label,
+      .obj-text,
       .dash-card-sub,
       .dash-group-title,
       .dash-meter {
         display: none
       }
 
-      .obj-bar {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding: 2px 8px;
-        gap: 8px
+      .stat-pills span:nth-child(2),
+      .stat-pills span:nth-child(3),
+      .stat-pills span:nth-child(6),
+      .stat-pills span:nth-child(7) {
+        display: none
       }
 
-      .obj-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-width: 140px;
-        max-width: 32vw;
-        font-size: 11px
+      #sp2,
+      #sp8,
+      #spDay {
+        display: none
+      }
+
+      .obj-bar {
+        flex-wrap: nowrap;
+        padding: 2px 8px;
+        gap: 10px
       }
 
       .stat-pills {
         flex-wrap: nowrap;
-        white-space: nowrap
+        white-space: nowrap;
+        font-size: 12px
+      }
+
+      .speed-controls button {
+        min-height: 30px;
+        min-width: 34px;
+        margin: 0
       }
 
       .sla-bar {
@@ -1095,77 +1287,160 @@
         font-size: 10.5px
       }
 
-      .progress-strip {
-        padding: 3px 8px
-      }
-
-      .progress-head {
-        margin-bottom: 2px
-      }
-
+      /* Dashboard: five decision-critical numbers */
       .dashboard {
         display: flex;
-        overflow-x: auto;
         padding: 3px 8px;
         gap: 6px
       }
 
       .dash-group {
-        flex: 0 0 auto;
-        padding: 2px;
-        border: none
+        display: contents
       }
 
       .dash-group-cards {
-        display: flex;
-        gap: 6px
+        display: contents
       }
 
       .dash-card {
-        min-width: 86px;
+        display: none;
+        flex: 1;
+        min-width: 0;
         padding: 2px 6px
       }
 
-      .dash-card-wide {
-        grid-column: auto
+      #cardQueue,
+      #cardTD,
+      #cardFat,
+      #cardDet,
+      #cardMis {
+        display: block
       }
 
       .dash-card-metric {
-        font-size: 13px
+        font-size: 14px
       }
 
       .dash-card-label {
         margin-top: 0;
         font-size: 9.5px;
-        white-space: nowrap
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
       }
 
-      .cols {
-        overflow-x: auto;
-        scroll-snap-type: x mandatory
+      /* Section rail */
+      .mtabs {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        grid-column: 1;
+        grid-row: 4;
+        padding: 6px 4px;
+        border-right: 1px solid var(--border);
+        background: var(--surface);
+        overflow-y: auto
       }
 
-      .col {
-        flex: 0 0 50%;
-        width: auto;
-        min-width: 0;
-        scroll-snap-align: start;
-        padding: 8px
+      .mtabs button {
+        position: relative;
+        margin: 0;
+        min-height: 44px;
+        padding: 4px 2px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--dim)
+      }
+
+      .mtabs button.active {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff
+      }
+
+      .mt-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        min-width: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: var(--red);
+        color: #fff;
+        font-size: 9.5px;
+        line-height: 16px
+      }
+
+      .mt-badge:empty {
+        display: none
+      }
+
+      .cols,
+      .bottom {
+        grid-column: 2;
+        grid-row: 4;
+        min-height: 0
       }
 
       .bottom {
-        min-height: 0;
-        max-height: 18dvh
+        max-height: none;
+        border-top: none
+      }
+
+      #gameApp:not([data-mtab=log]) .bottom {
+        display: none
+      }
+
+      #gameApp[data-mtab=log] .cols {
+        display: none
+      }
+
+      .cols .col {
+        display: none;
+        flex: 1;
+        width: auto;
+        border-right: none;
+        padding: 8px;
+        gap: 8px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        align-content: start
+      }
+
+      .cols .col .card {
+        margin: 0
+      }
+
+      #gameApp[data-mtab=ops] .col-l,
+      #gameApp[data-mtab=research] .col-l,
+      #gameApp[data-mtab=data] .col-m,
+      #gameApp[data-mtab=intel] .col-r {
+        display: grid
+      }
+
+      #gameApp[data-mtab=ops] .col-l .m-research {
+        display: none
+      }
+
+      #gameApp[data-mtab=research] .col-l>:not(.m-research) {
+        display: none
+      }
+
+      #gameApp[data-mtab=research] .col-l {
+        grid-template-columns: 1fr
+      }
+
+      #projL {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 6px
+      }
+
+      #projL .proj {
+        margin: 0
       }
 
       button {
         min-height: 32px
-      }
-
-      .speed-controls button {
-        min-height: 30px;
-        min-width: 34px;
-        margin: 0
       }
 
       .src-row button {
@@ -1191,6 +1466,43 @@
         position: sticky;
         bottom: 0;
         box-shadow: 0 -8px 12px #fff
+      }
+
+      /* Pulse fills the phone screen */
+      .pulse-overlay {
+        padding: 8px
+      }
+
+      .pulse {
+        max-height: none;
+        padding: 12px 16px;
+        gap: 6px
+      }
+
+      .pulse .event-title {
+        font-size: 18px
+      }
+
+      .pulse .event-body {
+        font-size: 13px
+      }
+
+      .pulse-timer {
+        font-size: 22px
+      }
+
+      .pulse-live {
+        font-size: 11.5px
+      }
+
+      .pulse .event-choices {
+        gap: 8px
+      }
+
+      .pulse .event-choices button {
+        min-height: 48px;
+        font-size: 13px;
+        padding: 10px 12px
       }
     }
 
@@ -1254,7 +1566,27 @@
     </div>
   </div>
 
-  <div class="app" style="display:none" id="gameApp">
+  <!-- Operations Pulse: timed, blocking decision -->
+  <div class="pulse-overlay hidden" id="cOpsEvent" role="alertdialog" aria-modal="true" aria-labelledby="eventTitle"
+    aria-describedby="eventBody">
+    <div class="pulse" id="pulseBox">
+      <div class="pulse-head">
+        <span class="pulse-kicker">Operations Pulse</span>
+        <span class="event-tag" id="eventTag">Decision</span>
+        <span class="pulse-timer" id="eventTimer" aria-live="off">20s</span>
+      </div>
+      <div class="pulse-track">
+        <div class="pulse-fill" id="eventTimerFill"></div>
+      </div>
+      <div class="pulse-live" id="eventLive"></div>
+      <div class="event-title" id="eventTitle">—</div>
+      <div class="event-body" id="eventBody">—</div>
+      <div class="event-choices" id="eventChoices"></div>
+      <div class="pulse-default" id="eventDefault"></div>
+    </div>
+  </div>
+
+  <div class="app" id="gameApp" data-mtab="ops">
 
     <div class="obj-bar">
       <span class="phase-badge" id="phaseBadge">Phase 1</span>
@@ -1465,12 +1797,6 @@
           <button id="btnTri10" onclick="G.manualTriageBatch()" style="width:100%">Triage 10</button>
           <div class="btn-hint">Manual triage is emergency work. Analysts auto-triage over time.</div>
         </div>
-        <div class="card hidden" id="cOpsEvent">
-          <div class="card-t"><span>Operations Pulse</span><span class="event-tag" id="eventTag">Decision</span></div>
-          <div class="event-title" id="eventTitle">—</div>
-          <div class="event-body" id="eventBody">—</div>
-          <div class="event-choices" id="eventChoices"></div>
-        </div>
         <div class="card">
           <div class="card-t">Staff</div>
           <div class="row"><span class="l">Junior Analysts</span><span class="v" id="vJr">0</span></div>
@@ -1498,7 +1824,7 @@
               Engineer Staffing</span>
           </div>
         </div>
-        <div class="card">
+        <div class="card m-research">
           <div class="card-t"><span>Research</span><span id="projCount"></span></div>
           <div id="projL"></div>
         </div>
@@ -1622,6 +1948,14 @@
         </div>
       </div>
     </div>
+    <nav class="mtabs" id="mTabs" aria-label="Sections">
+      <button class="active" data-tab="ops" onclick="setMobileTab('ops')">Ops</button>
+      <button data-tab="research" onclick="setMobileTab('research')">Research<span class="mt-badge"
+          id="mtResearch"></span></button>
+      <button data-tab="data" onclick="setMobileTab('data')">Data</button>
+      <button data-tab="intel" onclick="setMobileTab('intel')">Intel</button>
+      <button data-tab="log" onclick="setMobileTab('log')">Log</button>
+    </nav>
   </div>
 
   <script>
@@ -1669,6 +2003,11 @@
     const OPS_EVENT_FIRST_DAY = 2;
     const OPS_EVENT_INTERVAL_MIN = 4;
     const OPS_EVENT_INTERVAL_MAX = 8;
+    // Pulse decisions are timed in wall-clock seconds so they stay stressful at any game speed.
+    // The clock freezes only while the layout forces a pause (portrait / left fullscreen) or the tab is hidden.
+    const OPS_EVENT_DECISION_SECONDS = 20;
+    const OPS_EVENT_URGENT_SECONDS = 6;
+    const OPS_EVENT_TIMEOUT_REP_PENALTY = 2;
     const FAST_FORWARD_MAX_TICKS = TPD * 5;
     const DETECTION_BONUS_BASE = 180;
     const DETECTION_BONUS_PER_SEVERITY = 90;
@@ -2086,7 +2425,7 @@
     // iPhone Safari supports neither; the CSS rotate gate is the only enforcement there.
     const isTouch = () => matchMedia('(hover:none) and (pointer:coarse)').matches;
     const portraitMQ = matchMedia('(pointer:coarse) and (orientation:portrait)');
-    let lastPace = 1;
+    let lastPace = 1, layoutPaused = false;
     function enterImmersive() {
       if (!isTouch()) return;
       const el = document.documentElement;
@@ -2099,11 +2438,11 @@
           .catch(e => console.info('Immersive mode unavailable:', e && e.name));
       } catch (e) { console.info('Immersive mode unavailable:', e && e.name) }
     }
-    function pauseForLayout() { if (PACE > 0) lastPace = PACE; setSpeed(0) }
+    function pauseForLayout() { if (PACE > 0) lastPace = PACE; layoutPaused = true; setSpeed(0) }
     function resumeImmersive() {
       $('fsResume').classList.remove('show');
       enterImmersive();
-      if (gameRunning && !gameOver && !portraitMQ.matches) setSpeed(lastPace || 1);
+      if (gameRunning && !gameOver && !portraitMQ.matches) { layoutPaused = false; setSpeed(lastPace || 1) }
     }
     function onFullscreenChange() {
       if (!isTouch() || !gameRunning || gameOver) return;
@@ -2116,15 +2455,20 @@
     portraitMQ.addEventListener('change', e => {
       if (!gameRunning || gameOver) return;
       if (e.matches) pauseForLayout();
-      else if (!$('fsResume').classList.contains('show')) setSpeed(lastPace || 1);
+      else if (!$('fsResume').classList.contains('show')) { layoutPaused = false; setSpeed(lastPace || 1) }
     });
 
+    function setMobileTab(tab) {
+      const app = $('gameApp'); app.dataset.mtab = tab;
+      document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.cols .col').forEach(c => { c.scrollTop = 0 });
+    }
     function startGame() {
       enterImmersive(); // must run synchronously inside the tap handler
       if (gameRunning) return;
       try { validateStaticData(); validateDom() } catch (err) { failSoft(err, 'Startup validation failed'); return }
       $('introModal').classList.add('hidden');
-      $('gameApp').style.display = 'flex';
+      $('gameApp').classList.add('started');
       gameRunning = true;
       lg('FATIGUE — a SIEM economics simulator', 'p');
       lg('Enable sources, hire analysts, and use Operations Pulse decisions to keep the SOC moving.', 'i');
@@ -2178,9 +2522,9 @@
     function scheduleNextOpsEvent() {
       s.nextOpsEventDay = s.day + OPS_EVENT_INTERVAL_MIN + Math.floor(rnd() * (OPS_EVENT_INTERVAL_MAX - OPS_EVENT_INTERVAL_MIN + 1));
     }
-    function makeEvent(id, title, body, choices, tag = 'Decision') {
+    function makeEvent(id, title, body, choices, tag = 'Decision', timeout = { fn: 'eventDismiss', label: 'No change' }) {
       s.eventSeq++;
-      s.pendingEvent = { id, title, body, choices, tag, seq: s.eventSeq };
+      s.pendingEvent = { id, title, body, choices, tag, timeout, seq: s.eventSeq, remainingMs: OPS_EVENT_DECISION_SECONDS * 1000 };
       lg('Operations pulse: ' + title, 'p');
     }
     function maybeCreateOpsEvent() {
@@ -2196,7 +2540,8 @@
             { label: 'Request bridge funding (+ƒ700, −5 rep)', fn: 'budgetBridge' },
             { label: 'Hold scope and accept delay', fn: 'eventDismiss' }
           ],
-          'Finance'
+          'Finance',
+          { fn: 'eventDismiss', label: 'no bridge funding, scope held' }
         ));
       }
 
@@ -2209,7 +2554,8 @@
             { label: 'Focused triage sprint (clear up to 30 alerts, +4 fatigue)', fn: 'triageSprint' },
             { label: 'Suppress noisy pattern (ƒ80, queue −15%, future noise↓)', fn: 'quickSuppress' }
           ],
-          'Workload'
+          'Workload',
+          { fn: 'acceptBacklogRisk', label: 'backlog grows (+8 queue, +3 fatigue)' }
         ));
       }
 
@@ -2222,7 +2568,8 @@
             { label: 'Patch parser now (ƒ120, parser health +12)', fn: 'patchParser' },
             { label: 'Accept drift for now (parser health −6)', fn: 'acceptParserRisk' }
           ],
-          'Pipeline'
+          'Pipeline',
+          { fn: 'acceptParserRisk', label: 'parser drift accepted (parser health −6)' }
         ));
       }
 
@@ -2235,7 +2582,8 @@
             { label: 'Run validation drill (ƒ100, possible detection)', fn: 'runCoverageDrill' },
             { label: 'Skip drill and keep operating', fn: 'eventDismiss' }
           ],
-          'Detection'
+          'Detection',
+          { fn: 'eventDismiss', label: 'drill skipped' }
         ));
       }
 
@@ -2248,7 +2596,8 @@
             { label: 'Authorize temporary contractor (+15 auto-triage today, ƒ120)', fn: 'contractorTriage' },
             { label: 'Accept backlog risk', fn: 'acceptBacklogRisk' }
           ],
-          'Staffing'
+          'Staffing',
+          { fn: 'acceptBacklogRisk', label: 'backlog grows (+8 queue, +3 fatigue)' }
         ));
       }
 
@@ -2261,12 +2610,38 @@
             { label: 'Show operational evidence (+rep if detections, +ƒ if triage)', fn: 'stakeholderEvidence' },
             { label: 'No update yet', fn: 'eventDismiss' }
           ],
-          'Review'
+          'Review',
+          { fn: 'eventDismiss', label: 'no update given' }
         ));
       }
 
       options[Math.floor(rnd() * options.length)]();
       scheduleNextOpsEvent();
+    }
+    function eventTimeout() {
+      const e = s.pendingEvent; if (!e) return;
+      s.rep = Math.max(0, s.rep - OPS_EVENT_TIMEOUT_REP_PENALTY);
+      lg('No decision in time on "' + e.title + '": ' + e.timeout.label + ', reputation −' + OPS_EVENT_TIMEOUT_REP_PENALTY + '.', 'b');
+      eventChoice(e.timeout.fn);
+    }
+    let pulseLast = performance.now();
+    function pulseCountdown() {
+      const now = performance.now(), dt = now - pulseLast; pulseLast = now;
+      const e = s.pendingEvent;
+      if (!e || !gameRunning || gameOver || layoutPaused || document.hidden) return;
+      e.remainingMs = Math.max(0, e.remainingMs - dt);
+      renderPulseTimer();
+      if (e.remainingMs <= 0) eventTimeout();
+    }
+    setInterval(pulseCountdown, 200);
+    function renderPulseTimer() {
+      const e = s.pendingEvent; if (!e) return;
+      const secs = Math.ceil(e.remainingMs / 1000), urgent = secs <= OPS_EVENT_URGENT_SECONDS;
+      $('eventTimer').textContent = secs + 's';
+      $('eventTimer').classList.toggle('urgent', urgent);
+      $('eventTimerFill').style.width = (e.remainingMs / (OPS_EVENT_DECISION_SECONDS * 10)) + '%';
+      $('eventTimerFill').classList.toggle('urgent', urgent);
+      $('pulseBox').classList.toggle('urgent', urgent);
     }
     function clearOpsEvent() {
       s.pendingEvent = null;
@@ -2292,6 +2667,8 @@
       if (s.det % 3 === 0) lg('Recurring support increased: +' + M(100) + '/mo after repeated detections.', 'g');
     }
     function eventChoice(fn) {
+      const pe = s.pendingEvent;
+      if (!pe || !(pe.choices.some(c => c.fn === fn) || (pe.timeout && pe.timeout.fn === fn))) return;
       const map = {
         budgetBridge() { s.bud += 700; s.rep = Math.max(0, s.rep - 5); lg('Bridge funding approved: +' + M(700) + ', reputation −5.', 'g') },
         triageSprint() { const done = triageAlerts(Math.min(30, s.q), 'auto'); s.fat = Math.min(100, s.fat + 4); lg('Focused triage sprint cleared ' + done + ' alerts, but pressure increased fatigue.', 'i') },
@@ -2523,6 +2900,7 @@
 
     function endGame(reason) {
       gameOver = true; gameRunning = false;
+      $('cOpsEvent').classList.add('hidden'); $('gameApp').inert = false;
       if (tickInterval) { clearInterval(tickInterval); tickInterval = null }
       $('goReason').textContent = reason;
       $('goStats').innerHTML = `Day ${s.day} · Month ${s.mo}<br>Detected: ${s.det} · Missed: ${s.mis} · Breaches: ${s.br}<br>Alerts Triaged: ${F(s.tot)} · SLA Violations: ${s.slaViol} · Fines: ${C}${F(s.slaFines)}`;
@@ -2633,14 +3011,23 @@
 
     // --- UI (dirty-checked source rendering) ---
     function renderOpsEvent() {
-      const card = $('cOpsEvent');
-      if (!s.pendingEvent) { card.classList.add('hidden'); return }
-      const e = s.pendingEvent;
-      card.classList.remove('hidden');
-      $('eventTag').textContent = e.tag || 'Decision';
-      $('eventTitle').textContent = e.title;
-      $('eventBody').textContent = e.body;
-      $('eventChoices').innerHTML = e.choices.map(c => '<button onclick="G.eventChoice(\'' + c.fn + '\')">' + c.label + '</button>').join('');
+      const ov = $('cOpsEvent'), app = $('gameApp'), e = s.pendingEvent;
+      if (!e || gameOver) {
+        if (!ov.classList.contains('hidden')) { ov.classList.add('hidden'); app.inert = false; ov.dataset.seq = '' }
+        return;
+      }
+      if (ov.dataset.seq !== String(e.seq)) {
+        ov.dataset.seq = String(e.seq);
+        $('eventTag').textContent = e.tag || 'Decision';
+        $('eventTitle').textContent = e.title;
+        $('eventBody').textContent = e.body;
+        $('eventChoices').innerHTML = e.choices.map(c => '<button onclick="G.eventChoice(\'' + c.fn + '\')">' + c.label + '</button>').join('');
+        $('eventDefault').textContent = 'No decision in ' + OPS_EVENT_DECISION_SECONDS + 's: ' + e.timeout.label + ', reputation −' + OPS_EVENT_TIMEOUT_REP_PENALTY + '.';
+        ov.classList.remove('hidden'); app.inert = true;
+        const first = $('eventChoices').querySelector('button'); if (first) first.focus({ preventScroll: true });
+      }
+      $('eventLive').innerHTML = 'While you decide, the SOC keeps running — Queue <b>' + F(s.q) + '</b> · Fatigue <b>' + s.fat.toFixed(0) + '</b> · Funds <b>' + M(s.bud) + '</b> · Rep <b>' + s.rep + '</b> · Day <b>' + s.day + '</b> ' + simulatedClock();
+      renderPulseTimer();
     }
 
     function updateUI() {
@@ -2853,7 +3240,7 @@
         if (p.ph > phase) return; const d = s.done.has(p.id), a = !d && p.r(), c = s.bud >= p.c; if (a && c) av++;
         const cls = d ? 'proj done' : 'proj';
         h += '<div class="' + cls + '"><div class="pn">' + (d ? '&#10003; ' : '') + p.n + '</div><div class="pd">' + p.d + '</div><div class="pm"><span class="pc">' + C + F(p.c) + '</span>' + (d ? '<span class="ps">Done</span>' : '<button onclick="G.buyProject(\'' + p.id + '\')" ' + (a && c ? '' : 'disabled') + ' style="' + (a && c ? '' : 'filter:grayscale(1)') + '">' + (a && c ? 'Go' : '—') + '</button>') + '</div></div>';
-      }); setH('projL', h); $('projCount').textContent = av > 0 ? av + ' available' : '';
+      }); setH('projL', h); $('projCount').textContent = av > 0 ? av + ' available' : ''; $('mtResearch').textContent = av > 0 ? av : '';
     }
     window.Fatigue = { state: () => s, pace: () => PACE, startGame, setSpeed, gameTick: safeGameTick, actions: G, expectedAlertsPerDay, alertRatioTarget };
     window.G = G; window.startGame = startGame; window.setSpeed = setSpeed;
