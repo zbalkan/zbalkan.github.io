@@ -908,6 +908,36 @@
       font-weight: 600
     }
 
+    .speed-pick {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px
+    }
+
+    .speed-pick button {
+      margin: 0;
+      min-height: 64px;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px
+    }
+
+    .speed-pick button span {
+      font-size: 11px;
+      white-space: nowrap;
+      font-weight: 500;
+      color: var(--dim)
+    }
+
+    .speed-pick button:hover span {
+      color: inherit
+    }
+
     /* SLA bar */
     .sla-bar {
       display: flex;
@@ -1566,6 +1596,22 @@
     </div>
   </div>
 
+  <!-- Start-speed picker: the game starts paused -->
+  <div class="modal-overlay hidden" id="speedModal" role="dialog" aria-modal="true" aria-labelledby="speedTitle">
+    <div class="modal">
+      <h1 id="speedTitle" style="font-size:22px">Choose your pace</h1>
+      <p>The simulation is paused. Authentication Logs are already enabled, so alerts will start arriving as soon as
+        time runs. Pick a speed to begin — you can change it at any time from the top bar.</p>
+      <div class="speed-pick">
+        <button onclick="chooseStartSpeed(1)">1×<span>36 s/day</span></button>
+        <button onclick="chooseStartSpeed(2)">2×<span>18 s/day</span></button>
+        <button onclick="chooseStartSpeed(4)">4×<span>9 s/day</span></button>
+        <button onclick="chooseStartSpeed(8)">8×<span>5 s/day</span></button>
+        <button onclick="chooseStartSpeed(16)">16×<span>2 s/day</span></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Operations Pulse: timed, blocking decision -->
   <div class="pulse-overlay hidden" id="cOpsEvent" role="alertdialog" aria-modal="true" aria-labelledby="eventTitle"
     aria-describedby="eventBody">
@@ -2187,7 +2233,7 @@
         jr: 0, sr: 0, hu: 0, en: 0, rul: 0, rq: 50, pH: 100, suR: 0, suQ: .3,
         hyp: 0, hf: 0, retD: 90, retTB: 0, fp: .72, cl: 0, soM: 1, pdM: 1,
         fat: 0, snr: 0, nbl: 0, rulSrc: new Set(), ruleBindings: [],
-        on: new Set(), done: new Set(), day: 0, mo: 0, wk: 0,
+        on: new Set(['authentication']), done: new Set(), day: 0, mo: 0, wk: 0,
         deU: 0, huU: 0, foU: 0, coU: 0, dcU: 0, raU: 0, srU: 0, hkU: 0, enU: 0, tuU: 0,
         aA: 0, tA: 0, hA: 0, rA: 0, eAD: 0, eTD: 0, eMT: 15, aPD: 0,
         fatPrev: 0, fatVel: 0, fatVelPrev: 0, fatAcc: 0,
@@ -2370,7 +2416,7 @@
       if (projectSet.size !== projectIds.length) throw new Error('Project IDs must be unique');
     }
     function validateDom() {
-      const required = ['introModal', 'gameApp', 'gameoverOverlay', 'goReason', 'goStats', 'log', 'phaseBadge', 'objText', 'tDay', 'tHour', 'tMo', 'tBud', 'tRep', 'tMTTD', 'tMTTR', 'btnTri', 'btnTri10', 'sp8', 'sp16', 'spDay', 'srcList', 'projL', 'radarCanvas', 'diagWrap', 'cDiag', 'ratioL', 'slaBar', 'progressTitle', 'progressValue', 'progressFill', 'progressHint', 'cOpsEvent', 'eventTag', 'eventTitle', 'eventBody', 'eventChoices', 'vTot', 'dashAD', 'dashSrcN', 'dashConfigEPS', 'dashEPS', 'dashGB', 'dashParse', 'dashQueue', 'dashTD', 'dashMT', 'dashFP', 'dashSNR', 'dashFat', 'dashFatTrend', 'dashFatBar', 'dashStoredGB', 'dashStoreCost', 'dashDet', 'dashMis', 'dashBr'];
+      const required = ['introModal', 'speedModal', 'gameApp', 'gameoverOverlay', 'goReason', 'goStats', 'log', 'phaseBadge', 'objText', 'tDay', 'tHour', 'tMo', 'tBud', 'tRep', 'tMTTD', 'tMTTR', 'btnTri', 'btnTri10', 'sp8', 'sp16', 'spDay', 'srcList', 'projL', 'radarCanvas', 'diagWrap', 'cDiag', 'ratioL', 'slaBar', 'progressTitle', 'progressValue', 'progressFill', 'progressHint', 'cOpsEvent', 'eventTag', 'eventTitle', 'eventBody', 'eventChoices', 'vTot', 'dashAD', 'dashSrcN', 'dashConfigEPS', 'dashEPS', 'dashGB', 'dashParse', 'dashQueue', 'dashTD', 'dashMT', 'dashFP', 'dashSNR', 'dashFat', 'dashFatTrend', 'dashFatBar', 'dashStoredGB', 'dashStoreCost', 'dashDet', 'dashMis', 'dashBr'];
       required.forEach(id => { if (!$(id)) throw new Error('Missing required element: #' + id) });
     }
     function failSoft(err, ctx) {
@@ -2425,7 +2471,7 @@
     // iPhone Safari supports neither; the CSS rotate gate is the only enforcement there.
     const isTouch = () => matchMedia('(hover:none) and (pointer:coarse)').matches;
     const portraitMQ = matchMedia('(pointer:coarse) and (orientation:portrait)');
-    let lastPace = 1, layoutPaused = false;
+    let lastPace = 1, layoutPaused = false, awaitingSpeed = false;
     function enterImmersive() {
       if (!isTouch()) return;
       const el = document.documentElement;
@@ -2442,7 +2488,7 @@
     function resumeImmersive() {
       $('fsResume').classList.remove('show');
       enterImmersive();
-      if (gameRunning && !gameOver && !portraitMQ.matches) { layoutPaused = false; setSpeed(lastPace || 1) }
+      if (gameRunning && !gameOver && !portraitMQ.matches) { layoutPaused = false; if (!awaitingSpeed) setSpeed(lastPace || 1) }
     }
     function onFullscreenChange() {
       if (!isTouch() || !gameRunning || gameOver) return;
@@ -2453,11 +2499,18 @@
     document.addEventListener('fullscreenchange', onFullscreenChange);
     document.addEventListener('webkitfullscreenchange', onFullscreenChange);
     portraitMQ.addEventListener('change', e => {
-      if (!gameRunning || gameOver) return;
+      if (!gameRunning || gameOver || awaitingSpeed) return;
       if (e.matches) pauseForLayout();
       else if (!$('fsResume').classList.contains('show')) { layoutPaused = false; setSpeed(lastPace || 1) }
     });
 
+    function chooseStartSpeed(sp) {
+      if (!awaitingSpeed) return;
+      awaitingSpeed = false;
+      $('speedModal').classList.add('hidden'); $('gameApp').inert = false;
+      lg('Simulation started at ' + sp + '×.', 'i');
+      if (portraitMQ.matches) { lastPace = sp; pauseForLayout() } else setSpeed(sp);
+    }
     function setMobileTab(tab) {
       const app = $('gameApp'); app.dataset.mtab = tab;
       document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -2472,8 +2525,10 @@
       gameRunning = true;
       lg('FATIGUE — a SIEM economics simulator', 'p');
       lg('Enable sources, hire analysts, and use Operations Pulse decisions to keep the SOC moving.', 'i');
-      setSpeed(PACE);
-      if (portraitMQ.matches) pauseForLayout();
+      lg('Authentication Logs enabled by default.', 'g');
+      setSpeed(0); // start paused until the player picks a pace
+      awaitingSpeed = true; $('gameApp').inert = true; $('speedModal').classList.remove('hidden');
+      const firstSpeed = $('speedModal').querySelector('button'); if (firstSpeed) firstSpeed.focus({ preventScroll: true });
     }
 
     function effectiveFpRate() { return Math.min(.95, s.fp + s.fat * .002) }
