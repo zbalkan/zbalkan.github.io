@@ -221,9 +221,9 @@ I ran the article's claims through that workspace with a small demo decoder and 
     ("logs", "expected"),
     [
         pytest.param([success()], [RULE_B], id="B without a prior A"),
-        pytest.param([suspicious(), success()], [RULE_A, RULE_C], id="A then B"),
+        pytest.param([suspicious(), success()], [RULE_A, RULE_C], id="A then B, same srcip"),
         pytest.param([success(), suspicious()], [RULE_B, RULE_A], id="B then A"),
-        pytest.param([suspicious(), success(OTHER_IP)], [RULE_A, RULE_B], id="different srcip"),
+        pytest.param([suspicious(), success(OTHER_IP)], [RULE_A, RULE_B], id="A then B, different srcip"),
         pytest.param([suspicious(), success(), success()], [RULE_A, RULE_C, RULE_C], id="A then B then B"),
     ],
 )
