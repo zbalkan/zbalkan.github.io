@@ -9,7 +9,7 @@ tags:
   - Correlation
 header:
   image: /assets/images/sequential-wazuhdevenv.png
-  caption: "VS Code triggered from the wazuhdevenv folder my-wazuh-rules"
+  caption: "VS Code opened in the `my-wazuh-rules` wazuhdevenv workspace"
 galleryResults:
   - url: /assets/images/sequential-results.png
     image_path: /assets/images/sequential-results.png
