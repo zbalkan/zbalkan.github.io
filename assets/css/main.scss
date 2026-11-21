@@ -327,6 +327,33 @@ table, th, td, blockquote, hr {
 .greedy-nav a:hover, .masthead__menu-item a:hover, .toc__menu a:hover {
   color: var(--site-link);
 }
+/* Mobile navigation follows the selected colour theme. */
+.greedy-nav .hidden-links {
+  background: var(--site-surface);
+  border-color: var(--site-border);
+}
+.greedy-nav .hidden-links li { border-bottom-color: var(--site-border); }
+.greedy-nav .hidden-links::before {
+  border-color: var(--site-border) transparent;
+}
+.greedy-nav .hidden-links::after {
+  border-color: var(--site-surface) transparent;
+}
+.greedy-nav .hidden-links a:hover,
+.greedy-nav .hidden-links a:focus-visible {
+  color: var(--site-text);
+  background: var(--site-bg);
+}
+.greedy-nav__toggle::before { background-color: var(--site-bg); }
+.greedy-nav .greedy-nav__toggle { color: var(--site-text); }
+.greedy-nav .greedy-nav__toggle:hover { color: var(--site-link); }
+.greedy-nav .greedy-nav__toggle .navicon,
+.greedy-nav .greedy-nav__toggle .navicon::before,
+.greedy-nav .greedy-nav__toggle .navicon::after {
+  background-color: currentColor;
+}
+.greedy-nav .greedy-nav__toggle.close .navicon { background: transparent; }
+
 #main { max-width: 1180px; }
 .page { float: none; width: 100%; padding-inline: 0; }
 .page__inner-wrap { max-width: 76ch; margin-inline: auto; }
