@@ -10,6 +10,14 @@ tags:
 last_modified_at: 2026-09-26
 ---
 
+<div class="notice--info" markdown="1">
+**Understanding Wazuh rules** is a three-part series on Wazuh 4.x rules:
+
+1. [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/): rules as building blocks connected through explicit relationships rather than independent filters.
+2. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/): rule metadata, and conditions split into atomic and temporal by the state needed to evaluate them.
+3. [Part III: sequential correlation](https://zaferbalkan.com/wazuh-rules-sequential/): an A-then-B correlation in a single rule, combining `if_matched_sid` for history with `if_sid` for the current event.
+</div>
+
 When I wrote [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/) last year, I deliberately skipped part of the rule syntax. That article was about how rules relate to each other: `if_sid`, `if_group`, `if_matched_sid`, and `if_matched_group`, and the parent-child relationships they create. It argued that a [Wazuh](https://wazuh.com/?utm_source=ambassadors&utm_medium=referral&utm_campaign=ambassadors+program) ruleset is easier to understand as a graph than as a flat collection of independent rules. I briefly mentioned the conditions that inspect individual events, then left them aside because they were not the subject of the article.
 
 This time, I want to go back to that missing part. Instead of asking where a rule sits in the ruleset, I want to ask what a single rule contains once you open it, and how the same structure tells you what to write when the rule does not exist yet.
