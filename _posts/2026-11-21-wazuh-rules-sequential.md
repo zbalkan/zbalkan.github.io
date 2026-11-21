@@ -28,6 +28,17 @@ The example below targets Wazuh v4.14.10 and uses placeholder IDs from the [cust
 
 In Wazuh 4.x, a single rule can detect two events in a specific order: an event that matches rule A, followed by one that matches rule B. To do this, write rule C as a child of B that searches retained history for A. C is a rule match on B's event, not a third incoming event.
 
+```mermaid
+timeline
+    title Sequential correlation
+    t0 : An event matches rule A
+       : A is stored in retained history
+    t1, within 60 s of t0 : Another event matches rule B
+       : Child rule C is evaluated on that event via if_sid
+       : C finds the first eligible A in history via if_matched_sid
+       : Rule C matches, subject to output controls
+```
+
 ```xml
 <!-- C: fires when B matches now and A matched within the last 60 seconds -->
 <rule id="100575" level="12" timeframe="60">
@@ -93,17 +104,6 @@ When a current event matches B and descends into C, B is part of the same event'
 ## One current event, one earlier event
 
 Think of the intended sequence as A → B → C. An earlier event matches rule A and a later event matches rule B. Rule C is then evaluated as a child of rule B and checks retained history for a qualifying match of rule A. C is the correlation decision taken on B's event.
-
-```mermaid
-timeline
-    title Sequential correlation
-    t0 : An event matches rule A
-       : A is stored in retained history
-    t1, within 60 s of t0 : Another event matches rule B
-       : Child rule C is evaluated on that event via if_sid
-       : Search_LastSids returns the first eligible A via if_matched_sid
-       : Rule C matches, subject to output controls
-```
 
 `<if_sid>` places rule C under rule B, the current-event parent, in Wazuh's accepted rule-occurrence tree, without requiring that rule B fired previously. `<if_matched_sid>` instead directs the engine to search its retained historical matches for rule A. Wazuh's loader [wires that historical condition](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/rules.c#L1965-L1971) to `Search_LastSids()` in `analysisd`.
 
