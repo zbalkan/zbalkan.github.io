@@ -16,6 +16,14 @@ galleryResults:
 
 ---
 
+<div class="notice--info" markdown="1">
+**Understanding Wazuh rules** is a three-part series on Wazuh 4.x rules:
+
+1. [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/): rules as building blocks connected through explicit relationships rather than independent filters.
+2. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/): rule metadata, and conditions split into atomic and temporal by the state needed to evaluate them.
+3. [Part III: sequential correlation](https://zaferbalkan.com/wazuh-rules-sequential/): an A-then-B correlation in a single rule, combining `if_matched_sid` for history with `if_sid` for the current event.
+</div>
+
 In [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/), I described Wazuh rules as building blocks connected through explicit relationships rather than independent filters. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/) looked inside those blocks and separated their conditions into atomic and temporal, according to the state required to evaluate them. An atomic rule decides from the current event and its current rule-evaluation path; a temporal rule needs retained information from earlier events.
 
 The temporal examples focused on counting repeated matches: several failed logons, multiple Windows errors, or another threshold reached within a timeframe. But counting is not the only useful relationship between events. Sometimes the question is whether one kind of event occurred first and another kind occurred afterwards. This is sequential correlation.
