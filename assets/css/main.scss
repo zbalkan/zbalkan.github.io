@@ -394,6 +394,48 @@ table, th, td, blockquote, hr {
 }
 .greedy-nav .greedy-nav__toggle.close .navicon { background: transparent; }
 
+/* Numbered pagination uses separate, theme-aware controls. */
+.pagination ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.pagination ul li {
+  float: none;
+  margin-inline-start: 0;
+}
+.pagination ul li a,
+.pagination ul li:first-child a,
+.pagination ul li:last-child a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--site-border);
+  border-radius: 0.5rem;
+  color: var(--site-text);
+  background: var(--site-surface);
+}
+.pagination ul li a:hover,
+.pagination ul li a:focus-visible {
+  color: var(--site-link);
+  border-color: var(--site-link);
+}
+.pagination ul li a.disabled:not(.current) {
+  color: var(--site-muted);
+  background: transparent;
+  border-color: transparent;
+}
+.pagination ul li a.current,
+.pagination ul li a.current.disabled {
+  color: var(--site-bg);
+  background: var(--site-link);
+  border-color: var(--site-link);
+}
+
 #main { max-width: 1180px; }
 .page { float: none; width: 100%; padding-inline: 0; }
 .page__inner-wrap { max-width: 76ch; margin-inline: auto; }
