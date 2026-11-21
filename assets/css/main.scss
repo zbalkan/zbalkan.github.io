@@ -302,6 +302,15 @@ h2, h3, h4, h5, h6 { font-family: $sans-serif; color: var(--site-text); }
 a, a:visited { color: var(--site-link); }
 a:hover { text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 p, li, dt, dd, .page__content { color: var(--site-text); }
+
+/* Info notices retain a pale background in both colour themes. */
+.page__content .notice--info {
+  --site-text: #000000;
+  --site-link: #2455a4;
+  color: var(--site-text);
+}
+.page__content .notice--info a,
+.page__content .notice--info a:visited { color: var(--site-link); }
 .page__meta, .page__date, .page__taxonomy, .archive__item-excerpt,
 .page__footer, .sidebar, .toc__menu, .author__bio { color: var(--site-muted); }
 .masthead, .page__footer, .sidebar, .toc, .toc__menu, .pagination,
