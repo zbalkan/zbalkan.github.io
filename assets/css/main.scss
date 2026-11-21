@@ -109,9 +109,9 @@ html {
   gap: 0.2rem;
   max-width: calc(100% - 1.5rem);
   padding: 0.2rem;
-  border: 1px solid #3d444d;
+  border: 1px solid var(--site-border);
   border-radius: 0.375rem;
-  background: #212830;
+  background: var(--site-surface);
   box-shadow: 0 0.25rem 0.75rem rgba(1, 4, 9, 0.35);
   opacity: 0.82;
   transition: opacity 0.15s ease;
@@ -132,7 +132,7 @@ button.mermaid-viewer__button {
   border: 1px solid transparent;
   border-radius: 0.25rem;
   margin: 0;
-  color: #f0f6fc;
+  color: var(--site-text);
   font: inherit;
   font-size: 0.75rem;
   font-weight: 700;
@@ -144,12 +144,12 @@ button.mermaid-viewer__button {
 button.mermaid-viewer__button:hover,
 button.mermaid-viewer__button:focus-visible {
   outline: 2px solid transparent;
-  border-color: #8c959f;
-  background: #2d333b;
+  border-color: var(--site-link);
+  background: var(--site-bg);
 }
 
 button.mermaid-viewer__button:focus-visible {
-  outline-color: #1f6feb;
+  outline-color: var(--site-link);
   outline-offset: -2px;
 }
 
@@ -279,7 +279,7 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
   --code-string: #176341;
   --code-number: #a24d16;
   --code-function: #2455a4;
-  --code-comment: #627186;
+  --code-comment: #5f6e82;
   --code-inline-bg: #e9eaf0;
 }
 
@@ -315,9 +315,15 @@ h1, .page__title, .archive__item-title, .archive__subtitle {
   color: var(--site-text);
 }
 h2, h3, h4, h5, h6 { font-family: $sans-serif; color: var(--site-text); }
-a, a:visited { color: var(--site-link); }
+a, a:visited, a:hover, a:focus-visible { color: var(--site-link); }
 a:hover { text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 p, li, dt, dd, .page__content { color: var(--site-text); }
+.page__taxonomy-item { border-color: var(--site-border); }
+.page__taxonomy-item:hover,
+.page__taxonomy-item:focus-visible {
+  color: var(--site-link);
+  border-color: var(--site-link);
+}
 
 /* Theme notices retain pale backgrounds in both colour themes. */
 .page__content :is(.notice, .notice--primary, .notice--info, .notice--warning, .notice--success, .notice--danger) {
@@ -343,6 +349,17 @@ table, th, td, blockquote, hr {
 .greedy-nav a:hover, .masthead__menu-item a:hover, .toc__menu a:hover {
   color: var(--site-link);
 }
+.toc .nav__title {
+  color: var(--site-text);
+  background: var(--site-surface);
+}
+.toc__menu a { border-color: var(--site-border); }
+.toc .active a,
+.toc .active a:hover,
+.toc .active a:focus-visible {
+  color: var(--site-bg);
+  background: var(--site-link);
+}
 /* Navigation and Follow popovers share the selected colour theme. */
 .greedy-nav .hidden-links,
 .author__urls {
@@ -367,10 +384,8 @@ table, th, td, blockquote, hr {
 .author__urls a:visited { color: var(--site-text); }
 .author__urls a:hover,
 .author__urls a:focus-visible { color: var(--site-link); }
-.author__urls.social-icons .fas,
-.author__urls.social-icons .fab,
-.author__urls.social-icons .far,
-.author__urls.social-icons .fal { color: inherit; }
+.author__urls.social-icons :is(.fas, .fab, .far, .fal),
+.page__footer .social-icons :is(.fas, .fab, .far, .fal) { color: inherit; }
 .author__urls-wrapper .btn--inverse {
   color: var(--site-text);
   background: var(--site-surface);
@@ -434,6 +449,25 @@ table, th, td, blockquote, hr {
   color: var(--site-bg);
   background: var(--site-link);
   border-color: var(--site-link);
+}
+
+/* Article Previous/Next controls use the same palette as numbered pages. */
+.pagination--pager,
+.pagination--pager:visited {
+  color: var(--site-text);
+  background: var(--site-surface);
+  border-color: var(--site-border);
+}
+.pagination--pager:hover,
+.pagination--pager:focus-visible {
+  color: var(--site-bg);
+  background: var(--site-link);
+  border-color: var(--site-link);
+}
+.pagination--pager.disabled {
+  color: var(--site-muted);
+  background: transparent;
+  border-color: var(--site-border);
 }
 
 #main { max-width: 1180px; }
@@ -502,7 +536,6 @@ table, th, td, blockquote, hr {
 
 .layout--home .archive {
   float: none;
-  width: min(100%, 76ch);
   max-width: 100%;
   margin-inline: auto;
   padding-inline: 0;
@@ -637,7 +670,7 @@ table, th, td, blockquote, hr {
   color: var(--site-link);
   background: var(--site-surface);
 }
-:focus-visible { outline: 2px solid var(--site-link); outline-offset: 3px; }
+:focus-visible, a:focus-visible { outline: 2px solid var(--site-link); outline-offset: 3px; }
 @media (max-width: 768px) {
   .page__inner-wrap, .layout--home .archive { width: 100%; }
   .page__content { font-size: 1.025rem; }
@@ -672,7 +705,7 @@ table, th, td, blockquote, hr {
     --code-string: #176341;
     --code-number: #a24d16;
     --code-function: #2455a4;
-    --code-comment: #627186;
+    --code-comment: #5f6e82;
     --code-inline-bg: #f5f5f5;
   }
 }
