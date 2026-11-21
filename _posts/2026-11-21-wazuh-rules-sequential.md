@@ -26,8 +26,7 @@ The example below targets Wazuh v4.14.10 and uses placeholder IDs from the [cust
 
 ## tl;dr
 
-In Wazuh, you can detect events occurring in a specific order. For example, an event triggers rule A, followed by another event triggering rule B. You can then use rule C to detect this sequence and generate an alert.
-To accomplish this, write C as a child of B that searches retained history for A. C is a rule match on B's event, not a third incoming event.
+In Wazuh 4.x, a single rule can detect two events in a specific order: an event that matches rule A, followed by one that matches rule B. To do this, write rule C as a child of B that searches retained history for A. C is a rule match on B's event, not a third incoming event.
 
 ```xml
 <!-- C: fires when B matches now and A matched within the last 60 seconds -->
