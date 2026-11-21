@@ -204,9 +204,9 @@ div.highlighter-rouge.code-snippet::before {
   box-sizing: border-box;
   min-height: 2rem;
   padding: 0.45rem 5rem 0.4rem 0.75rem;
-  border-bottom: 1px solid rgba(127, 127, 127, 0.35);
-  color: $base04;
-  background: rgba(255, 255, 255, 0.035);
+  border-bottom: 1px solid var(--site-border);
+  color: var(--code-muted);
+  background: var(--site-surface);
   font-family: $monospace;
   font-size: 0.7em;
   font-weight: 700;
@@ -229,7 +229,7 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button {
   padding: 0.15rem 0.5rem;
   border: 1px solid transparent;
   border-radius: 0.25rem;
-  color: $base04;
+  color: var(--code-muted);
   background: transparent;
   font: inherit;
   font-size: 0.7em;
@@ -257,9 +257,9 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
 
 div.highlighter-rouge.code-snippet pre .clipboard-copy-button:hover,
 div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
-  border-color: rgba(127, 127, 127, 0.55);
-  color: $base05;
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--site-border);
+  color: var(--code-text);
+  background: var(--site-surface);
 }
 
 
@@ -273,6 +273,14 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
   --site-link: #2455a4;
   --site-border: #dce2e8;
   --site-code: #eef1f5;
+  --code-text: #273449;
+  --code-muted: #56657a;
+  --code-keyword: #7042a6;
+  --code-string: #176341;
+  --code-number: #a24d16;
+  --code-function: #2455a4;
+  --code-comment: #627186;
+  --code-inline-bg: #e9eaf0;
 }
 
 :root[data-theme="dark"] {
@@ -284,6 +292,14 @@ div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
   --site-link: #93c5fd;
   --site-border: #374151;
   --site-code: #0b1220;
+  --code-text: #e4eaf2;
+  --code-muted: #a8b6c9;
+  --code-keyword: #c6a7ff;
+  --code-string: #a3e2af;
+  --code-number: #ffc38a;
+  --code-function: #96c4ff;
+  --code-comment: #9aabc1;
+  --code-inline-bg: #253247;
 }
 
 /* Publication presentation: lightweight CSS overrides, no theme partial forks. */
@@ -303,14 +319,14 @@ a, a:visited { color: var(--site-link); }
 a:hover { text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 p, li, dt, dd, .page__content { color: var(--site-text); }
 
-/* Info notices retain a pale background in both colour themes. */
-.page__content .notice--info {
+/* Theme notices retain pale backgrounds in both colour themes. */
+.page__content :is(.notice, .notice--primary, .notice--info, .notice--warning, .notice--success, .notice--danger) {
   --site-text: #000000;
   --site-link: #2455a4;
   color: var(--site-text);
+
+  a, a:visited { color: var(--site-link); }
 }
-.page__content .notice--info a,
-.page__content .notice--info a:visited { color: var(--site-link); }
 .page__meta, .page__date, .page__taxonomy, .archive__item-excerpt,
 .page__footer, .sidebar, .toc__menu, .author__bio { color: var(--site-muted); }
 .masthead, .page__footer, .sidebar, .toc, .toc__menu, .pagination,
@@ -327,22 +343,46 @@ table, th, td, blockquote, hr {
 .greedy-nav a:hover, .masthead__menu-item a:hover, .toc__menu a:hover {
   color: var(--site-link);
 }
-/* Mobile navigation follows the selected colour theme. */
-.greedy-nav .hidden-links {
+/* Navigation and Follow popovers share the selected colour theme. */
+.greedy-nav .hidden-links,
+.author__urls {
   background: var(--site-surface);
   border-color: var(--site-border);
 }
 .greedy-nav .hidden-links li { border-bottom-color: var(--site-border); }
-.greedy-nav .hidden-links::before {
+.greedy-nav .hidden-links::before,
+.author__urls::before {
   border-color: var(--site-border) transparent;
 }
-.greedy-nav .hidden-links::after {
+.greedy-nav .hidden-links::after,
+.author__urls::after {
   border-color: var(--site-surface) transparent;
 }
 .greedy-nav .hidden-links a:hover,
 .greedy-nav .hidden-links a:focus-visible {
   color: var(--site-text);
   background: var(--site-bg);
+}
+.author__urls a,
+.author__urls a:visited { color: var(--site-text); }
+.author__urls a:hover,
+.author__urls a:focus-visible { color: var(--site-link); }
+.author__urls.social-icons .fas,
+.author__urls.social-icons .fab,
+.author__urls.social-icons .far,
+.author__urls.social-icons .fal { color: inherit; }
+.author__urls-wrapper .btn--inverse {
+  color: var(--site-text);
+  background: var(--site-surface);
+  border-color: var(--site-border);
+}
+.author__urls-wrapper .btn--inverse:hover,
+.author__urls-wrapper .btn--inverse:focus-visible {
+  color: var(--site-link);
+  background: var(--site-bg);
+}
+@include breakpoint($large) {
+  .author__urls { background: transparent; }
 }
 .greedy-nav__toggle::before { background-color: var(--site-bg); }
 .greedy-nav .greedy-nav__toggle { color: var(--site-text); }
@@ -431,27 +471,6 @@ table, th, td, blockquote, hr {
 .layout--home .archive__item-title a:hover { color: var(--site-link); }
 .layout--home .archive__item { padding-block: 0.75rem; border-bottom: 1px solid var(--site-border); }
 .layout--home .archive__item-title { font-size: 1.4rem; }
-/* Code uses independent tokens; Rouge spans must retain syntax colors. */
-:root {
-  --code-text: #273449;
-  --code-muted: #56657a;
-  --code-keyword: #7042a6;
-  --code-string: #176341;
-  --code-number: #a24d16;
-  --code-function: #2455a4;
-  --code-comment: #627186;
-  --code-inline-bg: #e9eaf0;
-}
-:root[data-theme="dark"] {
-  --code-text: #e4eaf2;
-  --code-muted: #a8b6c9;
-  --code-keyword: #c6a7ff;
-  --code-string: #a3e2af;
-  --code-number: #ffc38a;
-  --code-function: #96c4ff;
-  --code-comment: #9aabc1;
-  --code-inline-bg: #253247;
-}
 .page__content :not(pre) > code {
   background: var(--code-inline-bg);
   color: var(--code-text);
@@ -547,20 +566,6 @@ table, th, td, blockquote, hr {
 .page__content .highlight .nv,
 .page__content .highlight .no,
 .page__content .highlight .bp { color: var(--code-muted); }
-div.highlighter-rouge.code-snippet::before {
-  color: var(--code-muted);
-  background: var(--site-surface);
-  border-bottom-color: var(--site-border);
-}
-div.highlighter-rouge.code-snippet pre .clipboard-copy-button {
-  color: var(--code-muted);
-}
-div.highlighter-rouge.code-snippet pre .clipboard-copy-button:hover,
-div.highlighter-rouge.code-snippet pre .clipboard-copy-button:focus-visible {
-  color: var(--code-text);
-  background: var(--site-surface);
-  border-color: var(--site-border);
-}
 .page__content table { display: block; overflow-x: auto; font-size: 0.9rem; }
 .page__content th { background: var(--site-surface); }
 .page__content td, .page__content th { border-color: var(--site-border); }
