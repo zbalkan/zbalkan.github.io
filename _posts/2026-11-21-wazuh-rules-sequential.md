@@ -20,7 +20,7 @@ galleryResults:
 **Understanding Wazuh rules** is a three-part series on Wazuh 4.x rules:
 
 1. [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/): rules as building blocks connected through explicit relationships rather than independent filters.
-2. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/): rule metadata, and conditions split into atomic and temporal by the state needed to evaluate them.
+2. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/): rule metadata and conditions split into atomic and temporal by the state needed to evaluate them.
 3. [Part III: sequential correlation](https://zaferbalkan.com/wazuh-rules-sequential/): an A-then-B correlation in a single rule, combining `if_matched_sid` for history with `if_sid` for the current event.
 </div>
 
