@@ -6,9 +6,12 @@ tags:
   - Windows Server
   - Digital forensics
   - Community Contribution
-galleryBrag:
-  - url: /assets/images/microsoft-brag.png
-    image_path: /assets/images/microsoft-brag.png
+galleryReply:
+  - url: /assets/images/omm-tech-community-reply.png
+    image_path: /assets/images/omm-tech-community-reply.png
+gallerySchema:
+  - url: /assets/images/omm-adexplorer-schema.png
+    image_path: /assets/images/omm-adexplorer-schema.png
 ---
 
 *These are experimental observations from a single-DC lab on Windows Server Insider Preview build 29683 (schema version 93). The attribute is undocumented and planned for Windows Server 2028, so its behaviour may change before release.*
@@ -17,19 +20,15 @@ Active Directory has never been able to tell you, from the object itself, who di
 
 The attribute has a personal history for me. In November 2023 Linda Taylor and Wayne McIntyre presented [What's new in Active Directory](https://techcommunity.microsoft.com/event/WindowsEvents/whats-new-in-active-directory/3971596) at Microsoft Technical Takeoff. Both work in the Active Directory team at Microsoft, Linda as a Principal Software Engineer and Wayne as a Software Engineer. Under the session I commented that "AD desperately needs creatorsName and modifiersName attributes". [X.501](https://www.itu.int/rec/T-REC-X.501-201910-I) defines both, and [RFC 4512](https://www.rfc-editor.org/rfc/rfc4512#section-3.4) states that "servers SHOULD maintain the 'creatorsName', 'createTimestamp', 'modifiersName', and 'modifyTimestamp' attributes for all entries of the DIT." This spring Wayne told me the new attribute had come from that comment. In September I asked whether I could brag about it, and he told me to brag away.
 
-{% include gallery id="galleryBrag" caption="Bragging rights reserved." %}
-
 I am grateful to Linda, to Wayne and to the Active Directory team for picking the comment up. Credit also goes to the developers on that team who wrote the code for the feature. Besides bragging, I wanted to say thank you by testing the attribute. In a single-DC lab I made one controlled write at a time and recorded the attribute before and after each one.
 
-![Wayne McIntyre's reply confirming the feature request](/assets/images/omm-tech-community-reply.png)
-*The Tech Community reply confirming that the comment led to the feature request and that the attribute is planned for Windows Server 2028.*
+{% include gallery id="galleryReply" caption="The Tech Community reply confirming that the comment led to the feature request and that the attribute is planned for Windows Server 2028." %}
 
 ## Each object shows who changed its attributes
 
 The base schema defines `msDS-ObjectModifyMetaData` as a constructed attribute. Its `adminDescription` states the design: "A construct attribute that return the metadata that contains the SID or DSA GUID to trace of the last modification of each attributes on the object in readable format."
 
-![ADExplorer showing the ms-DS-Object-Modify-Meta-Data schema definition](/assets/images/omm-adexplorer-schema.png)
-*The schema definition in ADExplorer: constructed and part of the base schema (`systemFlags` 20, that is 0x4 plus 0x10), single-valued, Unicode string syntax, with the administrative description quoted above.*
+{% include gallery id="gallerySchema" caption="The schema definition in ADExplorer: constructed and part of the base schema (`systemFlags` 20, that is 0x4 plus 0x10), single-valued, Unicode string syntax, with the administrative description quoted above." %}
 
 The DC computes the value on each read and returns one entry per attribute, in the form `attribute: identity`. The identity is either the SID of a security principal or the GUID of a DC's NTDS Settings object, its directory service agent (DSA):
 
