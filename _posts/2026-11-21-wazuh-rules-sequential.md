@@ -7,6 +7,7 @@ tags:
   - Detection Engineering
   - Detection-as-Code
   - Correlation
+last_modified_at: 2026-11-26T00:27:00+02:00
 header:
   image: /assets/images/sequential-wazuhdevenv.png
   caption: "VS Code opened in the `my-wazuh-rules` wazuhdevenv workspace"
@@ -24,6 +25,8 @@ galleryResults:
 3. [Part III: sequential correlation](https://zaferbalkan.com/wazuh-rules-sequential/): an A-then-B correlation in a single rule, combining `if_matched_sid` for history with `if_sid` for the current event.
 
 </div>
+
+**Update – 26 November 2026:** Readers raised four points the first version missed or understated: batch-fetched sources, the rule-wide scope of `ignore`, the scope of retained history, and which rule enters it. I verified each against the v4.14.10 source and added it to the relevant section below.
 
 In [Understanding Wazuh rules](https://zaferbalkan.com/wazuh-rules/), I described Wazuh rules as building blocks connected through explicit relationships rather than independent filters. [Part II: metadata and conditions](https://zaferbalkan.com/wazuh-rules-metadata-conditions/) looked inside those blocks and separated their conditions into atomic and temporal, according to the state required to evaluate them. An atomic rule decides from the current event and its current rule-evaluation path; a temporal rule needs retained information from earlier events.
 
@@ -68,8 +71,8 @@ Six practices keep this pattern correct:
 1. **Put A in `if_matched_sid` and B in `if_sid`.** Swapping them reverses the order, because the rule then runs on A's event and searches history for B.
 2. **Leave `frequency` out.** One eligible earlier A is enough. Explicit `frequency="2"` behaves identically, while `0` or `1` fails rule loading and stops `analysisd` on restart.
 3. **Set `timeframe` explicitly.** Without it, the search window falls back to the 360-second default.
-4. **Join on a field both events populate.** `<same_srcip />` needs the decoded `srcip` on A and on B, and an address that exists only in a dynamic field such as `win.eventdata.ipAddress` does not count. The search also requires the same agent unless `global_frequency` is set.
-5. **Give A a positive level.** A level-0 rule cannot serve as the historical source, so suppress A's output instead of lowering its level if you do not want it to alert.
+4. **Join on a field both events populate.** `<same_srcip />` needs the decoded `srcip` on A and on B, and an address that exists only in a dynamic field such as `win.eventdata.ipAddress` does not count. The search also requires the same agent unless `global_frequency` is set, and the same manager node in every case.
+5. **Make A the final rule for its event, at a positive level.** Only the deepest matching rule enters retained history, and a level-0 rule never does, so suppress A's output instead of lowering its level if you do not want it to alert.
 6. **Test before restarting the manager.** Run `wazuh-analysisd -t` to catch load errors, then replay an A event followed by a B event in one `wazuh-logtest` session.
 
 A matching rule still passes through the usual output controls, so a match does not guarantee an emitted alert. The rest of this article explains why each practice holds.
@@ -103,6 +106,8 @@ The pattern rests on two dependencies that look similar in XML but operate over 
 ### Where the pattern fits
 
 Consider a rule A that identifies suspicious authentication attempts and a rule B that identifies a successful authentication. A repeated-failure threshold can be useful, but a more targeted detection may ask whether a successful authentication follows a previously suspicious attempt from the same source. The sequential pattern can express the A-then-B relationship without requiring A to repeat. Whether the resulting behaviour actually amounts to password spraying depends on what the two input rules mean; the ATT&CK mapping alone cannot establish that.
+
+The stock ruleset already ships this shape in production. Rule [40112](https://github.com/wazuh/wazuh/blob/v4.14.10/ruleset/rules/0280-attack_rules.xml#L101-L112), *Multiple authentication failures followed by a success*, combines `if_group` for the current success with `if_matched_group` for an earlier failure, a shared source IP and a 240-second timeframe, without `frequency`. The group form runs through `Search_LastGroups()`, whose loop repeats the logic of `Search_LastSids()` examined below. The "multiple" in its description comes from the A side, because `authentication_failures` is assigned to counting rules such as SSH rule [5712](https://github.com/wazuh/wazuh/blob/v4.14.10/ruleset/rules/0095-sshd_rules.xml#L109), so one historical match already stands for a counted burst.
 
 Other applications include a configuration change followed by an error, or a warning followed by a successful operation. For each, the input rules must already provide meaningful event classifications and the comparison key must be available in both records. A-then-B with a shared IP is weaker evidence than A-then-B with a proven same-process relationship.
 
@@ -166,6 +171,8 @@ The parser initialises the rule's timeframe from `analysisd.default_timeframe`. 
 
 The examined historical SID search rejects a stored candidate when `now - generate_time > timeframe`, where `now` is obtained from the manager's current time. Thus a candidate at the exact 60-second boundary is not rejected by that comparison alone, but may still fail another condition. The comparison is an age check on retained history measured on the manager's clock, so delayed ingestion or clock changes can make it differ from the gap between the two source-system timestamps.
 
+Batch-fetched sources make that difference structural. `analysisd` [sets `generate_time`](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/cleanevent.c#L594-L595) when it receives the event, so modules that pull events at an interval, such as the AWS S3 wodle reading CloudTrail, distort the sequence in both directions. Events hours apart at the source can arrive in one batch and fall inside a 60-second window, while an A at the end of one fetch and a B in the next fall outside it whenever the interval exceeds the timeframe. Within a batch, the order is the order of delivery to `analysisd`, which need not follow source time, so B can precede A and the rule stays silent. The historical search has no option to compare source timestamps, which leaves sequential rules on these sources unreliable in both directions.
+
 ## Inside `analysisd`: placement and search
 
 The frequency section covered loading. The two remaining stages, structural placement and historical evaluation, explain why rules B and A play different roles in rule C.
@@ -192,11 +199,17 @@ frequency_count++;
 my_lf->matched = rule->level;
 ```
 
-With internal frequency zero, the first eligible candidate enters the matching branch. Without that candidate, the search fails. The lines that follow mark only `first_matched` and the current event, and `first_matched` stays empty at frequency zero. The historical A therefore stays unconsumed, and a second B inside the window can correlate against the same A. A level-0 historical source cannot serve this purpose according to the [Wazuh rule syntax documentation](https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html); define A at a positive level and suppress its output if necessary. Also distinguish matched from emitted: `noalert`, `no_log`, alert thresholds, and other output controls can affect whether an alert is produced, even when conditions match.
+With internal frequency zero, the first eligible candidate enters the matching branch. Without that candidate, the search fails. The lines that follow mark only `first_matched` and the current event, and `first_matched` stays empty at frequency zero. The historical A therefore stays unconsumed, and a second B inside the window can correlate against the same A.
+
+One alert per sequence needs an output control rather than a search control. Setting `ignore="60"` on C suppresses the repeats, but the window belongs to the rule rather than to a source IP. While C is ignored, `analysisd` [reports the parent rule instead](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/analysisd.c#L2157-L2178), so a second sequence from another address inside those 60 seconds appears as a plain B, and whether that loss is acceptable depends on the use case.
+
+The history also holds less than the rule tree suggests. Only the final rule for an event enters it: `analysisd` [stops at a level-0 match](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/analysisd.c#L2153-L2156) and [stores the event](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/analysisd.c#L2233-L2263) under the deepest matching rule alone. An `if_matched_sid` pointing at a level-0 rule, or at a parent whose child took the event, never matches and logs no error. The natural move of setting A to level 0 to reduce noise is exactly the one that breaks the correlation, so keep A at a positive level and suppress it with `<options>no_log</options>` or a level below `log_alert_level`. Also distinguish matched from emitted: `noalert`, `no_log`, alert thresholds, and other output controls can affect whether an alert is produced, even when conditions match.
 
 ## Where native correlation stops
 
 A single Wazuh 4.x rule can combine `if_matched_sid` for A with `if_sid` for B, and omitting `frequency` lets the first eligible historical A satisfy the search. That compact form still depends on source-rule eligibility, event ordering, structural reachability and alert suppression. Two event types alone do not justify an external correlator; first check whether native history and equality constraints express the relationship, using the practices in the tl;dr. A shared source IP is weaker evidence than verified process provenance, and when the relationship needs provenance, arbitrary joins or stronger causal evidence, a dedicated correlator may still be necessary.
+
+Retained history also has a fixed scope. It lives in the memory of each node's `analysisd`, so in a cluster A and B correlate only when the same worker processes both, and a restart empties it. Events from different agents correlate only with [`<global_frequency />`](https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html#global-frequency), which matters when A is a firewall's syslog event, [attributed to the manager as agent `000`](https://github.com/wazuh/wazuh/blob/v4.14.10/src/analysisd/cleanevent.c#L588-L591), and B comes from an endpoint agent. Even that option works at manager level rather than across the cluster.
 
 For analysers such as [RuleVis](https://github.com/zbalkan/rulevis), preserve the distinction between the written XML frequency, its normalised runtime value, and the number of historical events sufficient for a particular search path. Also distinguish the structural `<if_sid>` edge from the temporal `<if_matched_sid>` dependency. An explanatory graph may show both, but it should not represent them as equivalent parent relationships in Wazuh's occurrence forest.
 
@@ -212,6 +225,8 @@ I traced these outcomes in the v4.14.10 source before testing them:
 | A → B, different source IPs | No correlation |
 | A → B, missing `srcip` on either event | No correlation |
 | A → B, different agents, default settings | No correlation |
+| A → B, different agents, `<global_frequency />` on C | Eligible correlation candidate |
+| A at level 0, or A's event taken by a child of A | No correlation, and no error |
 | A → B after the configured 60-second window | No correlation |
 | B → A, without another B after A | No correlation for the earlier B |
 | A → A → B within the window | One eligible historical A may suffice; output remains subject to other checks |
