@@ -5,24 +5,26 @@ tags:
   - Active Directory
   - Windows Server
   - Digital forensics
-  - Community contribution
+  - Community Contribution
 ---
 
 *These are experimental observations from a single-DC lab on Windows Server Insider Preview build 29683 (schema version 93). The attribute is undocumented and planned for Windows Server 2028, so its behaviour may change before release.*
 
-Active Directory has never been able to tell you, from the object itself, who disabled an account or changed a service principal name. That answer lived in event 5136, and only if the audit policy and SACLs were in place and the events were still retained when you went looking. In Windows Server Insider Preview the object carries that answer itself, because a new constructed attribute, `msDS-ObjectModifyMetaData`, records who last modified each of its attributes.
+Active Directory has never been able to tell you, from the object itself, who disabled an account or changed a service principal name. That answer lived in event 5136, and only if the audit policy and SACLs were in place and the events were still retained when you went looking. In Windows Server Insider Preview the object carries part of that answer itself, because a new constructed attribute, `msDS-ObjectModifyMetaData`, records who last modified each of its attributes. How complete that record is depends on the write path, on the DC you ask and on whether the attribute is linked.
 
-The attribute has a personal history for me. In November 2023 Linda Taylor and Wayne McIntyre presented [What's new in Active Directory](https://techcommunity.microsoft.com/event/WindowsEvents/whats-new-in-active-directory/3971596) at Microsoft Technical Takeoff. Both work in the Active Directory team at Microsoft, Linda as a Principal Software Engineer and Wayne as a Software Engineer. Under the session I commented that "AD desperately needs creatorsName and modifiersName attributes". [X.501](https://www.itu.int/rec/T-REC-X.501-201910-I) defines both, and [RFC 4512](https://www.rfc-editor.org/rfc/rfc4512#section-3.4) states that "servers SHOULD maintain the 'creatorsName', 'createTimestamp', 'modifiersName', and 'modifyTimestamp' attributes for all entries of the DIT." This spring Wayne told me the new attribute had come from that comment. In September I asked whether I could brag about it, and he told me to brag away. I am grateful to Linda, to Wayne and to the Active Directory team for picking the comment up. Credit also goes to the developers on that team who wrote the code for the feature. Besides bragging, I wanted to say thank you by testing the attribute. In a single-DC lab I made one controlled write at a time and recorded the attribute before and after each one.
+The attribute has a personal history for me. In November 2023 Linda Taylor and Wayne McIntyre presented [What's new in Active Directory](https://techcommunity.microsoft.com/event/WindowsEvents/whats-new-in-active-directory/3971596) at Microsoft Technical Takeoff. Both work in the Active Directory team at Microsoft, Linda as a Principal Software Engineer and Wayne as a Software Engineer. Under the session I commented that "AD desperately needs creatorsName and modifiersName attributes". [X.501](https://www.itu.int/rec/T-REC-X.501-201910-I) defines both, and [RFC 4512](https://www.rfc-editor.org/rfc/rfc4512#section-3.4) states that "servers SHOULD maintain the 'creatorsName', 'createTimestamp', 'modifiersName', and 'modifyTimestamp' attributes for all entries of the DIT." This spring Wayne told me the new attribute had come from that comment. In September I asked whether I could brag about it, and he told me to brag away.
+
+I am grateful to Linda, to Wayne and to the Active Directory team for picking the comment up. Credit also goes to the developers on that team who wrote the code for the feature. Besides bragging, I wanted to say thank you by testing the attribute. In a single-DC lab I made one controlled write at a time and recorded the attribute before and after each one.
 
 ![Wayne McIntyre's reply confirming the feature request](/assets/images/omm-tech-community-reply.png)
-*[Screenshot placeholder] The Tech Community reply confirming that the comment led to the feature request and that the attribute is planned for Windows Server 2028.*
+*The Tech Community reply confirming that the comment led to the feature request and that the attribute is planned for Windows Server 2028.*
 
 ## Each object shows who changed its attributes
 
 The base schema defines `msDS-ObjectModifyMetaData` as a constructed attribute. Its `adminDescription` states the design: "A construct attribute that return the metadata that contains the SID or DSA GUID to trace of the last modification of each attributes on the object in readable format."
 
 ![ADExplorer showing the ms-DS-Object-Modify-Meta-Data schema definition](/assets/images/omm-adexplorer-schema.png)
-*[Screenshot placeholder] The schema definition in ADExplorer: constructed (`systemFlags` 20), single-valued, Unicode string syntax, with the administrative description quoted above.*
+*The schema definition in ADExplorer: constructed and part of the base schema (`systemFlags` 20, that is 0x4 plus 0x10), single-valued, Unicode string syntax, with the administrative description quoted above.*
 
 The DC computes the value on each read and returns one entry per attribute, in the form `attribute: identity`. The identity is either the SID of a security principal or the GUID of a DC's NTDS Settings object, its directory service agent (DSA):
 
@@ -38,7 +40,10 @@ $dn = 'CN=omm-t1,OU=OMM-Test,DC=corp,DC=internal'
 $s  = [adsisearcher]"(distinguishedName=$dn)"
 $null = $s.PropertiesToLoad.Add('msDS-ObjectModifyMetaData')
 
-foreach ($v in $s.FindOne().Properties['msds-objectmodifymetadata']) {
+$r = $s.FindOne()
+if (-not $r) { throw "Object not found: $dn" }
+
+foreach ($v in $r.Properties['msds-objectmodifymetadata']) {
     $attr, $id = $v -split ': ', 2
     $who = if ($id -like 'S-1-*') {
         try { ([System.Security.Principal.SecurityIdentifier]$id).Translate([System.Security.Principal.NTAccount]).Value }
@@ -71,23 +76,25 @@ Other paths left the DSA GUID in place of a SID, even when the same principals m
 
 | Write path | Recorded identity |
 | --- | --- |
-| LDAP: the ActiveDirectory module, the ADSI LDAP provider the console uses to enable and disable accounts, the Group Policy API | The writer's SID |
+| LDAP: the ActiveDirectory module, the ADSI LDAP provider that Active Directory Users and Computers (ADUC) uses to enable and disable accounts, the Group Policy API | The writer's SID |
 | Password set over LDAP (`New-ADUser`, `Set-ADAccountPassword`) | The writer's SID, including on `unicodePwd` |
-| Password reset through ADSI `SetPassword`, the console's path, on a DC without LDAPS | DSA |
+| Password reset through ADSI `SetPassword`, the ADUC path, on a DC without LDAPS | DSA |
 | SAMR: `net user`, the WinNT provider, `NetUserChangePassword` | DSA, on each attribute the call rewrote |
 | The DC's own writes: promotion, logon, lockout | DSA |
 | A change replicated in from another DC (per Wayne, not tested here) | DSA of the originating DC |
-| Group membership (`member`) | Nothing |
+| Linked attributes such as group membership (`member`) | Nothing |
 
-The DSA cases share one pattern: the change reached the directory through a path that did not carry the caller's identity into the attribute. A single SAMR call by the delegated user rewrote eleven user attributes and replaced their attribution with the DSA. One of them was a `description` the same user had set over LDAP minutes earlier. The console password reset is the case most administrators will meet. [`IADsUser::SetPassword`](https://learn.microsoft.com/en-us/windows/win32/api/iads/nf-iads-iadsuser-setpassword) writes the password over LDAP only when it has an SSL channel, and otherwise falls back to Kerberos and then to `NetUserSetInfo`, which travels over SAMR. My lab DC had no LDAPS, so the reset recorded the DSA, and I have not tested the same reset with LDAPS in place. A DSA GUID therefore names the DC itself, a caller the attribute did not capture, or the DC where a replicated change originated. A SID names the last principal to write that attribute over LDAP, and only the originating DC holds it.
+The DSA cases share one pattern: the change reached the directory through a path that did not carry the caller's identity into the attribute. A single SAMR call by the delegated user rewrote eleven user attributes and replaced their attribution with the DSA. One of them was a `description` the same user had set over LDAP minutes earlier. The ADUC password reset is the case most administrators will meet. [`IADsUser::SetPassword`](https://learn.microsoft.com/en-us/windows/win32/api/iads/nf-iads-iadsuser-setpassword) writes the password over LDAP only when it has an SSL channel, and otherwise falls back to Kerberos and then to `NetUserSetInfo`, which travels over SAMR. My lab DC had no LDAPS, so the reset took one of the two fallbacks and recorded the DSA, though I did not capture which one and have not tested the same reset with LDAPS in place. A DSA GUID therefore names the DC itself, a caller the attribute did not capture, or the DC where a replicated change originated. A SID names the last principal to write that attribute over LDAP, and only the originating DC holds it.
 
 ## Group membership stays with the event logs
 
-Adding and removing members, by Administrator or by the delegated user, produced no `member` entry at all, and only the per-value replication metadata changed. Comparing the attribute with replication metadata across the test objects showed the same boundary throughout, with non-linked attributes covered and linked attributes left out. For an investigation, the question of who added an account to Domain Admins still belongs to events [4728, 4732 and 4756](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4728).
+Adding and removing members, by Administrator or by the delegated user, produced no `member` entry at all, and only the per-value replication metadata in `msDS-ReplValueMetaData` changed. Comparing the attribute with replication metadata across the test objects showed the same boundary throughout, with non-linked attributes covered and linked attributes left out. For an investigation, the question of who added an account to Domain Admins, or removed one, still belongs to events [4728, 4732 and 4756](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4728) and their removal counterparts 4729, 4733 and 4757.
 
 ## Useful for triage, at a cost
 
-[Audit Directory Service Changes](https://learn.microsoft.com/windows/client-management/mdm/policy-csp-audit#dsaccess%5C_auditdirectoryservicechanges) is off by default, and event 5136 also needs SACLs on the objects, so many environments keep no record of who changed an attribute. This attribute gives anyone who can read the object a first answer, but only on the DC where the change originated. It keeps only the last writer per attribute, without a timestamp, old value or history. A later write over SAMR replaces that attribution, so the attribute helps with triage and does not replace audit logs as evidence. Any authenticated user could read it in my tests, so an attacker can also learn who administers which objects. `msDS-ReplAttributeMetaData` never revealed that, because it names only the originating DC. Microsoft documents that [base-schema attributes](https://learn.microsoft.com/windows/win32/ad/restrictions-on-schema-extension) cannot be removed or made defunct, so if the attribute ships as it is, these trade-offs ship together and stay.
+[Audit Directory Service Changes](https://learn.microsoft.com/windows/client-management/mdm/policy-csp-audit#dsaccess_auditdirectoryservicechanges) is off by default, and event 5136 also needs SACLs on the objects, so many environments keep no record of who changed an attribute. This attribute gives anyone who can read the object a first answer, but only on the DC where the change originated. It keeps only the last writer per attribute, without a timestamp, old value or history. A later write over SAMR replaces that attribution, so the attribute helps with triage and does not replace audit logs as evidence.
+
+Any authenticated user could read it in my tests, so an attacker can also learn who administers which objects. `msDS-ReplAttributeMetaData` never revealed that, because it names only the originating DC. Microsoft documents that [base-schema attributes](https://learn.microsoft.com/windows/win32/ad/restrictions-on-schema-extension) cannot be made defunct, so if the attribute ships as it is, these trade-offs ship together and stay.
 
 ## A few suggestions while it is in preview
 
@@ -95,4 +102,4 @@ Because the attribute is still in Insider Preview, a few observations from these
 
 ## Reading it today
 
-For now the rule is short. If the attribute names a SID, that principal was the last to change that attribute over LDAP. If it names another DC, ask that DC, if it still exists, because only the originating DC records the SID. If it names the DC you asked, or the attribute is a group's `member`, the event logs are still where the answer lives. All of this describes one Insider Preview build of an undocumented attribute, so some of it may change before Windows Server 2028.
+Until that behaviour is documented, a short rule covers it: if the attribute names a SID, that principal was the last to change that attribute over LDAP. If it names a DSA GUID, compare it with the `objectGUID` of the NTDS Settings object that `dsServiceName` points to on the RootDSE of the DC you queried. If it names another DC, ask that DC, if it still exists, because only the originating DC records the SID. If it names the DC you asked, or the attribute is a group's `member`, the event logs are still where the answer lives. All of this describes one Insider Preview build of an undocumented attribute, so some of it may change before Windows Server 2028.
