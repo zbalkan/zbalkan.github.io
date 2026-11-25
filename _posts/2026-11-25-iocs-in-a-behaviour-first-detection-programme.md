@@ -34,6 +34,7 @@ gantt
     title Report-derived control timeline (illustrative durations)
     dateFormat YYYY-MM-DD
     axisFormat Day %d
+    tickInterval 5day
 
     section Adversary
     Campaign active                 :a1, 2026-01-01, 30d
