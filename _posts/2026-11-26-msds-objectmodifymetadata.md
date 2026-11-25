@@ -70,7 +70,7 @@ objectClass        CORP\Administrator
 
 The output therefore shows the creator on creation-time attributes such as `whenCreated` and `objectClass`, and the last modifier on the rest. In Active Directory that granularity is worth more than a single `modifiersName` per object. The DC rewrites attributes such as `lastLogonTimestamp` on its own, so an object-level modifier would mostly name the system.
 
-Read the attribute with `[adsisearcher]`, raw LDAP or [AdFind 1.64.00](https://www.joeware.net/freetools/tools/adfind/usage.htm), which decodes the DSA GUID as `[ODSA]Site\DC`. The schema declares it single-valued, and `Get-ADObject` returned only the first of the 7 to 40 values I saw on each object. A search filter such as `(msDS-ObjectModifyMetaData=*)` fails, so you query it one object at a time. With a single DC, I could not test replication, but Wayne confirmed after reading a draft that only the DC where a write originates records the SID. Other DCs receive the change through replication and record the DSA GUID of that originating DC instead.
+Read the attribute with `[adsisearcher]`, raw LDAP or [AdFind](https://www.joeware.net/freetools/tools/adfind/usage.htm), which decodes the DSA GUID as `[ODSA]Site\DC`. The schema declares it single-valued, and `Get-ADObject` returned only the first of the 7 to 40 values I saw on each object. A search filter such as `(msDS-ObjectModifyMetaData=*)` fails, so you query it one object at a time. With a single DC, I could not test replication, but Wayne confirmed after reading a draft that only the DC where a write originates records the SID. Other DCs receive the change through replication and record the DSA GUID of that originating DC instead.
 
 ## Attribution follows the write path
 
