@@ -6,6 +6,9 @@ tags:
   - Windows Server
   - Digital forensics
   - Community Contribution
+galleryBrag:
+  - url: /assets/images/microsoft-brag.png
+    image_path: /assets/images/microsoft-brag.png
 ---
 
 *These are experimental observations from a single-DC lab on Windows Server Insider Preview build 29683 (schema version 93). The attribute is undocumented and planned for Windows Server 2028, so its behaviour may change before release.*
@@ -13,6 +16,8 @@ tags:
 Active Directory has never been able to tell you, from the object itself, who disabled an account or changed a service principal name. That answer lived in event 5136, and only if the audit policy and SACLs were in place and the events were still retained when you went looking. In Windows Server Insider Preview the object carries part of that answer itself, because a new constructed attribute, `msDS-ObjectModifyMetaData`, records who last modified each of its attributes. How complete that record is depends on the write path, on the DC you ask and on whether the attribute is linked.
 
 The attribute has a personal history for me. In November 2023 Linda Taylor and Wayne McIntyre presented [What's new in Active Directory](https://techcommunity.microsoft.com/event/WindowsEvents/whats-new-in-active-directory/3971596) at Microsoft Technical Takeoff. Both work in the Active Directory team at Microsoft, Linda as a Principal Software Engineer and Wayne as a Software Engineer. Under the session I commented that "AD desperately needs creatorsName and modifiersName attributes". [X.501](https://www.itu.int/rec/T-REC-X.501-201910-I) defines both, and [RFC 4512](https://www.rfc-editor.org/rfc/rfc4512#section-3.4) states that "servers SHOULD maintain the 'creatorsName', 'createTimestamp', 'modifiersName', and 'modifyTimestamp' attributes for all entries of the DIT." This spring Wayne told me the new attribute had come from that comment. In September I asked whether I could brag about it, and he told me to brag away.
+
+{% include gallery id="galleryBrag" caption="Bragging rights reserved." %}
 
 I am grateful to Linda, to Wayne and to the Active Directory team for picking the comment up. Credit also goes to the developers on that team who wrote the code for the feature. Besides bragging, I wanted to say thank you by testing the attribute. In a single-DC lab I made one controlled write at a time and recorded the attribute before and after each one.
 
