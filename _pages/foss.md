@@ -10,20 +10,20 @@ This page summarizes merged pull requests I have contributed to third-party open
 
 | Repository | Stars ★ | Merged PRs | Latest merged PR |
 |---|---:|---:|---|
-| [`getredash/redash`](https://github.com/getredash/redash) | **28902** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
-| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22744** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
-| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17919** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
-| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16849** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
-| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15808** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
-| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10462** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
-| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9494** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
-| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5427** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
+| [`getredash/redash`](https://github.com/getredash/redash) | **28907** | 1 | [#7548](https://github.com/getredash/redash/pull/7548) merged 2025-10-01 |
+| [`BCUninstaller/Bulk-Crap-Uninstaller`](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller) | **22778** | 6 | [#1003](https://github.com/BCUninstaller/Bulk-Crap-Uninstaller/pull/1003) merged 2026-09-07 |
+| [`wazuh/wazuh`](https://github.com/wazuh/wazuh) | **17938** | 1 | [#26289](https://github.com/wazuh/wazuh/pull/26289) merged 2024-12-12 |
+| [`CISOfy/lynis`](https://github.com/CISOfy/lynis) | **16853** | 2 | [#1317](https://github.com/CISOfy/lynis/pull/1317) merged 2024-05-14 |
+| [`crowdsecurity/crowdsec`](https://github.com/crowdsecurity/crowdsec) | **15824** | 1 | [#2671](https://github.com/crowdsecurity/crowdsec/pull/2671) merged 2023-12-20 |
+| [`TechnitiumSoftware/DnsServer`](https://github.com/TechnitiumSoftware/DnsServer) | **10469** | 6 | [#2190](https://github.com/TechnitiumSoftware/DnsServer/pull/2190) merged 2026-10-24 |
+| [`litedb-org/LiteDB`](https://github.com/litedb-org/LiteDB) | **9495** | 1 | [#2771](https://github.com/litedb-org/LiteDB/pull/2771) merged 2026-09-13 |
+| [`janikvonrotz/awesome-powershell`](https://github.com/janikvonrotz/awesome-powershell) *(archived)* | **5426** | 1 | [#70](https://github.com/janikvonrotz/awesome-powershell/pull/70) merged 2019-02-18 |
 | [`dotnet/docs`](https://github.com/dotnet/docs) | **4781** | 1 | [#27453](https://github.com/dotnet/docs/pull/27453) merged 2021-12-09 |
 | [`dotnet/command-line-api`](https://github.com/dotnet/command-line-api) | **3680** | 1 | [#2566](https://github.com/dotnet/command-line-api/pull/2566) merged 2025-06-19 |
 | [`olafhartong/sysmon-modular`](https://github.com/olafhartong/sysmon-modular) | **3203** | 1 | [#174](https://github.com/olafhartong/sysmon-modular/pull/174) merged 2023-06-21 |
 | [`themepark-dev/theme.park`](https://github.com/themepark-dev/theme.park) | **3115** | 1 | [#389](https://github.com/themepark-dev/theme.park/pull/389) merged 2022-06-27 |
 | [`duffn/dumb-password-rules`](https://github.com/duffn/dumb-password-rules) | **3023** | 1 | [#530](https://github.com/duffn/dumb-password-rules/pull/530) merged 2023-10-29 |
-| [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1842** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
+| [`pirxthepilot/wtfis`](https://github.com/pirxthepilot/wtfis) | **1843** | 2 | [#70](https://github.com/pirxthepilot/wtfis/pull/70) merged 2024-03-09 |
 | [`MicrosoftDocs/win32`](https://github.com/MicrosoftDocs/win32) | **1379** | 4 | [#1862](https://github.com/MicrosoftDocs/win32/pull/1862) merged 2024-06-10 |
 | [`VSadov/NonBlocking`](https://github.com/VSadov/NonBlocking) | **551** | 3 | [#36](https://github.com/VSadov/NonBlocking/pull/36) merged 2026-11-20 |
 | [`HavenDV/H.Pipes`](https://github.com/HavenDV/H.Pipes) | **367** | 3 | [#12](https://github.com/HavenDV/H.Pipes/pull/12) merged 2022-03-07 |
@@ -35,7 +35,7 @@ This page summarizes merged pull requests I have contributed to third-party open
 | [`reactos/rapps-db`](https://github.com/reactos/rapps-db) | **121** | 2 | [#131](https://github.com/reactos/rapps-db/pull/131) merged 2021-10-08 |
 | [`wazuh/wazuh-packages`](https://github.com/wazuh/wazuh-packages) | **117** | 3 | [#1775](https://github.com/wazuh/wazuh-packages/pull/1775) merged 2022-09-23 |
 | [`TechnitiumSoftware/TechnitiumLibrary`](https://github.com/TechnitiumSoftware/TechnitiumLibrary) | **113** | 7 | [#72](https://github.com/TechnitiumSoftware/TechnitiumLibrary/pull/72) merged 2026-11-07 |
-| [`schorschii/LAPS4LINUX`](https://github.com/schorschii/LAPS4LINUX) | **100** | 2 | [#66](https://github.com/schorschii/LAPS4LINUX/pull/66) merged 2026-11-02 |
+| [`schorschii/LAPS4LINUX`](https://github.com/schorschii/LAPS4LINUX) | **101** | 2 | [#66](https://github.com/schorschii/LAPS4LINUX/pull/66) merged 2026-11-02 |
 | [`erdtman/simplecloud.info`](https://github.com/erdtman/simplecloud.info) | **58** | 1 | [#32](https://github.com/erdtman/simplecloud.info/pull/32) merged 2019-08-29 |
 | [`crowdsecurity/crowdsec-docs`](https://github.com/crowdsecurity/crowdsec-docs) | **53** | 1 | [#297](https://github.com/crowdsecurity/crowdsec-docs/pull/297) merged 2022-11-16 |
 | [`wazuh/integrations`](https://github.com/wazuh/integrations) | **30** | 1 | [#114](https://github.com/wazuh/integrations/pull/114) merged 2026-09-10 |
