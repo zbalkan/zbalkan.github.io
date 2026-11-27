@@ -1,12 +1,10 @@
 main:
-  - title: "About"
-    url: /about/
-  - title: "Projects"
-    url: /projects/
-  - title: "Contributions"
-    url: /foss/
   - title: "Posts"
     url: /posts/
     redirect_from: /archive.html
-  - title: "Tags"
-    url: /tags/
+  - title: "Projects"
+    url: /projects/
+  - title: "Open Source"
+    url: /foss/
+  - title: "About"
+    url: /about/ 
